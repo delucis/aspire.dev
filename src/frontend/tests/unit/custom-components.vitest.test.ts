@@ -290,6 +290,23 @@ it('breadcrumbs retain the nearest linked parent and semantic current page', asy
 });
 
 it.each([
+  {
+    name: 'LoopingImage',
+    Component: LoopingImage,
+    props: { src: heroImage, alt: 'Looping image' },
+  },
+  {
+    name: 'LoopingVideo',
+    Component: LoopingVideo,
+    props: { sources: [{ src: '/demo.webm', type: 'video/webm' }] },
+  },
+])('$name renders deterministic media markup', async ({ Component, props }) => {
+  const first = await renderComponent(Component, { props });
+  const second = await renderComponent(Component, { props });
+  expect(second).toBe(first);
+});
+
+it.each([
   ['en', 'Scroll to top'], ['fr', 'Retour en haut'], ['pt-BR', 'Voltar ao topo'],
   ['zh-CN', '回到顶部'], ['es-ES', 'Ir arriba'], ['unknown', 'Scroll to top'],
 ])('ScrollToTop renders the existing label for %s', async (lang, label) => {
