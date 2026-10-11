@@ -7,13 +7,14 @@ internal sealed record HybridApiRoute(string? Html, string Markdown);
 internal sealed record HybridRedirect(string Path, string Destination, int Status);
 internal sealed record HybridApiManifest(
     int SchemaVersion, string Mode, string BuildId, string Client, string Server,
-    string Site, HybridApiRoute[] Routes, HybridRedirect[] Redirects);
+    string Site, HybridApiRoute[] Routes, HybridRedirect[] Redirects, string Platform);
 
 internal sealed class HybridApiDocsArtifact
 {
     private readonly Dictionary<string, string> _canonical = new(StringComparer.OrdinalIgnoreCase);
     private readonly Dictionary<string, HybridApiRoute> _routes = new(StringComparer.Ordinal);
     private readonly Dictionary<string, HybridRedirect> _redirects = new(StringComparer.Ordinal);
+    private readonly HashSet<string> _images = new(StringComparer.Ordinal);
 
     public HybridApiManifest Manifest { get; }
     public string ClientDirectory { get; }
@@ -25,6 +26,7 @@ internal sealed class HybridApiDocsArtifact
         if (manifest.SchemaVersion != 1 || manifest.Mode != "hybrid-api-docs" ||
             !Regex.IsMatch(manifest.BuildId ?? "", "^[a-f0-9]{64}$") ||
             manifest.Routes is null || manifest.Redirects is null ||
+            manifest.Platform != (OperatingSystem.IsWindows() ? "win32" : OperatingSystem.IsMacOS() ? "darwin" : "linux") ||
             !Uri.TryCreate(manifest.Site, UriKind.Absolute, out var site) ||
             site.Scheme is not ("http" or "https"))
         {
@@ -60,6 +62,19 @@ internal sealed class HybridApiDocsArtifact
             _canonical.TryAdd(redirect.Path, redirect.Path);
             _canonical.TryAdd(redirect.Path.TrimEnd('/'), redirect.Path);
         }
+        var assets = Path.Combine(ClientDirectory, "_astro");
+        if (Directory.Exists(assets))
+        {
+            foreach (var image in Directory.EnumerateFiles(assets, "*", new EnumerationOptions
+            {
+                RecurseSubdirectories = true,
+                AttributesToSkip = FileAttributes.ReparsePoint,
+            }))
+            {
+                if (Path.GetExtension(image).ToLowerInvariant() is ".svg" or ".png" or ".jpg" or ".jpeg" or ".webp" or ".avif" or ".gif")
+                    _images.Add("/" + Path.GetRelativePath(ClientDirectory, image).Replace(Path.DirectorySeparatorChar, '/'));
+            }
+        }
     }
 
     public static HybridApiDocsArtifact Load(string path)
@@ -75,6 +90,7 @@ internal sealed class HybridApiDocsArtifact
     public bool TryCanonical(string path, out string? canonical) => _canonical.TryGetValue(path, out canonical);
     public bool TryRoute(string path, out HybridApiRoute? route) => _routes.TryGetValue(path, out route);
     public bool TryRedirect(string path, out HybridRedirect? redirect) => _redirects.TryGetValue(path, out redirect);
+    public bool IsLocalImage(string path) => _images.Contains(path);
 
     private void AddRoute(string path, HybridApiRoute route)
     {

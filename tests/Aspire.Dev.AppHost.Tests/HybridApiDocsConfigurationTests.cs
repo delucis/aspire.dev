@@ -23,7 +23,7 @@ public sealed class HybridApiDocsConfigurationTests
         try
         {
             File.WriteAllText(Path.Combine(directory, "dist-hybrid", "hybrid-api-docs.json"),
-                """{"mode":"hybrid-api-docs"}""");
+                $$"""{"mode":"hybrid-api-docs","platform":"{{(OperatingSystem.IsWindows() ? "win32" : "linux")}}"}""");
             var builder = DistributedApplication.CreateBuilder(new DistributedApplicationOptions
             {
                 DisableDashboard = true,

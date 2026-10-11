@@ -4,6 +4,13 @@ using StaticHost.HybridApiDocs;
 var hybridArtifactPath = new ConfigurationBuilder()
     .AddEnvironmentVariables().AddCommandLine(args).Build()["HybridApiDocs:ArtifactPath"];
 var hybridArtifact = hybridArtifactPath is null ? null : HybridApiDocsArtifact.Load(hybridArtifactPath);
+#if HYBRID_API_DOCS_BUILD
+if (hybridArtifact is null)
+    throw new InvalidOperationException("A hybrid StaticHost build requires HybridApiDocs:ArtifactPath and its private renderer endpoint.");
+#else
+if (hybridArtifact is not null)
+    throw new InvalidOperationException("Build StaticHost with ASPIRE_HYBRID_API_DOCS=1 to select the hybrid client's static-asset manifest.");
+#endif
 var builder = WebApplication.CreateBuilder(new WebApplicationOptions
 {
     Args = args,
