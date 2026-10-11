@@ -2,6 +2,8 @@ import { expect, test } from '@playwright/test';
 
 test('built StaticHost navigation keeps API styles, search and Markdown actions usable', async ({ page, context }) => {
   await context.grantPermissions(['clipboard-read', 'clipboard-write']);
+  await page.goto('/');
+  await expect(page).not.toHaveTitle('Aspire Static Host');
   await page.goto('/docs/');
   await expect(page.locator('meta[name="git-commit-id"]')).toHaveCount(1);
   await page.goto('/reference/api/typescript/');
@@ -15,6 +17,7 @@ test('built StaticHost navigation keeps API styles, search and Markdown actions 
   const link = page.locator('#ts-api-package-list a').first();
   await link.click();
   await expect(page.locator('h1')).toBeVisible();
+  await page.locator('img').last().scrollIntoViewIfNeeded();
   await expect.poll(() => page.locator('img').evaluateAll(images => images.every(image =>
     !(image instanceof HTMLImageElement) || !image.src.startsWith(location.origin)
       || image.complete && image.naturalWidth > 0))).toBe(true);

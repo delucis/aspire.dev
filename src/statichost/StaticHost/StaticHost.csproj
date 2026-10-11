@@ -38,6 +38,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Remove="wwwroot\**" Condition="'$(ASPIRE_HYBRID_API_DOCS)' == '1'" />
     <!--
       The frontend ESProj produces wwwroot static assets at build time.
       PrivateAssets="all" prevents MSBuild from propagating its output (the
