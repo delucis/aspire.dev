@@ -34,6 +34,7 @@ C# and TypeScript API HTML and Markdown on demand through the existing StaticHos
 This includes both API search pages. The convenience command `build:hybrid` sets
 the flag only for its child build; `build:hybrid:skip-search` also skips Pagefind.
 Setting a runtime flag alone cannot convert an already-static artifact.
+Use `build:hybrid`, not the static-only `build:statichost` command, for this mode.
 
 Run full-site comparisons in CI, not on your development machine. From the
 **Frontend Build** workflow, select the POC option, or use:
