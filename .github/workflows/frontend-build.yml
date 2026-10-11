@@ -1,6 +1,16 @@
 name: Frontend Build
 
 on:
+  workflow_dispatch:
+    inputs:
+      node_version:
+        description: Node.js version
+        default: "24.x"
+        type: string
+      hybrid_api_poc:
+        description: Also verify the opt-in hybrid API documentation POC
+        default: false
+        type: boolean
   workflow_call:
     inputs:
       node_version:
@@ -18,6 +28,11 @@ on:
         required: false
         default: false
         type: boolean
+      hybrid_api_poc:
+        description: Also verify the opt-in hybrid API documentation POC
+        required: false
+        default: false
+        type: boolean
     secrets:
       ASPIRE_BOT_APP_ID:
         required: false
@@ -28,6 +43,10 @@ permissions:
   contents: read
 
 jobs:
+  hybrid-api-poc:
+    if: ${{ inputs.hybrid_api_poc }}
+    uses: ./.github/workflows/hybrid-api-docs-poc.yml
+
   build:
     name: Frontend Build
     runs-on: ubuntu-latest
@@ -422,7 +441,7 @@ jobs:
   frontend-gate:
     name: Frontend gate
     if: ${{ always() }}
-    needs: [build, validation, e2e, report]
+    needs: [build, validation, e2e, report, hybrid-api-poc]
     runs-on: ubuntu-latest
     steps:
       - name: Require all frontend checks
@@ -431,7 +450,13 @@ jobs:
           VALIDATION: ${{ needs.validation.result }}
           E2E: ${{ needs.e2e.result }}
           REPORT: ${{ needs.report.result }}
+          HYBRID_REQUESTED: ${{ inputs.hybrid_api_poc }}
+          HYBRID_RESULT: ${{ needs['hybrid-api-poc'].result }}
         run: |
+          if [[ "$HYBRID_REQUESTED" == "true" && "$HYBRID_RESULT" != "success" ]]; then
+            echo "::error::The opted-in hybrid POC must succeed."
+            exit 1
+          fi
           for result in "$BUILD" "$VALIDATION" "$E2E" "$REPORT"; do
             if [[ "$result" != "success" ]]; then
               echo "::error::Every frontend job must succeed (build=$BUILD validation=$VALIDATION e2e=$E2E report=$REPORT)."

@@ -7,6 +7,7 @@
     <PublishAot>false</PublishAot>
     <InvariantGlobalization>true</InvariantGlobalization>
     <ContainerFamily>noble-chiseled</ContainerFamily>
+    <IntermediateOutputPath Condition="'$(ASPIRE_HYBRID_API_DOCS)' == '1'">obj/$(Configuration)/hybrid/</IntermediateOutputPath>
 
     <!-- Disable default compression formats to specify only brotli. -->
     <EnableDefaultCompressionFormats>false</EnableDefaultCompressionFormats>

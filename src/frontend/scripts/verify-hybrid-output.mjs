@@ -1,0 +1,46 @@
+import assert from 'node:assert/strict';
+import { readFile, writeFile } from 'node:fs/promises';
+import { resolve } from 'node:path';
+import { pathToFileURL } from 'node:url';
+import { measureOutput } from './measure-build-output.mjs';
+
+export async function verifyHybridOutput(staticRoot, hybridRoot) {
+  const manifest = JSON.parse(await readFile(resolve(hybridRoot, 'hybrid-api-docs.json'), 'utf8'));
+  assert.equal(manifest.mode, 'hybrid-api-docs');
+  assert.equal(manifest.schemaVersion, 1);
+  const [baseline, hybrid, server] = await Promise.all([
+    measureOutput(staticRoot), measureOutput(resolve(hybridRoot, manifest.client)),
+    measureOutput(resolve(hybridRoot, 'server')),
+  ]);
+  const api = (path) => path.startsWith('reference/api/') && /\.(html|md)$/.test(path);
+  assert.ok(baseline.files.some(({ path }) => api(path)), 'The baseline must include static API output.');
+  assert.deepEqual(hybrid.files.filter(({ path }) => api(path)), [], 'API HTML/Markdown was prerendered.');
+  assert.ok(server.files.some(({ path }) => path === 'entry.mjs'), 'Missing private renderer entrypoint.');
+  const redirectFiles = new Set(manifest.redirects.map(({ path }) => `${path.replace(/^\/|\/$/g, '')}/index.html`));
+  const nonApi = (files) => files.filter(({ path }) =>
+    /\.(html|md)$/.test(path) && !api(path) && !redirectFiles.has(path)).map(({ path }) => path);
+  assert.deepEqual(nonApi(hybrid.files), nonApi(baseline.files), 'Non-API page inventory changed.');
+  for (const file of ['index.html', '404.html', 'llms.txt', 'sitemap-index.xml', 'sitemap-api.xml']) {
+    assert.ok(hybrid.files.some(({ path }) => path === file), `Missing ${file}`);
+  }
+  assert.ok(!hybrid.files.some(({ path }) => path === 'hybrid-api-docs.json' || path.startsWith('server/')));
+  const sitemap = await readFile(resolve(hybridRoot, manifest.client, 'sitemap-api.xml'), 'utf8');
+  for (const { html } of manifest.routes) {
+    if (html) assert.ok(sitemap.includes(`<loc>${manifest.site}${html}</loc>`), `Missing sitemap URL ${html}`);
+  }
+  return {
+    buildId: manifest.buildId,
+    baseline: { bytes: baseline.totalBytes, files: baseline.files.length },
+    hybridClient: { bytes: hybrid.totalBytes, files: hybrid.files.length },
+    hybridServer: { bytes: server.totalBytes, files: server.files.length },
+    staticApiFilesAvoided: baseline.files.filter(({ path }) => api(path)).length,
+    nonApiPages: nonApi(hybrid.files).length,
+    apiRoutes: manifest.routes.length,
+  };
+}
+
+if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
+  const result = await verifyHybridOutput(resolve(process.argv[2] || 'dist'), resolve(process.argv[3] || 'dist-hybrid'));
+  await writeFile(resolve('hybrid-output-results.json'), JSON.stringify(result, null, 2));
+  console.log(JSON.stringify(result, null, 2));
+}

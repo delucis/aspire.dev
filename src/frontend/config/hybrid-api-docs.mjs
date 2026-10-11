@@ -1,0 +1,101 @@
+// @ts-check
+import { createHash } from 'node:crypto';
+import { cp, readFile, readdir, writeFile } from 'node:fs/promises';
+import { resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { buildApiRouteCatalog } from '../src/utils/api-route-catalog.ts';
+
+export function isHybridApiDocs(value = process.env.ASPIRE_HYBRID_API_DOCS) {
+  if (value === undefined || value === '0') return false;
+  if (value === '1') return true;
+  throw new Error('ASPIRE_HYBRID_API_DOCS must be unset, 0, or 1.');
+}
+
+/** @param {string} component */
+export function isApiRouteComponent(component) {
+  return /(?:^|\/)src\/pages\/reference\/api\//.test(component.replace(/\\/g, '/'));
+}
+
+/** @param {string} root @param {string | undefined} requested */
+export function hybridOutputDirectory(root, requested) {
+  const directory = resolve(root, requested || 'dist-hybrid');
+  const expected = resolve(root, 'dist-hybrid');
+  const matches = process.platform === 'win32'
+    ? directory.toLowerCase() === expected.toLowerCase() : directory === expected;
+  if (!matches) {
+    throw new Error('Hybrid output must use dist-hybrid, outside the normal dist/, public/ and wwwroot/ roots.');
+  }
+  return directory;
+}
+
+/** @template T @param {string} directory @returns {Promise<T[]>} */
+async function readDocuments(directory) {
+  const files = (await readdir(directory)).filter((name) => name.endsWith('.json')).sort();
+  return Promise.all(files.map(async (name) => JSON.parse(await readFile(resolve(directory, name), 'utf8'))));
+}
+
+/** @param {string} directory @param {import('node:crypto').Hash} hash */
+async function hashDirectory(directory, hash, prefix = '') {
+  const entries = (await readdir(directory, { withFileTypes: true })).sort((a, b) => a.name.localeCompare(b.name));
+  for (const entry of entries) {
+    const path = resolve(directory, entry.name);
+    const name = `${prefix}${entry.name}`;
+    if (entry.isDirectory()) await hashDirectory(path, hash, `${name}/`);
+    else if (entry.isFile()) hash.update(name).update(await readFile(path));
+  }
+}
+
+/**
+ * @param {Record<string, string | { destination: string, status: number }>} redirects
+ * @returns {import('astro').AstroIntegration}
+ */
+export function hybridApiDocsIntegration(redirects) {
+  let root = '';
+  let out = '';
+  let site = '';
+  return {
+    name: 'aspire-hybrid-api-docs',
+    hooks: {
+      'astro:route:setup': ({ route }) => {
+        if (isApiRouteComponent(route.component)) route.prerender = false;
+      },
+      'astro:config:done': ({ config }) => {
+        root = fileURLToPath(config.root);
+        out = fileURLToPath(config.outDir);
+        if (!config.site) throw new Error('Hybrid API documentation requires a configured site URL.');
+        site = config.site.replace(/\/$/, '');
+      },
+      'astro:build:done': async () => {
+        /** @type {[import('../src/utils/packages').PackageApiDocument[], import('../src/utils/ts-modules').TsApiDocument[]]} */
+        const [packages, modules] = await Promise.all([
+          readDocuments(resolve(root, 'src/data/pkgs')),
+          readDocuments(resolve(root, 'src/data/ts-modules')),
+        ]);
+        const routes = buildApiRouteCatalog(packages, modules);
+        const redirectEntries = Object.entries(redirects).map(([path, value]) => ({
+          path, destination: typeof value === 'string' ? value : value.destination,
+          status: typeof value === 'string' ? 301 : value.status,
+        }));
+        await cp(resolve(root, '../statichost/StaticHost/wwwroot/scalar'),
+          resolve(out, 'client/scalar'), { recursive: true });
+        const hash = createHash('sha256');
+        hash.update(JSON.stringify({ routes, redirects: redirectEntries, site }));
+        await hashDirectory(resolve(out, 'client'), hash, 'client/');
+        await hashDirectory(resolve(out, 'server'), hash, 'server/');
+        const manifest = {
+          schemaVersion: 1, mode: 'hybrid-api-docs', buildId: hash.digest('hex'),
+          client: 'client', server: 'server/entry.mjs', site,
+          routes, redirects: redirectEntries,
+        };
+        await writeFile(resolve(out, 'hybrid-api-docs.json'), JSON.stringify(manifest));
+        const urls = routes.filter(({ html }) => html).map(({ html }) => `<url><loc>${site}${html}</loc></url>`).join('');
+        await writeFile(resolve(out, 'client/sitemap-api.xml'),
+          `<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${urls}</urlset>`);
+        const sitemap = resolve(out, 'client/sitemap-index.xml');
+        const content = await readFile(sitemap, 'utf8');
+        await writeFile(sitemap, content.replace('</sitemapindex>',
+          `<sitemap><loc>${site}/sitemap-api.xml</loc></sitemap></sitemapindex>`));
+      },
+    },
+  };
+}

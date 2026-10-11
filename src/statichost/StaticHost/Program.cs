@@ -1,6 +1,14 @@
 using Scalar.AspNetCore;
+using StaticHost.HybridApiDocs;
 
-var builder = WebApplication.CreateBuilder(args);
+var hybridArtifactPath = new ConfigurationBuilder()
+    .AddEnvironmentVariables().AddCommandLine(args).Build()["HybridApiDocs:ArtifactPath"];
+var hybridArtifact = hybridArtifactPath is null ? null : HybridApiDocsArtifact.Load(hybridArtifactPath);
+var builder = WebApplication.CreateBuilder(new WebApplicationOptions
+{
+    Args = args,
+    WebRootPath = hybridArtifact?.ClientDirectory,
+});
 
 builder.AddServiceDefaults();
 builder.AddForwardedClientIp();
@@ -12,6 +20,11 @@ if (builder.Configuration.GetConnectionString("secrets") is not null)
 }
 
 builder.AddLiveStatus();
+
+if (hybridArtifact is not null)
+{
+    builder.Services.AddHybridApiDocs(hybridArtifact, builder.Configuration["HybridApiDocs:RendererUrl"]);
+}
 
 builder.Services.AddHsts(options =>
 {
@@ -39,6 +52,7 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 // Resolve request casing before any middleware rewrites or matches the static path.
+if (hybridArtifact is not null) app.UseHybridApiDocsRouting();
 app.UseCanonicalPathRedirects();
 
 // Agent-readiness middlewares MUST run before UseDefaultFiles + UseRouting:
@@ -53,6 +67,7 @@ app.UseDefaultFiles();
 
 // add routing after default files, so the default file middleware can modify the path first
 app.UseRouting();
+if (hybridArtifact is not null) app.UseOutputCache();
 
 app.UseStatusCodePages(async context =>
 {
@@ -130,5 +145,6 @@ app.MapGet("/install.sh", (HttpContext context, OneDSTelemetryService telemetry)
 });
 
 app.MapStaticAssets();
+if (hybridArtifact is not null) app.MapHybridApiDocs();
 
 await app.RunAsync();

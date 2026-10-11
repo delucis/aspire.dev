@@ -9,6 +9,7 @@
 import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
 import { tsModuleSlug, getTsModules, simplifyType } from '@utils/ts-modules';
 import { getTsApiReferenceSidebar } from '@utils/ts-api-sidebar';
+import { resolveTypeScriptApiRoute } from '@utils/api-route-data';
 import {
   getTsCallableIdentityKey,
   getTsFunctionDisplayKind,
@@ -26,7 +27,9 @@ export async function getStaticPaths() {
   }));
 }
 
-const { pkg } = Astro.props;
+const routeProps = Astro.props.pkg ? Astro.props : await resolveTypeScriptApiRoute(Astro.url.pathname);
+if (!routeProps) return new Response('API module not found', { status: 404 });
+const { pkg } = routeProps;
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const pkgSlug = tsModuleSlug(pkg.package.name);
 const isOfficial = pkg.package.name.startsWith('Aspire.');

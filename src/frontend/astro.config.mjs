@@ -25,7 +25,10 @@ import buildTiming from './config/build-timing.mjs';
 import { contributorCacheIntegration } from './src/utils/contributors.ts';
 import UnoCSS from 'unocss/astro';
 import Icons from 'starlight-plugin-icons';
+import node from '@astrojs/node';
+import { isHybridApiDocs, hybridOutputDirectory, hybridApiDocsIntegration } from './config/hybrid-api-docs.mjs';
 
+const hybridApiDocs = isHybridApiDocs();
 const modeArgIndex = process.argv.indexOf('--mode');
 const isSkipSearchBuild = modeArgIndex >= 0 && process.argv[modeArgIndex + 1] === 'skip-search';
 const outDir = process.env.ASTRO_OUT_DIR;
@@ -55,8 +58,10 @@ const buildConcurrency = Number(process.env.ASPIRE_BUILD_CONCURRENCY) || 4;
 
 // https://astro.build/config
 export default defineConfig({
-  cacheDir: './node_modules/.astro',
-  ...(outDir ? { outDir } : {}),
+  cacheDir: hybridApiDocs ? './node_modules/.astro-hybrid' : './node_modules/.astro',
+  ...(hybridApiDocs
+    ? { outDir: hybridOutputDirectory(process.cwd(), outDir), adapter: node({ mode: 'middleware' }), session: false }
+    : outDir ? { outDir } : {}),
   vite: {
     define: {
       // Resolve filesystem-backed redirects before prerender modules are bundled.
@@ -80,6 +85,7 @@ export default defineConfig({
   prefetch: true,
   site: 'https://aspire.dev',
   trailingSlash: 'always',
+  ...(hybridApiDocs ? { security: { allowedDomains: [{ hostname: 'aspire.dev', protocol: 'https' }] } } : {}),
   markdown: {
     processor: unified({
       remarkPlugins: [remarkTypeScriptFirstAppHostTabs, remarkAspireVersionPlaceholders, remarkMermaid],
@@ -238,6 +244,7 @@ export default defineConfig({
     }),
     ...(isBuildTimingEnabled ? [buildTiming()] : []),
     aspireVersionPlaceholdersIntegration(),
+    ...(hybridApiDocs ? [hybridApiDocsIntegration(redirects)] : []),
   ],
   build: {
     concurrency: buildConcurrency,
