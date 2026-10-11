@@ -10,6 +10,7 @@ import { buildApiRouteCatalog, getCSharpRouteEntries, getTypeScriptRouteEntries 
 import type { PackageApiDocument } from '@utils/packages';
 import type { TsApiDocument } from '@utils/ts-modules';
 import { onRequest } from '../../src/middleware';
+import { verifyHybridOutput } from '../../scripts/verify-hybrid-output.mjs';
 
 describe('build-time hybrid opt-in', () => {
   it('requires an explicit supported flag value', () => {
@@ -92,6 +93,35 @@ describe('build-time hybrid opt-in', () => {
 });
 
 describe('API route catalogue', () => {
+  it('checks emitted output rather than merely trusting route prerender flags', async () => {
+    const directory = await mkdtemp(resolve(tmpdir(), 'aspire-hybrid-output-'));
+    try {
+      const baseline = resolve(directory, 'static');
+      const hybrid = resolve(directory, 'hybrid');
+      await mkdir(resolve(baseline, 'reference/api/csharp'), { recursive: true });
+      await mkdir(resolve(hybrid, 'client'), { recursive: true });
+      await mkdir(resolve(hybrid, 'server'), { recursive: true });
+      await writeFile(resolve(baseline, 'reference/api/csharp/index.html'), 'API');
+      for (const file of ['index.html', '404.html', 'llms.txt', 'sitemap-index.xml']) {
+        await writeFile(resolve(baseline, file), 'static');
+        await writeFile(resolve(hybrid, 'client', file), 'static');
+      }
+      await writeFile(resolve(hybrid, 'server/entry.mjs'), 'renderer');
+      await writeFile(resolve(hybrid, 'client/sitemap-api.xml'),
+        '<loc>https://aspire.dev/reference/api/csharp/</loc>');
+      await writeFile(resolve(hybrid, 'hybrid-api-docs.json'), JSON.stringify({
+        mode: 'hybrid-api-docs', schemaVersion: 1, buildId: 'test', client: 'client', site: 'https://aspire.dev',
+        routes: [{ html: '/reference/api/csharp/', markdown: '/reference/api/csharp.md' }], redirects: [],
+      }));
+      expect((await verifyHybridOutput(baseline, hybrid)).staticApiFilesAvoided).toBe(1);
+      await mkdir(resolve(hybrid, 'client/reference/api/csharp'), { recursive: true });
+      await writeFile(resolve(hybrid, 'client/reference/api/csharp/index.html'), 'unexpected API');
+      await expect(verifyHybridOutput(baseline, hybrid)).rejects.toThrow('API HTML/Markdown was prerendered.');
+    } finally {
+      await rm(directory, { recursive: true, force: true });
+    }
+  });
+
   it('retains C# generic arity and only existing member-kind groups', () => {
     const pkg: PackageApiDocument = {
       package: { name: 'Test.Package', version: '1', targetFramework: 'net10.0' },

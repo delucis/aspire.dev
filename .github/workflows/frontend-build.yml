@@ -8,7 +8,7 @@ on:
         default: "24.x"
         type: string
       hybrid_api_poc:
-        description: Also verify the opt-in hybrid API documentation POC
+        description: Run the opt-in static/hybrid POC comparison
         default: false
         type: boolean
   workflow_call:
@@ -48,6 +48,7 @@ jobs:
     uses: ./.github/workflows/hybrid-api-docs-poc.yml
 
   build:
+    if: ${{ github.event_name != 'workflow_dispatch' || !inputs.hybrid_api_poc }}
     name: Frontend Build
     runs-on: ubuntu-latest
     defaults:
@@ -266,6 +267,7 @@ jobs:
           ls -la dist
 
   validation:
+    if: ${{ github.event_name != 'workflow_dispatch' || !inputs.hybrid_api_poc }}
     name: Frontend validation
     runs-on: ubuntu-latest
     defaults:
@@ -452,10 +454,14 @@ jobs:
           REPORT: ${{ needs.report.result }}
           HYBRID_REQUESTED: ${{ inputs.hybrid_api_poc }}
           HYBRID_RESULT: ${{ needs['hybrid-api-poc'].result }}
+          POC_ONLY: ${{ github.event_name == 'workflow_dispatch' && inputs.hybrid_api_poc }}
         run: |
           if [[ "$HYBRID_REQUESTED" == "true" && "$HYBRID_RESULT" != "success" ]]; then
             echo "::error::The opted-in hybrid POC must succeed."
             exit 1
+          fi
+          if [[ "$POC_ONLY" == "true" ]]; then
+            exit 0
           fi
           for result in "$BUILD" "$VALIDATION" "$E2E" "$REPORT"; do
             if [[ "$result" != "success" ]]; then

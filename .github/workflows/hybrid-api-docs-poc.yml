@@ -39,6 +39,15 @@ jobs:
           global-json-file: global.json
       - name: Install dependencies
         run: pnpm install --frozen-lockfile --prefer-offline
+      - name: Verify POC unit contracts
+        env:
+          ASTRO_TELEMETRY_DISABLED: '1'
+        run: |
+          pnpm exec astro sync
+          pnpm exec eslint . --max-warnings 0
+          pnpm exec vitest run --config vitest.config.ts tests/unit/hybrid-api-docs.vitest.test.ts tests/unit/api-markdown.vitest.test.ts tests/unit/ts-api-route-catalog.vitest.test.ts tests/unit/build-performance.vitest.test.ts
+          dotnet test ../../tests/StaticHost.Tests/StaticHost.Tests.csproj --filter 'FullyQualifiedName~HybridApiDocs' --nologo
+          dotnet test ../../tests/Aspire.Dev.AppHost.Tests/Aspire.Dev.AppHost.Tests.csproj --filter 'FullyQualifiedName~HybridApiDocs' --nologo
       - name: Build static baseline
         env:
           ASTRO_TELEMETRY_DISABLED: '1'
