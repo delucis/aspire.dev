@@ -109,4 +109,5 @@ try {
   console.log(JSON.stringify(results, null, 2));
 } finally {
   for (const child of children) if (child.exitCode === null) child.kill();
+  await writeFile(resolve(root, 'hybrid-host-processes.log'), output);
 }

@@ -66,6 +66,7 @@ export default defineConfig({
     define: {
       // Resolve filesystem-backed redirects before prerender modules are bundled.
       __ASPIRE_REDIRECT_PATHS__: JSON.stringify(Object.keys(redirects)),
+      __ASPIRE_HYBRID_API_DOCS__: JSON.stringify(hybridApiDocs),
     },
     ...(staticHostUrl
       ? {

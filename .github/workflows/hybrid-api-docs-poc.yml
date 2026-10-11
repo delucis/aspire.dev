@@ -83,6 +83,7 @@ jobs:
           path: |
             src/frontend/hybrid-output-results.json
             src/frontend/hybrid-host-results.json
+            src/frontend/hybrid-host-processes.log
             ${{ runner.temp }}/hybrid-poc
           if-no-files-found: warn
           retention-days: 7
