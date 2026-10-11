@@ -25,7 +25,8 @@ internal sealed class HybridApiDocsRoutingMiddleware(RequestDelegate next, Hybri
             context.Response.Headers.Location = redirect.Destination + context.Request.QueryString;
             return;
         }
-        if (!context.Request.Path.StartsWithSegments("/reference/api"))
+        var image = path is "/_image" or "/_image/";
+        if (!image && !context.Request.Path.StartsWithSegments("/reference/api"))
         {
             await next(context);
             return;
@@ -34,6 +35,21 @@ internal sealed class HybridApiDocsRoutingMiddleware(RequestDelegate next, Hybri
         {
             context.Response.StatusCode = StatusCodes.Status405MethodNotAllowed;
             context.Response.Headers.Allow = "GET, HEAD";
+            return;
+        }
+        if (image)
+        {
+            var query = context.Request.Query;
+            if (query["href"].Count != 1 || !artifact.IsLocalImage(query["href"].ToString()) ||
+                new[] { "w", "h" }.Any(key => query.TryGetValue(key, out var values) &&
+                    (values.Count != 1 || !int.TryParse(values.ToString(), out var size) || size is < 1 or > 4096)))
+            {
+                context.Response.StatusCode = StatusCodes.Status400BadRequest;
+                context.Response.Headers.CacheControl = "no-store";
+                return;
+            }
+            context.Features.Set(new HybridApiDocsRequest("/_image", "image", null));
+            await next(context);
             return;
         }
         if (!artifact.TryRoute(path, out var route))

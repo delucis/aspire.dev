@@ -79,11 +79,12 @@ export function hybridApiDocsIntegration(redirects) {
         await cp(resolve(root, '../statichost/StaticHost/wwwroot/scalar'),
           resolve(out, 'client/scalar'), { recursive: true });
         const hash = createHash('sha256');
-        hash.update(JSON.stringify({ routes, redirects: redirectEntries, site }));
+        hash.update(JSON.stringify({ routes, redirects: redirectEntries, site, platform: process.platform }));
         await hashDirectory(resolve(out, 'client'), hash, 'client/');
         await hashDirectory(resolve(out, 'server'), hash, 'server/');
         const manifest = {
           schemaVersion: 1, mode: 'hybrid-api-docs', buildId: hash.digest('hex'),
+          platform: process.platform,
           client: 'client', server: 'server/entry.mjs', site,
           routes, redirects: redirectEntries,
         };

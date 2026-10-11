@@ -39,7 +39,12 @@ internal static class HybridApiDocsExtensions
         => app.UseMiddleware<HybridApiDocsRoutingMiddleware>();
 
     public static void MapHybridApiDocs(this IEndpointRouteBuilder app)
-        => app.MapMethods("/reference/api/{**path}", ["GET", "HEAD"],
+    {
+        app.MapMethods("/reference/api/{**path}", ["GET", "HEAD"],
             (HttpContext context, HybridApiDocsRenderer renderer) => renderer.RenderAsync(context))
             .CacheOutput("HybridApiDocs");
+        app.MapMethods("/_image", ["GET", "HEAD"],
+            (HttpContext context, HybridApiDocsRenderer renderer) => renderer.RenderAsync(context))
+            .CacheOutput("HybridApiDocs");
+    }
 }

@@ -151,13 +151,26 @@ public sealed class HybridApiDocsTests
     }
 
     [Fact]
+    public async Task AllowsOnlyBundledImagesAndBoundsTransformDimensions()
+    {
+        await using var host = await HybridHost.StartAsync();
+        using var allowed = await host.Client.GetAsync("/_image?href=%2F_astro%2Flogo.svg&w=48&h=48");
+        Assert.Equal(HttpStatusCode.OK, allowed.StatusCode);
+        using var remote = await host.Client.GetAsync("/_image?href=https%3A%2F%2Fexample.com%2Fimage.svg");
+        Assert.Equal(HttpStatusCode.BadRequest, remote.StatusCode);
+        using var oversized = await host.Client.GetAsync("/_image?href=%2F_astro%2Flogo.svg&w=999999");
+        Assert.Equal(HttpStatusCode.BadRequest, oversized.StatusCode);
+        Assert.Equal(1, host.Renderer.Calls["/_image"]);
+    }
+
+    [Fact]
     public void RejectsMissingOrEscapingArtifacts()
     {
         using var root = new TempWebRoot();
         Assert.Throws<InvalidOperationException>(() => HybridApiDocsArtifact.Load(Path.Combine(root.Path, "missing.json")));
         root.WriteFile("hybrid.json", JsonSerializer.Serialize(new HybridApiManifest(
             1, "hybrid-api-docs", new string('a', 64), "../escape", "server/entry.mjs",
-            "https://aspire.dev", [], []), new JsonSerializerOptions(JsonSerializerDefaults.Web)));
+            "https://aspire.dev", [], [], OperatingSystem.IsWindows() ? "win32" : "linux"), new JsonSerializerOptions(JsonSerializerDefaults.Web)));
         Assert.Throws<InvalidOperationException>(() => HybridApiDocsArtifact.Load(Path.Combine(root.Path, "hybrid.json")));
     }
 }
@@ -181,12 +194,14 @@ internal sealed class HybridHost : IAsyncDisposable
     {
         var root = new TempWebRoot();
         root.WriteFile("client/guide/index.html", "static guide");
+        root.WriteFile("client/_astro/logo.svg", "<svg/>");
         root.WriteFile("server/entry.mjs", "private server");
         var pages = new[] { "demo", "private", "cookie", "failure", "broken", "mismatch", "oversize", "large", "cold" };
         root.WriteFile("hybrid.json", JsonSerializer.Serialize(new HybridApiManifest(
             1, "hybrid-api-docs", new string('a', 64), "client", "server/entry.mjs", "https://aspire.dev",
             pages.Select(page => new HybridApiRoute($"/reference/api/{page}/", $"/reference/api/{page}.md")).ToArray(),
-            [new("/old-guide/", "/guide/", 302)]), new JsonSerializerOptions(JsonSerializerDefaults.Web)));
+            [new("/old-guide/", "/guide/", 302)], OperatingSystem.IsWindows() ? "win32" : "linux"),
+            new JsonSerializerOptions(JsonSerializerDefaults.Web)));
         var artifact = HybridApiDocsArtifact.Load(Path.Combine(root.Path, "hybrid.json"));
         var builder = WebApplication.CreateBuilder(new WebApplicationOptions { WebRootPath = artifact.ClientDirectory });
         builder.Logging.ClearProviders();

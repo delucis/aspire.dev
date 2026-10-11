@@ -52,13 +52,16 @@ duplicating the ordinary frontend build and all viewport test shards.
 Download the completed `hybrid-api-docs-poc` artifact into the frontend directory:
 
 ```powershell
-gh run download RUN_ID --repo microsoft/aspire.dev --name hybrid-api-docs-poc --dir .\src\frontend\dist-hybrid
+gh run download RUN_ID --repo microsoft/aspire.dev --name hybrid-api-docs-poc-windows --dir .\src\frontend\dist-hybrid
 $env:ASPIRE_HYBRID_API_DOCS = '1'
 aspire start --non-interactive
 ```
 
 Restore frontend dependencies with the repository's existing pnpm setup first.
 The downloaded directory contains `client`, `server`, and `hybrid-api-docs.json`.
+Use `hybrid-api-docs-poc` on Linux or `hybrid-api-docs-poc-windows` on Windows.
+The Node adapter's build paths are platform-specific; a Linux artifact cannot
+run on Windows. The manifest checks the platform before starting the renderer.
 The manifest and server stay outside the public static root. Browse the
 StaticHost endpoint in the Aspire dashboard; the Node worker is internal.
 Missing or incompatible artifacts cause an actionable startup error instead of
@@ -78,6 +81,8 @@ or warmed API responses from being served, but a cold API request returns a
 gateway error. Existing Redis usage for live status is unchanged; API output
 caching does not use Redis. Azure hybrid publishing is intentionally rejected
 for this local POC, and the production deployment path remains static.
+On-demand image requests are limited to bundled local images and dimensions up
+to 4096 pixels; arbitrary remote URLs are not forwarded to the renderer.
 
 Unset the flag to return to the ordinary Vite/local workflow:
 

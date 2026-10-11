@@ -20,6 +20,9 @@ internal static class HybridApiDocsExtensions
         using var json = JsonDocument.Parse(File.ReadAllText(manifest));
         if (json.RootElement.GetProperty("mode").GetString() != "hybrid-api-docs")
             throw new InvalidOperationException("The selected artifact is not a hybrid API documentation build.");
+        if (json.RootElement.GetProperty("platform").GetString() !=
+            (OperatingSystem.IsWindows() ? "win32" : OperatingSystem.IsMacOS() ? "darwin" : "linux"))
+            throw new InvalidOperationException("Download the hybrid CI artifact matching this operating system.");
 
         var worker = builder.AddNodeApp("api-docs", frontendDirectory, "scripts/serve-api-docs.mjs")
             .WithPnpm()

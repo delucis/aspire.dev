@@ -9,6 +9,9 @@ const manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
 if (manifest.schemaVersion !== 1 || manifest.mode !== 'hybrid-api-docs' || !/^[a-f0-9]{64}$/.test(manifest.buildId)) {
   throw new Error('Expected a compatible prebuilt hybrid-api-docs.json artifact.');
 }
+if (manifest.platform !== process.platform) {
+  throw new Error(`This Astro adapter artifact targets ${manifest.platform}; download the ${process.platform} POC artifact instead.`);
+}
 const root = dirname(manifestPath);
 const entry = resolve(root, manifest.server);
 const entryRelative = relative(root, entry);
@@ -30,7 +33,7 @@ const server = http.createServer((req, res) => {
     res.end();
     return;
   }
-  if (!paths.has(url.pathname)) {
+  if (!paths.has(url.pathname) && !['/_image', '/_image/'].includes(url.pathname)) {
     res.writeHead(404);
     res.end('API route not found');
     return;

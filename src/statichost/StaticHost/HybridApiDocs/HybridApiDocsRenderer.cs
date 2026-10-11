@@ -32,7 +32,7 @@ internal sealed class HybridApiDocsRenderer(HttpClient client, HybridApiDocsArti
         {
             using var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, timeout.Token);
             if (!response.Headers.TryGetValues("X-Aspire-Build-Id", out var ids) ||
-                ids.SingleOrDefault() != artifact.Manifest.BuildId)
+                !ids.SequenceEqual([artifact.Manifest.BuildId]))
                 throw new HttpRequestException("The renderer and StaticHost have different build identities.");
             await response.Content.LoadIntoBufferAsync(MaximumBodySize, timeout.Token);
             var body = await response.Content.ReadAsByteArrayAsync(timeout.Token);
