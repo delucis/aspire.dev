@@ -48,7 +48,7 @@ internal sealed class HybridApiDocsRoutingMiddleware(RequestDelegate next, Hybri
                 context.Response.Headers.CacheControl = "no-store";
                 return;
             }
-            context.Features.Set(new HybridApiDocsRequest("/_image", "image", null));
+            context.Features.Set(new HybridApiDocsRequest(path, "image", null));
             await next(context);
             return;
         }
