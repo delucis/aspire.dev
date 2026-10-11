@@ -62,6 +62,8 @@ try {
     return { response, text };
   }
   const initial = await stats();
+  const home = await page('/');
+  assert.ok(!home.text.includes('<title>Aspire Static Host</title>'), 'The placeholder wwwroot home must not shadow the hybrid homepage.');
   await page('/docs/');
   assert.equal((await stats()).renders, initial.renders);
   const csharp = await page('/reference/api/csharp/');
@@ -89,10 +91,10 @@ try {
   assert.equal(unknown.status, 404);
   if (process.env.HYBRID_TEST_BROWSER === '1') {
     const install = launch('pnpm', ['exec', 'playwright', 'install', '--with-deps', 'chromium'], process.env);
-    assert.equal((await once(install, 'exit'))[0], 0, output);
+    assert.equal((await once(install, 'exit'))[0], 0, output.slice(-10000));
     const browser = launch('pnpm', ['exec', 'playwright', 'test', '--config', 'playwright.hybrid.config.mjs'],
       { ...process.env, HYBRID_TEST_URL: hostUrl });
-    assert.equal((await once(browser, 'exit'))[0], 0, output);
+    assert.equal((await once(browser, 'exit'))[0], 0, output.slice(-10000));
   }
   const final = await stats();
   const stopped = once(worker, 'exit');

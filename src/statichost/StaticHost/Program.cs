@@ -1,5 +1,6 @@
 using Scalar.AspNetCore;
 using StaticHost.HybridApiDocs;
+using Microsoft.Extensions.FileProviders;
 
 var hybridArtifactPath = new ConfigurationBuilder()
     .AddEnvironmentVariables().AddCommandLine(args).Build()["HybridApiDocs:ArtifactPath"];
@@ -46,6 +47,12 @@ if (builder.Environment.IsDevelopment())
 }
 
 await using var app = builder.Build();
+if (hybridArtifact is not null)
+{
+    var clientFiles = new PhysicalFileProvider(hybridArtifact.ClientDirectory);
+    app.Environment.WebRootFileProvider = clientFiles;
+    app.Lifetime.ApplicationStopped.Register(clientFiles.Dispose);
+}
 
 // Restore the Front Door client IP before telemetry or any middleware reads it.
 app.UseForwardedClientIp();
@@ -71,6 +78,18 @@ app.UseCanonicalPathRedirects();
 app.UseAgentReadiness();
 
 app.UseDefaultFiles();
+if (hybridArtifact is not null)
+{
+    app.UseStaticFiles(new StaticFileOptions
+    {
+        OnPrepareResponse = context =>
+        {
+            context.Context.Response.Headers.CacheControl =
+                context.Context.Request.Path.StartsWithSegments("/_astro")
+                    ? "public, max-age=31536000, immutable" : "no-cache";
+        },
+    });
+}
 
 // add routing after default files, so the default file middleware can modify the path first
 app.UseRouting();
