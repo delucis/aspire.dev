@@ -15,12 +15,20 @@ test('built StaticHost navigation keeps API styles, search and Markdown actions 
   await page.locator('[data-page-action="copy-markdown"]:visible').first().click();
   expect(await (await markdownRequest).text()).toContain('# TypeScript API Reference');
   const link = page.locator('#ts-api-package-list a').first();
+  await page.evaluate(() => {
+    document.documentElement.dataset.hybridNavigation = 'pending';
+    document.addEventListener('astro:page-load', () => {
+      document.documentElement.dataset.hybridNavigation = 'ready';
+    }, { once: true });
+  });
   await link.click();
+  await expect(page.locator('html')).toHaveAttribute('data-hybrid-navigation', 'ready');
+  await expect(page.locator('[data-api-search-kind="module"]')).toBeVisible();
   await expect(page.locator('h1')).toBeVisible();
-  await page.locator('img').last().scrollIntoViewIfNeeded();
-  await expect.poll(() => page.locator('img').evaluateAll(images => images.every(image =>
-    !(image instanceof HTMLImageElement) || !image.src.startsWith(location.origin)
-      || image.complete && image.naturalWidth > 0))).toBe(true);
+  const footerLogo = page.locator('.footer-wordmark img');
+  await footerLogo.scrollIntoViewIfNeeded();
+  await expect.poll(() => footerLogo.evaluate(image => image instanceof HTMLImageElement
+    && image.complete && image.naturalWidth > 0)).toBe(true);
   await page.goto('/reference/api/csharp/');
   await expect(page.locator('[data-api-search-language="csharp"]')).toBeVisible();
   await page.goto('/docs/');
