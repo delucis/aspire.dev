@@ -26,6 +26,63 @@ We welcome translation contributions! Please see our [Translation guide](https:/
    └───📂 public                  # Static assets served as-is
 ```
 
+## Hybrid API documentation POC
+
+The normal build remains fully static. Opting in with `ASPIRE_HYBRID_API_DOCS=1`
+at **build time** leaves non-API documentation and assets static, but renders all
+C# and TypeScript API HTML and Markdown on demand through the existing StaticHost.
+This includes both API search pages. The convenience command `build:hybrid` sets
+the flag only for its child build; `build:hybrid:skip-search` also skips Pagefind.
+Setting a runtime flag alone cannot convert an already-static artifact.
+
+Run full-site comparisons in CI, not on your development machine. From the
+**Frontend Build** workflow, select the POC option, or use:
+
+```powershell
+gh workflow run frontend-build.yml --repo microsoft/aspire.dev --ref YOUR_BRANCH -f hybrid_api_poc=true
+```
+
+A PR carrying the `hybrid-api-poc` label also runs the POC checks when CI is
+triggered by opening, reopening, or pushing to the PR. The comparison builds both
+modes from the same commit and reports output counts, build resource usage, and
+cold/warm rendering measurements in `hybrid-api-docs-results`.
+
+Download the completed `hybrid-api-docs-poc` artifact into the frontend directory:
+
+```powershell
+gh run download RUN_ID --repo microsoft/aspire.dev --name hybrid-api-docs-poc --dir .\src\frontend\dist-hybrid
+$env:ASPIRE_HYBRID_API_DOCS = '1'
+aspire start --non-interactive
+```
+
+Restore frontend dependencies with the repository's existing pnpm setup first.
+The downloaded directory contains `client`, `server`, and `hybrid-api-docs.json`.
+The manifest and server stay outside the public static root. Browse the
+StaticHost endpoint in the Aspire dashboard; the Node worker is internal.
+Missing or incompatible artifacts cause an actionable startup error instead of
+starting a development server or rebuilding the site.
+
+The API response cache is process-local, bounded to 128 MiB, and expires entries
+after 30 minutes. Individual renderer responses are limited to 64 MiB and use
+bounded buffering with an exact content length. Successful responses are keyed
+by build identity, request URL, and representation. Negotiated Markdown uses a
+separate variant so its private headers cannot contaminate direct Markdown or
+HTML responses. Failed, interrupted, authenticated, private, or cookie-setting
+responses are not cached.
+
+Restart StaticHost to clear the cache; rebuild/download and restart the host and
+worker together to change builds. A worker outage does not prevent static pages
+or warmed API responses from being served, but a cold API request returns a
+gateway error. Existing Redis usage for live status is unchanged; API output
+caching does not use Redis. Azure hybrid publishing is intentionally rejected
+for this local POC, and the production deployment path remains static.
+
+Unset the flag to return to the ordinary Vite/local workflow:
+
+```powershell
+Remove-Item Env:ASPIRE_HYBRID_API_DOCS
+```
+
 ## Environment badge
 
 Set `PUBLIC_ENVIRONMENT_BADGE` to display a small text badge beside the header logo
