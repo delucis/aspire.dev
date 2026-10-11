@@ -17,6 +17,14 @@ export async function verifyHybridOutput(staticRoot, hybridRoot) {
   assert.deepEqual(hybrid.files.filter(({ path }) => api(path)), [], 'API HTML/Markdown was prerendered.');
   assert.ok(server.files.some(({ path }) => path === 'entry.mjs'), 'Missing private renderer entrypoint.');
   const redirectFiles = new Set(manifest.redirects.map(({ path }) => `${path.replace(/^\/|\/$/g, '')}/index.html`));
+  const clientFiles = new Set(hybrid.files.map(({ path }) => path));
+  for (const redirect of manifest.redirects) {
+    const destination = redirect.destination.replace(/^\/|\/$/g, '');
+    assert.ok(clientFiles.has(`${destination}/index.html`) || clientFiles.has(`${destination}.html`)
+      || manifest.routes.some(({ html }) => html === redirect.destination)
+      || manifest.redirects.some(({ path }) => path === redirect.destination),
+    `Configured redirect has no destination: ${redirect.path} -> ${redirect.destination}`);
+  }
   const nonApi = (files) => files.filter(({ path }) =>
     /\.(html|md)$/.test(path) && !api(path) && !redirectFiles.has(path)).map(({ path }) => path);
   assert.deepEqual(nonApi(hybrid.files), nonApi(baseline.files), 'Non-API page inventory changed.');

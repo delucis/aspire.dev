@@ -164,6 +164,8 @@ export default defineConfig({
             errorOnFallbackPages: false,
             exclude: [
               '/i18n/', '/reference/api', '/reference/api/**',
+              // These remain real StaticHost redirects but the Node adapter emits no static redirect file.
+              ...(hybridApiDocs ? Object.keys(redirects).flatMap(path => [path, `${path}#*`]) : []),
               // Custom Astro destinations checked by the Dev Hub browser tests.
               '/hub/', '/hub/glossary/ats/', '/get-started/glossary/#polyglot',
             ],
