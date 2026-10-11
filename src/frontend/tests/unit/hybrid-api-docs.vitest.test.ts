@@ -9,6 +9,7 @@ import { hybridApiDocsIntegration, hybridOutputDirectory, isApiRouteComponent, i
 import { buildApiRouteCatalog, getCSharpRouteEntries, getTypeScriptRouteEntries } from '@utils/api-route-catalog';
 import type { PackageApiDocument } from '@utils/packages';
 import type { TsApiDocument } from '@utils/ts-modules';
+import { onRequest } from '../../src/middleware';
 
 describe('build-time hybrid opt-in', () => {
   it('requires an explicit supported flag value', () => {
@@ -75,6 +76,18 @@ describe('build-time hybrid opt-in', () => {
     } finally {
       await rm(directory, { recursive: true, force: true });
     }
+  });
+
+  it('keeps hybrid Markdown URLs extension-based without changing normal prerendered endpoints', async () => {
+    const url = 'https://aspire.dev/reference/api/typescript/aspire.hosting/item.md';
+    const response: Response = await Reflect.apply(onRequest, undefined, [{
+      request: new Request(url), isPrerendered: false,
+    }, () => Promise.resolve(new Response('Markdown endpoint'))]);
+    expect(response.status).toBe(isHybridApiDocs() ? 200 : 308);
+    const staticResponse: Response = await Reflect.apply(onRequest, undefined, [{
+      request: new Request(url), isPrerendered: true,
+    }, () => Promise.resolve(new Response('Markdown endpoint'))]);
+    expect(staticResponse.status).toBe(200);
   });
 });
 

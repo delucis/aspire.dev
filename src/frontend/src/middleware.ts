@@ -1,6 +1,8 @@
 import { defineMiddleware } from 'astro:middleware';
 import { stripApiReferenceLocale } from './utils/api-reference-routes';
 
+declare const __ASPIRE_HYBRID_API_DOCS__: boolean;
+
 const nestedApiMarkdownPattern =
   /^\/reference\/(?:api\/(?:csharp|typescript)|samples)\/.+\.md$/;
 const cliConfigSchemaPattern = /^\/reference\/cli\/configuration\/schema\/[^/]+\.json$/;
@@ -28,7 +30,8 @@ export const onRequest = defineMiddleware((context, next) => {
       return redirect(`${canonicalApiPath}${search}`);
     }
 
-    if (nestedApiMarkdownPattern.test(pathname) || cliConfigSchemaPattern.test(pathname)) {
+    const hybridApiMarkdown = __ASPIRE_HYBRID_API_DOCS__ && pathname.startsWith('/reference/api/');
+    if ((!hybridApiMarkdown && nestedApiMarkdownPattern.test(pathname)) || cliConfigSchemaPattern.test(pathname)) {
       return redirect(`${pathname}/${search}`);
     }
   }

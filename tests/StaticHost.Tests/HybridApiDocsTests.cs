@@ -101,6 +101,19 @@ public sealed class HybridApiDocsTests
     }
 
     [Fact]
+    public async Task RendererTimeoutsAreExplicitAndNotCached()
+    {
+        await using var host = await HybridHost.StartAsync();
+        host.Renderer.Timeout = true;
+        for (var index = 0; index < 2; index++)
+        {
+            using var response = await host.Client.GetAsync("/reference/api/demo/");
+            Assert.Equal(HttpStatusCode.GatewayTimeout, response.StatusCode);
+        }
+        Assert.Equal(2, host.Renderer.Calls["/reference/api/demo/"]);
+    }
+
+    [Fact]
     public async Task BuffersLargeResponsesAndKeepsStaticAndWarmOutputAvailableWithoutWorker()
     {
         await using var host = await HybridHost.StartAsync();
@@ -124,6 +137,9 @@ public sealed class HybridApiDocsTests
         using var canonical = await host.Client.GetAsync("/REFERENCE/API/DEMO");
         Assert.Equal(HttpStatusCode.PermanentRedirect, canonical.StatusCode);
         Assert.Equal("/reference/api/demo/", canonical.Headers.Location!.OriginalString);
+        using var markdown = await host.Client.GetAsync("/reference/api/demo.md/");
+        Assert.Equal(HttpStatusCode.PermanentRedirect, markdown.StatusCode);
+        Assert.Equal("/reference/api/demo.md", markdown.Headers.Location!.OriginalString);
         using var redirect = await host.Client.GetAsync("/old-guide/?a=1");
         Assert.Equal(HttpStatusCode.Found, redirect.StatusCode);
         Assert.Equal("/guide/?a=1", redirect.Headers.Location!.OriginalString);
@@ -202,12 +218,14 @@ internal sealed class TestApiRenderer : HttpMessageHandler
 {
     public ConcurrentDictionary<string, int> Calls { get; } = new();
     public bool Offline { get; set; }
+    public bool Timeout { get; set; }
 
     protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
     {
         var path = request.RequestUri!.AbsolutePath;
         Calls.AddOrUpdate(path, 1, (_, count) => count + 1);
         if (Offline) throw new HttpRequestException("Renderer unavailable.");
+        if (Timeout) throw new OperationCanceledException("Renderer timed out.");
         await Task.Delay(30, cancellationToken);
         var page = path.Split('/').Last(segment => segment.Length > 0).Replace(".md", "");
         var response = new HttpResponseMessage(page == "failure" ? HttpStatusCode.ServiceUnavailable : HttpStatusCode.OK);

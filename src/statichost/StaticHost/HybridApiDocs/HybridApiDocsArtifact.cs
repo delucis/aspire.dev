@@ -48,6 +48,7 @@ internal sealed class HybridApiDocsArtifact
                 _canonical.TryAdd(route.Html + "index.html", route.Html);
             }
             AddRoute(route.Markdown, route);
+            _canonical.TryAdd(route.Markdown + "/", route.Markdown);
         }
         foreach (var redirect in manifest.Redirects)
         {
