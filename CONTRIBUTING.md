@@ -46,6 +46,8 @@ A PR carrying the `hybrid-api-poc` label also runs the POC checks when CI is
 triggered by opening, reopening, or pushing to the PR. The comparison builds both
 modes from the same commit and reports output counts, build resource usage, and
 cold/warm rendering measurements in `hybrid-api-docs-results`.
+The manual POC selection runs its focused checks and comparison without also
+duplicating the ordinary frontend build and all viewport test shards.
 
 Download the completed `hybrid-api-docs-poc` artifact into the frontend directory:
 
