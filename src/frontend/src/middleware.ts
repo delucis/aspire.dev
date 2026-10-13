@@ -1,5 +1,6 @@
 import { defineMiddleware } from 'astro:middleware';
 import { stripApiReferenceLocale } from './utils/api-reference-routes';
+import { withHybridApiCache } from './utils/hybrid-api-cache';
 
 declare const __ASPIRE_HYBRID_API_DOCS__: boolean;
 
@@ -36,5 +37,8 @@ export const onRequest = defineMiddleware((context, next) => {
     }
   }
 
-  return next();
+  const pathname = context.url?.pathname ?? new URL(context.request.url).pathname;
+  return __ASPIRE_HYBRID_API_DOCS__ && !context.isPrerendered &&
+    (pathname.startsWith('/reference/api/') || pathname === '/_image' || pathname === '/_image/')
+    ? withHybridApiCache(context, next) : next();
 });

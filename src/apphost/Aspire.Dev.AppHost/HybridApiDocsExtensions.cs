@@ -24,13 +24,17 @@ internal static class HybridApiDocsExtensions
             (OperatingSystem.IsWindows() ? "win32" : OperatingSystem.IsMacOS() ? "darwin" : "linux"))
             throw new InvalidOperationException("Download the hybrid CI artifact matching this operating system.");
 
-        var worker = builder.AddNodeApp("api-docs", frontendDirectory, "scripts/serve-api-docs.mjs")
-            .WithPnpm()
-            .WithHttpEndpoint(env: "PORT")
-            .WithEnvironment("HOST", "127.0.0.1")
-            .WithEnvironment("HYBRID_API_DOCS_MANIFEST", manifest)
-            .WithHttpHealthCheck("/__hybrid-api-docs/health");
+        for (var index = 0; index < 2; index++)
+        {
+            var worker = builder.AddNodeApp(index == 0 ? "api-docs" : "api-docs-standby", frontendDirectory, "scripts/serve-api-docs.mjs")
+                .WithPnpm(install: false)
+                .WithHttpEndpoint(env: "PORT")
+                .WithEnvironment("HOST", "127.0.0.1")
+                .WithEnvironment("HYBRID_API_DOCS_MANIFEST", manifest)
+                .WithHttpHealthCheck("/__hybrid-api-docs/health");
+            website.WithEnvironment($"HybridApiDocs__RendererUrls__{index}", worker.GetEndpoint("http"));
+        }
         website.WithEnvironment("HybridApiDocs__ArtifactPath", manifest)
-            .WithEnvironment("HybridApiDocs__RendererUrl", worker.GetEndpoint("http"));
+            .WithHttpHealthCheck("/healthz/api-docs");
     }
 }

@@ -85,7 +85,7 @@ jobs:
         run: |
           pnpm exec astro sync
           pnpm exec eslint . --max-warnings 0
-          pnpm exec vitest run --config vitest.config.ts tests/unit/hybrid-api-docs.vitest.test.ts tests/unit/api-markdown.vitest.test.ts tests/unit/ts-api-route-catalog.vitest.test.ts tests/unit/build-performance.vitest.test.ts
+          pnpm exec vitest run --config vitest.config.ts tests/unit/hybrid-api-docs.vitest.test.ts tests/unit/hybrid-native-cache.vitest.test.ts tests/unit/api-markdown.vitest.test.ts tests/unit/ts-api-route-catalog.vitest.test.ts tests/unit/build-performance.vitest.test.ts
           dotnet test ../../tests/StaticHost.Tests/StaticHost.Tests.csproj --filter 'FullyQualifiedName~HybridApiDocs' --nologo
           dotnet test ../../tests/Aspire.Dev.AppHost.Tests/Aspire.Dev.AppHost.Tests.csproj --filter 'FullyQualifiedName~HybridApiDocs' --nologo
       - name: Build static baseline

@@ -14,15 +14,19 @@ namespace StaticHost.Tests;
 public sealed class HybridApiDocsTests
 {
     [Fact]
-    public async Task CachesSuccessfulResponsesAndCoalescesConcurrentMisses()
+    public async Task AlwaysForwardsRequestsEvenWhenAstroReportsCacheHits()
     {
         await using var host = await HybridHost.StartAsync();
         var responses = await Task.WhenAll(Enumerable.Range(0, 20)
             .Select(_ => host.Client.GetStringAsync("/reference/api/demo/")));
         Assert.All(responses, body => Assert.Equal("html:demo", body));
-        Assert.Equal(1, host.Renderer.Calls["/reference/api/demo/"]);
+        Assert.Equal(20, host.Renderer.Calls["/reference/api/demo/"]);
         Assert.Equal("html:demo", await host.Client.GetStringAsync("/reference/api/demo/"));
-        Assert.Equal(1, host.Renderer.Calls["/reference/api/demo/"]);
+        Assert.Equal(21, host.Renderer.Calls["/reference/api/demo/"]);
+        using var response = await host.Client.GetAsync("/reference/api/demo/");
+        Assert.Equal("HIT", Assert.Single(response.Headers.GetValues("X-Astro-Cache")));
+        Assert.True(response.Headers.CacheControl!.NoStore);
+        Assert.False(response.Headers.Contains("Vary"));
     }
 
     [Theory]
@@ -91,13 +95,24 @@ public sealed class HybridApiDocsTests
     }
 
     [Fact]
-    public async Task DoesNotCacheAuthenticatedRequests()
+    public async Task MarksAuthenticatedRequestsForNativeCacheBypass()
     {
         await using var host = await HybridHost.StartAsync();
         host.Client.DefaultRequestHeaders.Authorization = new("Bearer", "test");
         await host.Client.GetStringAsync("/reference/api/demo/");
         await host.Client.GetStringAsync("/reference/api/demo/");
         Assert.Equal(2, host.Renderer.Calls["/reference/api/demo/"]);
+        Assert.True(host.Renderer.SawCacheBypass);
+    }
+
+    [Fact]
+    public async Task ClientPreferenceCookiesDoNotDisablePublicCachingOrReachTheWorker()
+    {
+        await using var host = await HybridHost.StartAsync();
+        host.Client.DefaultRequestHeaders.Add("Cookie", "preference=value");
+        await host.Client.GetStringAsync("/reference/api/demo/");
+        Assert.False(host.Renderer.SawCacheBypass);
+        Assert.False(host.Renderer.SawCookie);
     }
 
     [Fact]
@@ -114,7 +129,7 @@ public sealed class HybridApiDocsTests
     }
 
     [Fact]
-    public async Task BuffersLargeResponsesAndKeepsStaticAndWarmOutputAvailableWithoutWorker()
+    public async Task BuffersLargeResponsesButRequiresWorkerEvenForPreviouslyVisitedApis()
     {
         await using var host = await HybridHost.StartAsync();
         using var large = await host.Client.GetAsync("/reference/api/large/");
@@ -125,9 +140,62 @@ public sealed class HybridApiDocsTests
         await host.Client.GetStringAsync("/reference/api/demo/");
         host.Renderer.Offline = true;
         Assert.Equal("static guide", await host.Client.GetStringAsync("/guide/"));
-        Assert.Equal("html:demo", await host.Client.GetStringAsync("/reference/api/demo/"));
+        using var previouslyVisited = await host.Client.GetAsync("/reference/api/demo/");
+        Assert.Equal(HttpStatusCode.BadGateway, previouslyVisited.StatusCode);
         using var cold = await host.Client.GetAsync("/reference/api/cold/");
         Assert.Equal(HttpStatusCode.BadGateway, cold.StatusCode);
+    }
+
+    [Fact]
+    public async Task FailsOverAndKeepsUsingTheHealthyReplica()
+    {
+        await using var host = await HybridHost.StartAsync(["http://primary/", "http://standby/"]);
+        host.Renderer.OfflineHosts.Add("primary");
+        Assert.Equal("html:demo", await host.Client.GetStringAsync("/reference/api/demo/"));
+        Assert.Equal(1, host.Renderer.EndpointCalls["primary"]);
+        Assert.Equal(1, host.Renderer.EndpointCalls["standby"]);
+        Assert.Equal("html:demo", await host.Client.GetStringAsync("/reference/api/demo/"));
+        Assert.Equal(1, host.Renderer.EndpointCalls["primary"]);
+        Assert.Equal(2, host.Renderer.EndpointCalls["standby"]);
+    }
+
+    [Fact]
+    public async Task ReadinessRequiresAnAvailableMatchingBuild()
+    {
+        await using var host = await HybridHost.StartAsync(["http://primary/", "http://standby/"]);
+        host.Renderer.OfflineHosts.Add("primary");
+        using var ready = await host.Client.GetAsync("/healthz/api-docs");
+        Assert.Equal(HttpStatusCode.OK, ready.StatusCode);
+        host.Renderer.MismatchedHosts.Add("standby");
+        using var mismatch = await host.Client.GetAsync("/healthz/api-docs");
+        Assert.Equal(HttpStatusCode.ServiceUnavailable, mismatch.StatusCode);
+        host.Renderer.Offline = true;
+        using var down = await host.Client.GetAsync("/healthz/api-docs");
+        Assert.Equal(HttpStatusCode.ServiceUnavailable, down.StatusCode);
+        Assert.Equal("static guide", await host.Client.GetStringAsync("/guide/"));
+    }
+
+    [Fact]
+    public async Task RejectsMismatchedPrimaryAndRecoversAfterReplicaAvailabilityChanges()
+    {
+        await using var host = await HybridHost.StartAsync(["http://primary/", "http://standby/"]);
+        host.Renderer.MismatchedHosts.Add("primary");
+        Assert.Equal("html:demo", await host.Client.GetStringAsync("/reference/api/demo/"));
+        host.Renderer.MismatchedHosts.Clear();
+        host.Renderer.OfflineHosts.Add("standby");
+        Assert.Equal("html:demo", await host.Client.GetStringAsync("/reference/api/demo/"));
+        Assert.Equal(2, host.Renderer.EndpointCalls["primary"]);
+        Assert.Equal(2, host.Renderer.EndpointCalls["standby"]);
+    }
+
+    [Fact]
+    public async Task RetriesServerErrorsAgainstAnotherReplicaBeforeSendingTheResponse()
+    {
+        await using var host = await HybridHost.StartAsync(["http://primary/", "http://standby/"]);
+        host.Renderer.ErrorHosts.Add("primary");
+        Assert.Equal("html:demo", await host.Client.GetStringAsync("/reference/api/demo/"));
+        Assert.Equal(1, host.Renderer.EndpointCalls["primary"]);
+        Assert.Equal(1, host.Renderer.EndpointCalls["standby"]);
     }
 
     [Fact]
@@ -190,7 +258,7 @@ internal sealed class HybridHost : IAsyncDisposable
         Client = app.GetTestClient();
     }
 
-    public static async Task<HybridHost> StartAsync()
+    public static async Task<HybridHost> StartAsync(string[]? endpoints = null)
     {
         var root = new TempWebRoot();
         root.WriteFile("client/guide/index.html", "static guide");
@@ -206,7 +274,7 @@ internal sealed class HybridHost : IAsyncDisposable
         var builder = WebApplication.CreateBuilder(new WebApplicationOptions { WebRootPath = artifact.ClientDirectory });
         builder.Logging.ClearProviders();
         builder.WebHost.UseTestServer();
-        builder.Services.AddHybridApiDocs(artifact, "http://renderer/");
+        builder.Services.AddHybridApiDocs(artifact, endpoints ?? ["http://renderer/"]);
         var renderer = new TestApiRenderer();
         builder.Services.AddHttpClient<HybridApiDocsRenderer>().ConfigurePrimaryHttpMessageHandler(() => renderer);
         var app = builder.Build();
@@ -215,7 +283,6 @@ internal sealed class HybridHost : IAsyncDisposable
         app.UseDefaultFiles();
         app.UseStaticFiles();
         app.UseRouting();
-        app.UseOutputCache();
         app.MapHybridApiDocs();
         await app.StartAsync();
         return new HybridHost(app, root, renderer);
@@ -232,19 +299,33 @@ internal sealed class HybridHost : IAsyncDisposable
 internal sealed class TestApiRenderer : HttpMessageHandler
 {
     public ConcurrentDictionary<string, int> Calls { get; } = new();
+    public ConcurrentDictionary<string, int> EndpointCalls { get; } = new();
+    public HashSet<string> OfflineHosts { get; } = [];
+    public HashSet<string> MismatchedHosts { get; } = [];
+    public HashSet<string> ErrorHosts { get; } = [];
     public bool Offline { get; set; }
     public bool Timeout { get; set; }
+    public bool SawCacheBypass { get; private set; }
+    public bool SawCookie { get; private set; }
 
     protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
     {
         var path = request.RequestUri!.AbsolutePath;
+        var endpoint = request.RequestUri.Host;
+        EndpointCalls.AddOrUpdate(endpoint, 1, (_, count) => count + 1);
+        SawCacheBypass = request.Headers.TryGetValues("X-Aspire-Cache-Bypass", out var bypass)
+            && bypass.SequenceEqual(["1"]);
+        SawCookie = request.Headers.Contains("Cookie");
         Calls.AddOrUpdate(path, 1, (_, count) => count + 1);
-        if (Offline) throw new HttpRequestException("Renderer unavailable.");
+        if (Offline || OfflineHosts.Contains(endpoint)) throw new HttpRequestException("Renderer unavailable.");
         if (Timeout) throw new OperationCanceledException("Renderer timed out.");
         await Task.Delay(30, cancellationToken);
         var page = path.Split('/').Last(segment => segment.Length > 0).Replace(".md", "");
-        var response = new HttpResponseMessage(page == "failure" ? HttpStatusCode.ServiceUnavailable : HttpStatusCode.OK);
-        response.Headers.Add("X-Aspire-Build-Id", new string(page == "mismatch" ? 'b' : 'a', 64));
+        var response = new HttpResponseMessage(page == "failure" || ErrorHosts.Contains(endpoint)
+            ? HttpStatusCode.ServiceUnavailable : HttpStatusCode.OK);
+        response.Headers.Add("X-Aspire-Build-Id", new string(page == "mismatch" || MismatchedHosts.Contains(endpoint) ? 'b' : 'a', 64));
+        response.Headers.Add("X-Astro-Cache", "HIT");
+        response.Headers.Vary.Add("X-Aspire-Cache-Bypass");
         response.Content = page switch
         {
             "broken" => new BrokenContent(),

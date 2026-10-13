@@ -31,7 +31,9 @@ builder.AddLiveStatus();
 
 if (hybridArtifact is not null)
 {
-    builder.Services.AddHybridApiDocs(hybridArtifact, builder.Configuration["HybridApiDocs:RendererUrl"]);
+    var rendererUrls = builder.Configuration.GetSection("HybridApiDocs:RendererUrls").Get<string[]>()
+        ?? [builder.Configuration["HybridApiDocs:RendererUrl"] ?? ""];
+    builder.Services.AddHybridApiDocs(hybridArtifact, rendererUrls);
 }
 
 builder.Services.AddHsts(options =>
@@ -93,7 +95,6 @@ if (hybridArtifact is not null)
 
 // add routing after default files, so the default file middleware can modify the path first
 app.UseRouting();
-if (hybridArtifact is not null) app.UseOutputCache();
 
 app.UseStatusCodePages(async context =>
 {

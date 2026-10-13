@@ -26,7 +26,7 @@ import { contributorCacheIntegration } from './src/utils/contributors.ts';
 import UnoCSS from 'unocss/astro';
 import Icons from 'starlight-plugin-icons';
 import node from '@astrojs/node';
-import { isHybridApiDocs, hybridOutputDirectory, hybridApiDocsIntegration } from './config/hybrid-api-docs.mjs';
+import { isHybridApiDocs, hybridOutputDirectory, hybridApiDocsIntegration, hybridApiCacheConfig } from './config/hybrid-api-docs.mjs';
 
 const hybridApiDocs = isHybridApiDocs();
 const modeArgIndex = process.argv.indexOf('--mode');
@@ -60,7 +60,12 @@ const buildConcurrency = Number(process.env.ASPIRE_BUILD_CONCURRENCY) || 4;
 export default defineConfig({
   cacheDir: hybridApiDocs ? './node_modules/.astro-hybrid' : './node_modules/.astro',
   ...(hybridApiDocs
-    ? { outDir: hybridOutputDirectory(process.cwd(), outDir), adapter: node({ mode: 'middleware' }), session: false }
+    ? {
+        outDir: hybridOutputDirectory(process.cwd(), outDir),
+        adapter: node({ mode: 'middleware' }),
+        session: false,
+        ...hybridApiCacheConfig(),
+      }
     : outDir ? { outDir } : {}),
   vite: {
     define: {
