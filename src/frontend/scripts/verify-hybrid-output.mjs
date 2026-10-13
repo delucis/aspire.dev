@@ -28,6 +28,10 @@ export async function verifyHybridOutput(staticRoot, hybridRoot) {
   const nonApi = (files) => files.filter(({ path }) =>
     /\.(html|md)$/.test(path) && !api(path) && !redirectFiles.has(path)).map(({ path }) => path);
   assert.deepEqual(nonApi(hybrid.files), nonApi(baseline.files), 'Non-API page inventory changed.');
+  const searchIndex = (files) => files.map(({ path }) => path)
+    .filter((path) => path.startsWith('reference/api-search/') && path.endsWith('.json'));
+  assert.ok(searchIndex(hybrid.files).includes('reference/api-search/typescript.json'), 'Missing API search index.');
+  assert.deepEqual(searchIndex(hybrid.files), searchIndex(baseline.files), 'API search indexes must stay prerendered.');
   for (const file of ['index.html', '404.html', 'llms.txt', 'sitemap-index.xml', 'sitemap-api.xml']) {
     assert.ok(hybrid.files.some(({ path }) => path === file), `Missing ${file}`);
   }
