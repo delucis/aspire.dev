@@ -11,6 +11,8 @@ The default C# experience uses `Microsoft.NET.Sdk`, explicit `Aspire.Hosting.App
 
 Replace the `Aspire.AppHost.Sdk` SDK attribute (or nested `<Sdk Name="Aspire.AppHost.Sdk" ... />` element) with `Microsoft.NET.Sdk`. Add explicit references to both packages at compatible versions from a release supporting `AddDotnetProject`:
 
+This guide describes Aspire 17.0, which is upcoming. Replace `17.x.x` in the examples with an available compatible version from that release or its prerelease channel; `17.x.x` isn't a literal package version. Don't use the site's current stable 13.6 version for this SDK-removal migration.
+
 ```xml title="MyApp.AppHost.csproj"
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
@@ -20,8 +22,8 @@ Replace the `Aspire.AppHost.Sdk` SDK attribute (or nested `<Sdk Name="Aspire.App
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Aspire.Hosting.AppHost" Version="%ASPIRE_VERSION%" />
-    <PackageReference Include="Aspire.Hosting.Dotnet" Version="%ASPIRE_VERSION%" />
+    <PackageReference Include="Aspire.Hosting.AppHost" Version="17.x.x" />
+    <PackageReference Include="Aspire.Hosting.Dotnet" Version="17.x.x" />
   </ItemGroup>
 </Project>
 ```
@@ -34,8 +36,8 @@ If `ManagePackageVersionsCentrally` is enabled, omit `Version` from the AppHost'
 
 ```xml title="Directory.Packages.props (inside Project)"
 <ItemGroup>
-  <PackageVersion Include="Aspire.Hosting.AppHost" Version="%ASPIRE_VERSION%" />
-  <PackageVersion Include="Aspire.Hosting.Dotnet" Version="%ASPIRE_VERSION%" />
+  <PackageVersion Include="Aspire.Hosting.AppHost" Version="17.x.x" />
+  <PackageVersion Include="Aspire.Hosting.Dotnet" Version="17.x.x" />
 </ItemGroup>
 ```
 
@@ -103,8 +105,8 @@ See [CLI bundle resolution and invocation modes](/get-started/aspire-sdk/#use-th
 Replace the obsolete `#:sdk Aspire.AppHost.Sdk@...` directive with explicit package directives:
 
 ```csharp title="apphost.cs"
-#:package Aspire.Hosting.AppHost@%ASPIRE_VERSION%
-#:package Aspire.Hosting.Dotnet@%ASPIRE_VERSION%
+#:package Aspire.Hosting.AppHost@17.x.x
+#:package Aspire.Hosting.Dotnet@17.x.x
 
 var builder = DistributedApplication.CreateBuilder(args);
 builder.AddDotnetProject("myservice", "../MyService/");
