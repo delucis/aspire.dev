@@ -1,4 +1,6 @@
 using Aspire.Hosting;
+using Aspire.Hosting.Azure;
+using Azure.Provisioning.AppService;
 
 namespace Aspire.Dev.AppHost.Tests;
 
@@ -50,6 +52,75 @@ public sealed class HybridApiDocsConfigurationTests
             Assert.IsType<Aspire.Hosting.ApplicationModel.EndpointReference>(environment["HybridApiDocs__RendererUrls__1"]);
             Assert.Equal(Path.Combine(directory, "dist-hybrid", "hybrid-api-docs.json"),
                 environment["HybridApiDocs__ArtifactPath"]);
+        }
+        finally
+        {
+            Directory.Delete(directory, recursive: true);
+        }
+    }
+
+    [Fact]
+    public async Task PublishModelKeepsBothRenderersInsideTheSameWebsite()
+    {
+        var directory = Path.Combine(Path.GetTempPath(), $"aspire-hybrid-sidecars-{Guid.NewGuid():N}");
+        Directory.CreateDirectory(Path.Combine(directory, "dist-hybrid"));
+        try
+        {
+            File.WriteAllText(Path.Combine(directory, "dist-hybrid", "hybrid-api-docs.json"),
+                """{"mode":"hybrid-api-docs","platform":"linux"}""");
+            var builder = DistributedApplication.CreateBuilder(new DistributedApplicationOptions
+            {
+                Args = ["--publisher", "manifest"], DisableDashboard = true,
+            });
+            var website = builder.AddProject<Projects.StaticHost>("aspiredev")
+                .PublishAsAzureAppServiceWebsite((infra, site) => site.IsEndToEndEncryptionEnabled = true);
+            website.WithHybridApiDocs(builder, directory);
+            Assert.Empty(builder.Resources.OfType<Aspire.Hosting.JavaScript.NodeAppResource>());
+            var image = Assert.Single(builder.Resources.OfType<ParameterResource>());
+            Assert.Equal("api-docs-image", image.Name);
+
+            var infrastructure = builder.AddAzureInfrastructure("hybrid-test", infra =>
+            {
+                var site = new WebSite("website") { Name = "hybrid-test", SiteConfig = new SiteConfigProperties() };
+                infra.Add(site);
+                infra.Add(new SiteContainer("mainContainer")
+                {
+                    Parent = site, Name = "main", IsMain = true, Image = "example/main:build",
+                    AuthType = SiteContainerAuthType.UserAssigned,
+                    UserManagedIdentityClientId = "00000000-0000-0000-0000-000000000000",
+                });
+                foreach (var annotation in website.Resource.Annotations.OfType<AzureAppServiceWebsiteCustomizationAnnotation>())
+                    annotation.Configure(infra, site);
+
+                var containers = infra.GetProvisionableResources().OfType<SiteContainer>().ToArray();
+                Assert.Equal(3, containers.Length);
+                var sidecars = containers.Where(container => !container.IsMain.Value).ToArray();
+                Assert.Equal(2, sidecars.Length);
+                Assert.All(sidecars, container =>
+                {
+                    Assert.Same(site, container.Parent);
+                    Assert.False(container.InheritAppSettingsAndConnectionStrings.Value);
+                    Assert.Empty(container.VolumeMounts);
+                    Assert.Equal(SiteContainerAuthType.UserAssigned, container.AuthType.Value);
+                    Assert.Equal("00000000-0000-0000-0000-000000000000", container.UserManagedIdentityClientId.Value);
+                    var port = Assert.IsType<WebAppEnvironmentVariable>(Assert.Single(container.EnvironmentVariables).Value);
+                    Assert.Equal("PORT", port.Name.Value);
+                    Assert.Equal(container.TargetPort.Value, port.Value.Value);
+                });
+                Assert.Equal(new string?[] { "4323", "4324" }, sidecars.Select(container => container.TargetPort.Value));
+                Assert.Equal("/healthz/api-docs", site.SiteConfig.HealthCheckPath.Value);
+                Assert.Equal(2, site.SiteConfig.NumberOfWorkers.Value);
+                Assert.True(site.SiteConfig.IsAlwaysOn.Value);
+                Assert.True(site.IsEndToEndEncryptionEnabled.Value);
+                Assert.Contains(site.SiteConfig.AppSettings, setting =>
+                    setting.Value is { } pair &&
+                    pair.Name.Value == "WEBSITE_HEALTHCHECK_MAXPINGFAILURES" && pair.Value.Value == "2");
+            });
+            await using var app = builder.Build();
+            var bicep = infrastructure.Resource.GetBicepTemplateString();
+            Assert.Contains("isMain: false", bicep, StringComparison.Ordinal);
+            Assert.Contains("healthCheckPath: '/healthz/api-docs'", bicep, StringComparison.Ordinal);
+            Assert.Contains("endToEndEncryptionEnabled: true", bicep, StringComparison.Ordinal);
         }
         finally
         {

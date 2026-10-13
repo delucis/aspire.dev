@@ -39,6 +39,14 @@
 
   <ItemGroup>
     <Content Remove="wwwroot\**" Condition="'$(ASPIRE_HYBRID_API_DOCS)' == '1'" />
+    <Content Include="../../frontend/dist-hybrid/client/**/*"
+             Link="hybrid/client/%(RecursiveDir)%(Filename)%(Extension)"
+             CopyToPublishDirectory="PreserveNewest"
+             Condition="'$(ASPIRE_HYBRID_API_DOCS)' == '1'" />
+    <Content Include="../../frontend/dist-hybrid/hybrid-api-docs.json"
+             Link="hybrid/hybrid-api-docs.json"
+             CopyToPublishDirectory="PreserveNewest"
+             Condition="'$(ASPIRE_HYBRID_API_DOCS)' == '1'" />
     <!--
       The frontend ESProj produces wwwroot static assets at build time.
       PrivateAssets="all" prevents MSBuild from propagating its output (the
@@ -48,7 +56,8 @@
       fails with `error CS0006: Metadata file '.../frontend/dist' could not
       be found` unless the frontend has already been built.
     -->
-    <ProjectReference Include="../../frontend/frontend.esproj" PrivateAssets="all" />
+    <ProjectReference Include="../../frontend/frontend.esproj" PrivateAssets="all"
+                      Condition="'$(ASPIRE_HYBRID_API_DOCS)' != '1'" />
   </ItemGroup>
 
   <Import Project="Caching.targets" />

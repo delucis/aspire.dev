@@ -1,6 +1,12 @@
 import { expect, test } from '@playwright/test';
 
 test('built StaticHost navigation keeps API styles, search and Markdown actions usable', async ({ page, context }) => {
+  const missingAssets: string[] = [];
+  page.on('response', response => {
+    if (response.status() >= 400 && new URL(response.url()).origin === new URL(page.url()).origin) {
+      missingAssets.push(`${response.status()} ${response.url()}`);
+    }
+  });
   await context.grantPermissions(['clipboard-read', 'clipboard-write']);
   await page.goto('/');
   await expect(page).not.toHaveTitle('Aspire Static Host');
@@ -33,4 +39,5 @@ test('built StaticHost navigation keeps API styles, search and Markdown actions 
   await expect(page.locator('[data-api-search-language="csharp"]')).toBeVisible();
   await page.goto('/docs/');
   await expect(page.locator('h1')).toBeVisible();
+  expect(missingAssets).toEqual([]);
 });
