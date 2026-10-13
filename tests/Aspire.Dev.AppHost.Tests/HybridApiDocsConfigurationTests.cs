@@ -115,6 +115,12 @@ public sealed class HybridApiDocsConfigurationTests
                 Assert.Contains(site.SiteConfig.AppSettings, setting =>
                     setting.Value is { } pair &&
                     pair.Name.Value == "WEBSITE_HEALTHCHECK_MAXPINGFAILURES" && pair.Value.Value == "2");
+                Assert.Contains(site.SiteConfig.AppSettings, setting =>
+                    setting.Value is { } pair &&
+                    pair.Name.Value == "WEBSITE_WARMUP_PATH" && pair.Value.Value == "/healthz/api-docs");
+                Assert.Contains(site.SiteConfig.AppSettings, setting =>
+                    setting.Value is { } pair &&
+                    pair.Name.Value == "WEBSITE_WARMUP_STATUSES" && pair.Value.Value == "200");
             });
             await using var app = builder.Build();
             var bicep = infrastructure.Resource.GetBicepTemplateString();
