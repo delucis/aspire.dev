@@ -68,7 +68,11 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 // Resolve request casing before any middleware rewrites or matches the static path.
-if (hybridArtifact is not null) app.UseHybridApiDocsRouting();
+if (hybridArtifact is not null)
+{
+    app.UseResponseCompression();
+    app.UseHybridApiDocsRouting();
+}
 app.UseCanonicalPathRedirects();
 
 // Agent-readiness middlewares MUST run before UseDefaultFiles + UseRouting:
