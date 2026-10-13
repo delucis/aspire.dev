@@ -14,8 +14,11 @@ test('built StaticHost navigation keeps API styles, search and Markdown actions 
   await expect(page.locator('meta[name="git-commit-id"]')).toHaveCount(1);
   await page.goto('/reference/api/typescript/');
   await expect(page.locator('[data-api-search-language="typescript"]')).toBeVisible();
-  const index = await page.locator('[data-api-search-index]').textContent();
-  expect(index?.length).toBeGreaterThan(0);
+  const indexUrl = await page.locator('[data-api-search-language="typescript"]').getAttribute('data-api-search-index-url');
+  expect(indexUrl).toBe('/reference/api-search/typescript.json');
+  await expect(page.locator('[data-api-search-index]')).toHaveCount(0);
+  const index = await (await page.request.get(indexUrl!)).json();
+  expect(Array.isArray(index) && index.length).toBeGreaterThan(0);
   const markdownRequest = page.waitForResponse(response =>
     response.url().endsWith('/reference/api/typescript.md') && response.ok());
   await page.locator('[data-page-action="copy-markdown"]:visible').first().click();

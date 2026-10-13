@@ -39,7 +39,12 @@ describe('build-time hybrid opt-in', () => {
       await Reflect.apply(setup, undefined, [{ route }]);
       expect(route.prerender).toBe(false);
     }
-    for (const component of ['src/content/docs/reference/api-guidance.mdx', 'src/pages/reference/samples/[sample].md.ts']) {
+    for (const component of [
+      'src/content/docs/reference/api-guidance.mdx',
+      'src/pages/reference/samples/[sample].md.ts',
+      'src/pages/reference/api-search/typescript.json.ts',
+      'src/pages/reference/api-search/csharp/[package].json.ts',
+    ]) {
       expect(isApiRouteComponent(component)).toBe(false);
     }
   });
@@ -121,6 +126,10 @@ describe('API route catalogue', () => {
       await mkdir(resolve(hybrid, 'client'), { recursive: true });
       await mkdir(resolve(hybrid, 'server'), { recursive: true });
       await writeFile(resolve(baseline, 'reference/api/csharp/index.html'), 'API');
+      await mkdir(resolve(baseline, 'reference/api-search'), { recursive: true });
+      await mkdir(resolve(hybrid, 'client/reference/api-search'), { recursive: true });
+      await writeFile(resolve(baseline, 'reference/api-search/typescript.json'), '[]');
+      await writeFile(resolve(hybrid, 'client/reference/api-search/typescript.json'), '[]');
       for (const file of ['index.html', '404.html', 'llms.txt', 'sitemap-index.xml']) {
         await writeFile(resolve(baseline, file), 'static');
         await writeFile(resolve(hybrid, 'client', file), 'static');
@@ -136,6 +145,9 @@ describe('API route catalogue', () => {
       await mkdir(resolve(hybrid, 'client/reference/api/csharp'), { recursive: true });
       await writeFile(resolve(hybrid, 'client/reference/api/csharp/index.html'), 'unexpected API');
       await expect(verifyHybridOutput(baseline, hybrid)).rejects.toThrow('API HTML/Markdown was prerendered.');
+      await rm(resolve(hybrid, 'client/reference/api/csharp/index.html'));
+      await rm(resolve(hybrid, 'client/reference/api-search/typescript.json'));
+      await expect(verifyHybridOutput(baseline, hybrid)).rejects.toThrow('Missing API search index.');
     } finally {
       await rm(directory, { recursive: true, force: true });
     }
