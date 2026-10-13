@@ -144,8 +144,13 @@ try {
   assert.equal(credentialRequest.response.headers.get('X-Astro-Cache'), null);
   assert.equal((await page('/reference/api/csharp/')).response.headers.get('X-Astro-Cache'), 'HIT');
   const typescript = await page('/reference/api/typescript/');
-  assert.ok(Buffer.byteLength(typescript.text) >= 13_621_124);
+  assert.ok(typescript.text.includes('data-api-search-index-url="/reference/api-search/typescript.json"'));
+  assert.ok(Buffer.byteLength(typescript.text) < 2_000_000, 'The search index must not be embedded in the page.');
   assert.equal(Number(typescript.response.headers.get('content-length')), Buffer.byteLength(typescript.text));
+  const searchIndex = await page('/reference/api-search/typescript.json');
+  assert.equal(searchIndex.response.headers.get('X-Astro-Cache'), null, 'The index is served as a static file.');
+  assert.ok(Buffer.byteLength(searchIndex.text) >= 13_000_000);
+  assert.ok(JSON.parse(searchIndex.text).length > 30_000);
   for (const language of ['csharp', 'typescript']) {
     const route = manifest.routes.find(({ html }) => html?.startsWith(`/reference/api/${language}/`) && html.split('/').length >= 7);
     assert.ok(route);
