@@ -85,8 +85,12 @@ static pages remain available. Restarting Node clears its cache; restarting
 StaticHost does not. Restart the whole pair when replacing the artifact.
 
 Existing Redis/live-status behavior and the static Azure deployment are
-unchanged. Hybrid Azure publishing remains blocked; the local Node processes
-are not deployed sidecar containers. Runtime images are restricted to bundled
+unchanged. Hybrid publishing models a .NET main container and two private Astro
+sidecars in the same App Service, without shared volumes. Build the renderer
+image with `src/frontend/Dockerfile.hybrid`, push it to the App Service registry,
+and supply its immutable image reference as `Parameters__api_docs_image` to the
+Aspire deployment. Both images must use the same Linux build artifact. No Azure
+resources are provisioned by the POC CI. Runtime images are restricted to bundled
 local files and dimensions up to 4096 pixels.
 
 Unset the flag to return to the ordinary Vite/local workflow:

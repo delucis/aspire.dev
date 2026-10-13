@@ -35,11 +35,9 @@ internal sealed class HybridApiDocsArtifact
         Site = site;
         var root = Path.GetDirectoryName(Path.GetFullPath(path))!;
         ClientDirectory = ResolveArtifactPath(root, manifest.Client);
-        var server = ResolveArtifactPath(root, manifest.Server);
-        if (!Directory.Exists(ClientDirectory) || !File.Exists(server) ||
-            server.StartsWith(ClientDirectory + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase))
+        if (!Directory.Exists(ClientDirectory))
         {
-            throw new InvalidOperationException("The hybrid artifact must contain a static client and a private server entrypoint.");
+            throw new InvalidOperationException("The selected hybrid client directory does not exist.");
         }
         foreach (var route in manifest.Routes)
         {

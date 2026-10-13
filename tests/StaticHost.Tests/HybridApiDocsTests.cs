@@ -263,7 +263,6 @@ internal sealed class HybridHost : IAsyncDisposable
         var root = new TempWebRoot();
         root.WriteFile("client/guide/index.html", "static guide");
         root.WriteFile("client/_astro/logo.svg", "<svg/>");
-        root.WriteFile("server/entry.mjs", "private server");
         var pages = new[] { "demo", "private", "cookie", "failure", "broken", "mismatch", "oversize", "large", "cold" };
         root.WriteFile("hybrid.json", JsonSerializer.Serialize(new HybridApiManifest(
             1, "hybrid-api-docs", new string('a', 64), "client", "server/entry.mjs", "https://aspire.dev",

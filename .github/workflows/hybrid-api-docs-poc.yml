@@ -45,6 +45,7 @@ jobs:
         with:
           name: hybrid-api-docs-poc-windows
           path: src/frontend/dist-hybrid
+          include-hidden-files: true
           if-no-files-found: error
           retention-days: 7
 
@@ -106,15 +107,21 @@ jobs:
           BUILD_TIMING_OUT: ${{ runner.temp }}/hybrid-poc/hybrid-timing.jsonl
         run: /usr/bin/time -v -o "$RUNNER_TEMP/hybrid-poc/hybrid-resources.txt" pnpm build:production
       - name: Verify output and non-API parity
-        run: node scripts/verify-hybrid-output.mjs
-      - name: Build existing StaticHost with hybrid client assets
+        run: |
+          node scripts/verify-hybrid-output.mjs
+          rm -r dist
+      - name: Build independent StaticHost and Astro images
         env:
           ASPIRE_HYBRID_API_DOCS: '1'
-        run: dotnet build ../statichost/StaticHost/StaticHost.csproj -c Release --nologo
+        run: |
+          dotnet publish ../statichost/StaticHost/StaticHost.csproj -c Release --os linux --arch x64 \
+            -t:PublishContainer -p:ContainerRepository=hybrid-poc-host -p:ContainerImageTag=test --nologo
+          docker build -f Dockerfile.hybrid -t hybrid-poc-renderer:test .
       - name: Verify rendering, caching and worker outages
         env:
           ConnectionStrings__cache: localhost:6379,abortConnect=false
           HYBRID_TEST_BROWSER: '1'
+          HYBRID_TEST_CONTAINERS: '1'
         run: node scripts/test-hybrid-host.mjs
       - name: Upload private POC artifact
         if: always()
@@ -122,6 +129,7 @@ jobs:
         with:
           name: hybrid-api-docs-poc
           path: src/frontend/dist-hybrid
+          include-hidden-files: true
           if-no-files-found: warn
           retention-days: 7
       - name: Upload POC measurements

@@ -1,14 +1,20 @@
 import assert from 'node:assert/strict';
-import { spawn } from 'node:child_process';
+import { execFile, execFileSync, spawn } from 'node:child_process';
 import { once } from 'node:events';
 import { readFile, writeFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { promisify } from 'node:util';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const manifestPath = resolve(root, 'dist-hybrid/hybrid-api-docs.json');
 const manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
 const children = [];
+const containerMode = process.env.HYBRID_TEST_CONTAINERS === '1';
+const hostContainer = `hybrid-host-${process.pid}`;
+const workerContainer = `hybrid-renderer-${process.pid}`;
+const standbyContainer = `hybrid-standby-${process.pid}`;
+const execute = promisify(execFile);
 let output = '';
 
 function launch(command, args, env) {
@@ -20,13 +26,35 @@ function launch(command, args, env) {
   return child;
 }
 
-async function ready(url) {
+async function stopWorker(child, name) {
+  const stopped = once(child, 'exit');
+  if (containerMode) execFileSync('docker', ['stop', '--time', '2', name]);
+  else child.kill();
+  await stopped;
+  if (containerMode) execFileSync('docker', ['rm', name]);
+}
+
+async function request(url, init = {}) {
+  const container = { '14323': workerContainer, '14325': standbyContainer }[new URL(url).port];
+  if (!containerMode || !container) return fetch(url, init);
+  const { stdout } = await execute('docker', ['exec', container, 'node', '--input-type=module', '-e',
+    `const response = await fetch(${JSON.stringify(url)}, {
+      headers: ${JSON.stringify(init.headers ?? {})}, signal: AbortSignal.timeout(2000)
+    });
+    console.log(JSON.stringify({
+      body: await response.text(), status: response.status, headers: [...response.headers]
+    }));`], { timeout: 10000, maxBuffer: 64 * 1024 * 1024 });
+  const response = JSON.parse(stdout);
+  return new Response(response.body, { status: response.status, headers: response.headers });
+}
+
+async function ready(url, child) {
   for (let attempt = 0; attempt < 120; attempt++) {
     try {
-      const response = await fetch(url, { signal: AbortSignal.timeout(2000) });
+      const response = await request(url, { signal: AbortSignal.timeout(2000) });
       if (response.ok) return;
     } catch (error) {
-      if (children.some((child) => child.exitCode !== null)) throw new Error(`POC process exited: ${output}`, { cause: error });
+      if (child.exitCode !== null) throw new Error(`POC process exited: ${output}`, { cause: error });
     }
     await new Promise((resolve) => setTimeout(resolve, 500));
   }
@@ -38,15 +66,32 @@ const standbyUrl = 'http://127.0.0.1:14325';
 const hostUrl = 'http://127.0.0.1:14324';
 const measures = {};
 try {
-  const worker = launch(process.execPath, ['scripts/serve-api-docs.mjs'], {
-    ...process.env, PORT: '14323', HYBRID_API_DOCS_MANIFEST: manifestPath,
-  });
-  const standby = launch(process.execPath, ['scripts/serve-api-docs.mjs'], {
-    ...process.env, PORT: '14325', HYBRID_API_DOCS_MANIFEST: manifestPath,
-  });
-  await ready(`${workerUrl}/__hybrid-api-docs/health`);
-  await ready(`${standbyUrl}/__hybrid-api-docs/health`);
-  launch('dotnet', [resolve(root, '../statichost/StaticHost/bin/Release/net10.0/StaticHost.dll')], {
+  let host;
+  if (containerMode) {
+    host = launch('docker', ['run', '--name', hostContainer,
+      '--add-host', 'host.docker.internal:host-gateway',
+      '-p', '14324:8080',
+      '-e', 'ASPNETCORE_ENVIRONMENT=Production',
+      '-e', 'HybridApiDocs__ArtifactPath=/app/hybrid/hybrid-api-docs.json',
+      '-e', `HybridApiDocs__RendererUrls__0=${workerUrl}`,
+      '-e', `HybridApiDocs__RendererUrls__1=${standbyUrl}`,
+      '-e', 'ConnectionStrings__cache=host.docker.internal:6379,abortConnect=false',
+      'hybrid-poc-host:test'], process.env);
+    await ready(`${hostUrl}/healthz`, host);
+  }
+  function workerProcess(name, port) {
+    return containerMode
+      ? launch('docker', ['run', '--name', name, '--network', `container:${hostContainer}`,
+        '-e', `PORT=${port}`, 'hybrid-poc-renderer:test'], process.env)
+      : launch(process.execPath, ['scripts/serve-api-docs.mjs'], {
+        ...process.env, PORT: String(port), HYBRID_API_DOCS_MANIFEST: manifestPath,
+      });
+  }
+  const worker = workerProcess(workerContainer, 14323);
+  const standby = workerProcess(standbyContainer, 14325);
+  await ready(`${workerUrl}/__hybrid-api-docs/health`, worker);
+  await ready(`${standbyUrl}/__hybrid-api-docs/health`, standby);
+  if (!containerMode) host = launch('dotnet', [resolve(root, '../statichost/StaticHost/bin/Release/net10.0/StaticHost.dll')], {
     ...process.env,
     ASPNETCORE_URLS: hostUrl,
     ASPNETCORE_ENVIRONMENT: 'Production',
@@ -56,9 +101,16 @@ try {
     Live__Twitch__ClientId: '',
     Live__YouTube__ApiKey: '',
   });
-  await ready(`${hostUrl}/healthz`);
-  await ready(`${hostUrl}/healthz/api-docs`);
-  const stats = async () => (await fetch(`${workerUrl}/__hybrid-api-docs/health`)).json();
+  await ready(`${hostUrl}/healthz`, host);
+  await ready(`${hostUrl}/healthz/api-docs`, host);
+  if (containerMode) {
+    const containers = JSON.parse(execFileSync('docker', ['inspect', hostContainer, workerContainer, standbyContainer], { encoding: 'utf8' }));
+    assert.ok(containers.every(container => container.Mounts.length === 0), 'No checkout or shared volume may supply runtime files.');
+    assert.deepEqual(Object.keys(containers[0].HostConfig.PortBindings), ['8080/tcp']);
+    assert.ok(containers.slice(1).every(container =>
+      [`container:${hostContainer}`, `container:${containers[0].Id}`].includes(container.HostConfig.NetworkMode)));
+  }
+  const stats = async () => (await request(`${workerUrl}/__hybrid-api-docs/health`)).json();
   async function page(path, init = {}) {
     const start = performance.now();
     const response = await fetch(hostUrl + path, { ...init, signal: AbortSignal.timeout(60000) });
@@ -83,7 +135,7 @@ try {
   assert.equal(csharpHit.response.headers.get('X-Astro-Cache'), 'HIT');
   assert.equal((await stats()).requests, cold.requests + 1, 'StaticHost must forward cache hits to Astro.');
   assert.equal((await stats()).cacheMisses, cold.cacheMisses);
-  const directHit = await fetch(`${workerUrl}/reference/api/csharp/`, {
+  const directHit = await request(`${workerUrl}/reference/api/csharp/`, {
     headers: { Host: 'aspire.dev', 'X-Forwarded-Host': 'aspire.dev', 'X-Forwarded-Proto': 'https' },
   });
   assert.equal(directHit.headers.get('X-Astro-Cache'), 'HIT', 'The same response must be cached in Astro itself.');
@@ -122,17 +174,13 @@ try {
     assert.equal((await once(browser, 'exit'))[0], 0, output.slice(-10000));
   }
   const final = await stats();
-  const stopped = once(worker, 'exit');
-  worker.kill();
-  await stopped;
+  await stopWorker(worker, workerContainer);
   await page('/docs/');
   const failover = await page('/reference/api/csharp/');
   assert.equal(failover.response.headers.get('X-Astro-Cache'), 'MISS', 'The standby owns its own native cache.');
   assert.equal((await page('/reference/api/csharp/')).response.headers.get('X-Astro-Cache'), 'HIT');
   assert.equal((await fetch(`${hostUrl}/healthz/api-docs`)).status, 200);
-  const standbyStopped = once(standby, 'exit');
-  standby.kill();
-  await standbyStopped;
+  await stopWorker(standby, standbyContainer);
   const previouslyCached = await fetch(`${hostUrl}/reference/api/csharp/`);
   assert.equal(previouslyCached.status, 502, 'No ASP.NET cache may hide loss of every renderer.');
   assert.equal((await fetch(`${hostUrl}/healthz/api-docs`)).status, 503);
@@ -141,10 +189,21 @@ try {
   assert.ok(unwarmed);
   const failure = await fetch(hostUrl + unwarmed.html);
   assert.equal(failure.status, 502);
-  const results = { success: true, cacheOwner: 'astro-memory', primaryOutageFailover: true, buildId: manifest.buildId, measures, initial, final };
+  const recovered = workerProcess(workerContainer, 14323);
+  await ready(`${workerUrl}/__hybrid-api-docs/health`, recovered);
+  await ready(`${hostUrl}/healthz/api-docs`, host);
+  assert.equal((await page('/reference/api/csharp/')).response.headers.get('X-Astro-Cache'), 'MISS');
+  assert.equal((await page('/reference/api/csharp/')).response.headers.get('X-Astro-Cache'), 'HIT');
+  const results = { success: true, separateContainers: containerMode, cacheOwner: 'astro-memory', primaryOutageFailover: true, rendererRecovery: true, buildId: manifest.buildId, measures, initial, final };
   await writeFile(resolve(root, 'hybrid-host-results.json'), JSON.stringify(results, null, 2));
   console.log(JSON.stringify(results, null, 2));
 } finally {
-  for (const child of children) if (child.exitCode === null) child.kill();
   await writeFile(resolve(root, 'hybrid-host-processes.log'), output);
+  if (containerMode) {
+    for (const name of [workerContainer, standbyContainer, hostContainer]) {
+      const running = execFileSync('docker', ['ps', '-aq', '--filter', `name=^/${name}$`], { encoding: 'utf8' }).trim();
+      if (running) execFileSync('docker', ['rm', '--force', name]);
+    }
+  }
+  for (const child of children) if (child.exitCode === null) child.kill();
 }

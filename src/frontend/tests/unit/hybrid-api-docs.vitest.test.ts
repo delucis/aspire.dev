@@ -1,7 +1,7 @@
 import { readFileSync, readdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { resolve } from 'node:path';
-import { mkdtemp, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
+import { mkdtemp, mkdir, readFile, readdir, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { pathToFileURL } from 'node:url';
 import { describe, expect, it } from 'vitest';
@@ -58,12 +58,18 @@ describe('build-time hybrid opt-in', () => {
     try {
       const root = resolve(directory, 'frontend');
       const out = resolve(root, 'dist-hybrid');
-      for (const path of ['src/data/pkgs', 'src/data/ts-modules', 'dist-hybrid/client', 'dist-hybrid/server']) {
+      for (const path of ['src/data/pkgs', 'src/data/ts-modules', 'src/data/twoslash', '.starlight-icons', 'dist-hybrid/client/_astro', 'dist-hybrid/server']) {
         await mkdir(resolve(root, path), { recursive: true });
       }
       await mkdir(resolve(directory, 'statichost/StaticHost/wwwroot/scalar'), { recursive: true });
       await writeFile(resolve(directory, 'statichost/StaticHost/wwwroot/scalar/theme.css'), 'scalar styles');
       await writeFile(resolve(out, 'client/sitemap-index.xml'), '<sitemapindex></sitemapindex>');
+      await writeFile(resolve(out, 'client/404.html'), 'not found');
+      await writeFile(resolve(out, 'client/_astro/logo.svg'), '<svg/>');
+      await writeFile(resolve(out, 'client/_astro/image.PNG'), 'image bytes');
+      await writeFile(resolve(out, 'client/_astro/script.js'), 'client script');
+      await writeFile(resolve(root, '.starlight-icons/version.txt'), 'test');
+      await writeFile(resolve(root, 'src/data/twoslash/aspire.d.ts'), 'export {};');
       await writeFile(resolve(out, 'server/entry.mjs'), 'export const handler = () => {};');
       const integration = hybridApiDocsIntegration({ '/old/': '/new/' });
       const configure = integration.hooks['astro:config:done'];
@@ -82,6 +88,11 @@ describe('build-time hybrid opt-in', () => {
       expect(manifest.routes).toHaveLength(2);
       expect(await readFile(resolve(out, 'client/sitemap-api.xml'), 'utf8')).toContain('https://aspire.dev/reference/api/typescript/');
       expect(await readFile(resolve(out, 'client/scalar/theme.css'), 'utf8')).toBe('scalar styles');
+      expect(await readFile(resolve(out, 'renderer/client/_astro/logo.svg'), 'utf8')).toBe('<svg/>');
+      expect((await readdir(resolve(out, 'renderer/client/_astro'))).sort()).toEqual(['image.PNG', 'logo.svg']);
+      expect(await readFile(resolve(out, 'renderer/client/404.html'), 'utf8')).toBe('not found');
+      expect(await readFile(resolve(out, 'renderer/.starlight-icons/version.txt'), 'utf8')).toBe('test');
+      expect(await readFile(resolve(out, 'server/src/data/twoslash/aspire.d.ts'), 'utf8')).toBe('export {};');
     } finally {
       await rm(directory, { recursive: true, force: true });
     }

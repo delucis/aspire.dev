@@ -1,7 +1,7 @@
 // @ts-check
 import { createHash } from 'node:crypto';
-import { cp, readFile, readdir, writeFile } from 'node:fs/promises';
-import { resolve } from 'node:path';
+import { cp, mkdir, readFile, readdir, writeFile } from 'node:fs/promises';
+import { resolve, extname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { memoryCache } from 'astro/config';
 import { buildApiRouteCatalog } from '../src/utils/api-route-catalog.ts';
@@ -86,6 +86,17 @@ export function hybridApiDocsIntegration(redirects) {
         }));
         await cp(resolve(root, '../statichost/StaticHost/wwwroot/scalar'),
           resolve(out, 'client/scalar'), { recursive: true });
+        const rendererClient = resolve(out, 'renderer/client');
+        await mkdir(resolve(rendererClient, '_astro'), { recursive: true });
+        for (const file of await readdir(resolve(out, 'client/_astro'))) {
+          if (['.svg', '.png', '.jpg', '.jpeg', '.webp', '.avif', '.gif'].includes(extname(file).toLowerCase())) {
+            await cp(resolve(out, 'client/_astro', file), resolve(rendererClient, '_astro', file));
+          }
+        }
+        await cp(resolve(out, 'client/404.html'), resolve(rendererClient, '404.html'));
+        await cp(resolve(root, '.starlight-icons'), resolve(out, 'renderer/.starlight-icons'), { recursive: true });
+        await mkdir(resolve(out, 'server/src/data/twoslash'), { recursive: true });
+        await cp(resolve(root, 'src/data/twoslash/aspire.d.ts'), resolve(out, 'server/src/data/twoslash/aspire.d.ts'));
         const hash = createHash('sha256');
         hash.update(JSON.stringify({ routes, redirects: redirectEntries, site, platform: process.platform }));
         await hashDirectory(resolve(out, 'client'), hash, 'client/');
