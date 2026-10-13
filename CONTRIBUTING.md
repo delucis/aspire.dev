@@ -93,6 +93,9 @@ Aspire deployment. Both images must use the same Linux build artifact. No Azure
 resources are provisioned by the POC CI. Runtime images are restricted to bundled
 local files and dimensions up to 4096 pixels.
 
+Set `HybridApiDocsArtifactDirectory` to select an artifact outside `dist-hybrid`,
+for example when keeping Windows local and Linux deployment artifacts separate.
+
 Unset the flag to return to the ordinary Vite/local workflow:
 
 ```powershell

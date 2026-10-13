@@ -17,6 +17,7 @@ var cache = builder.AddAzureManagedRedis("cache")
     .RunAsContainer();
 
 var staticHostWebsite = builder.AddProject<Projects.StaticHost>("aspiredev")
+    .WithComputeEnvironment(production)
     .WithReference(cache)
     .WithExternalHttpEndpoints()
     .PublishAsAzureAppServiceWebsite((infra, website) =>

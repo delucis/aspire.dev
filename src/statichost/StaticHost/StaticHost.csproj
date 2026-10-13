@@ -9,6 +9,7 @@
     <ContainerFamily>noble-chiseled</ContainerFamily>
     <IntermediateOutputPath Condition="'$(ASPIRE_HYBRID_API_DOCS)' == '1'">obj/$(Configuration)/hybrid/</IntermediateOutputPath>
     <DefineConstants Condition="'$(ASPIRE_HYBRID_API_DOCS)' == '1'">$(DefineConstants);HYBRID_API_DOCS_BUILD</DefineConstants>
+    <HybridApiDocsArtifactDirectory Condition="'$(HybridApiDocsArtifactDirectory)' == ''">$(MSBuildProjectDirectory)/../../frontend/dist-hybrid</HybridApiDocsArtifactDirectory>
 
     <!-- Disable default compression formats to specify only brotli. -->
     <EnableDefaultCompressionFormats>false</EnableDefaultCompressionFormats>
@@ -39,11 +40,11 @@
 
   <ItemGroup>
     <Content Remove="wwwroot\**" Condition="'$(ASPIRE_HYBRID_API_DOCS)' == '1'" />
-    <Content Include="../../frontend/dist-hybrid/client/**/*"
+    <Content Include="$(HybridApiDocsArtifactDirectory)/client/**/*"
              Link="hybrid/client/%(RecursiveDir)%(Filename)%(Extension)"
              CopyToPublishDirectory="PreserveNewest"
              Condition="'$(ASPIRE_HYBRID_API_DOCS)' == '1'" />
-    <Content Include="../../frontend/dist-hybrid/hybrid-api-docs.json"
+    <Content Include="$(HybridApiDocsArtifactDirectory)/hybrid-api-docs.json"
              Link="hybrid/hybrid-api-docs.json"
              CopyToPublishDirectory="PreserveNewest"
              Condition="'$(ASPIRE_HYBRID_API_DOCS)' == '1'" />

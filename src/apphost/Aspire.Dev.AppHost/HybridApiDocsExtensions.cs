@@ -16,7 +16,9 @@ internal static class HybridApiDocsExtensions
     public static void WithHybridApiDocs(this IResourceBuilder<ProjectResource> website,
         IDistributedApplicationBuilder builder, string frontendDirectory)
     {
-        var manifest = Path.GetFullPath(Path.Combine(frontendDirectory, "dist-hybrid", "hybrid-api-docs.json"));
+        var artifactDirectory = builder.Configuration["HybridApiDocsArtifactDirectory"]
+            ?? Path.Combine(frontendDirectory, "dist-hybrid");
+        var manifest = Path.GetFullPath(Path.Combine(artifactDirectory, "hybrid-api-docs.json"));
         if (!File.Exists(manifest))
             throw new InvalidOperationException($"Build or download the opted-in hybrid CI artifact: {manifest}");
         using var json = JsonDocument.Parse(File.ReadAllText(manifest));

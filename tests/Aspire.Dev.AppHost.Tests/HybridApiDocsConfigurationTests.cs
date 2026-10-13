@@ -17,19 +17,23 @@ public sealed class HybridApiDocsConfigurationTests
     public void InvalidBuildModeFailsClearly()
         => Assert.Throws<InvalidOperationException>(() => HybridApiDocsExtensions.IsHybridApiDocsEnabled("true"));
 
-    [Fact]
-    public async Task LocalGraphUsesTwoPrivateWorkersAndEndpointReferences()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task LocalGraphUsesTwoPrivateWorkersAndEndpointReferences(bool externalArtifact)
     {
         var directory = Path.Combine(Path.GetTempPath(), $"aspire-hybrid-graph-{Guid.NewGuid():N}");
-        Directory.CreateDirectory(Path.Combine(directory, "dist-hybrid"));
+        var artifactDirectory = Path.Combine(directory, externalArtifact ? "artifact-windows" : "dist-hybrid");
+        Directory.CreateDirectory(artifactDirectory);
         try
         {
-            File.WriteAllText(Path.Combine(directory, "dist-hybrid", "hybrid-api-docs.json"),
+            File.WriteAllText(Path.Combine(artifactDirectory, "hybrid-api-docs.json"),
                 $$"""{"mode":"hybrid-api-docs","platform":"{{(OperatingSystem.IsWindows() ? "win32" : "linux")}}"}""");
             var builder = DistributedApplication.CreateBuilder(new DistributedApplicationOptions
             {
                 DisableDashboard = true,
             });
+            if (externalArtifact) builder.Configuration["HybridApiDocsArtifactDirectory"] = artifactDirectory;
             var website = builder.AddProject<Projects.StaticHost>("aspiredev");
             website.WithHybridApiDocs(builder, directory);
             await using var app = builder.Build();
@@ -50,7 +54,7 @@ public sealed class HybridApiDocsConfigurationTests
             }
             Assert.IsType<Aspire.Hosting.ApplicationModel.EndpointReference>(environment["HybridApiDocs__RendererUrls__0"]);
             Assert.IsType<Aspire.Hosting.ApplicationModel.EndpointReference>(environment["HybridApiDocs__RendererUrls__1"]);
-            Assert.Equal(Path.Combine(directory, "dist-hybrid", "hybrid-api-docs.json"),
+            Assert.Equal(Path.Combine(artifactDirectory, "hybrid-api-docs.json"),
                 environment["HybridApiDocs__ArtifactPath"]);
         }
         finally
