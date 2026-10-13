@@ -1,6 +1,7 @@
 **
 !Dockerfile.hybrid
 !package.json
+!tsconfig.json
 !pnpm-lock.yaml
 !pnpm-workspace.yaml
 !patches/
