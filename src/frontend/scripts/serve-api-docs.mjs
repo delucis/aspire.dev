@@ -18,14 +18,19 @@ const entryRelative = relative(root, entry);
 if (isAbsolute(entryRelative) || entryRelative.startsWith('..')) throw new Error('Renderer entrypoint escapes its artifact.');
 const { handler } = await import(pathToFileURL(entry).href);
 const paths = new Set(manifest.routes.flatMap(({ html, markdown }) => html ? [html, markdown] : [markdown]));
-let renders = 0;
+let requests = 0;
+let cacheHits = 0;
+let cacheMisses = 0;
+let ready = false;
 const started = process.memoryUsage();
 const server = http.createServer((req, res) => {
   res.setHeader('X-Aspire-Build-Id', manifest.buildId);
   const url = new URL(req.url, 'http://localhost');
   if (url.pathname === '/__hybrid-api-docs/health') {
     res.setHeader('Content-Type', 'application/json');
-    res.end(JSON.stringify({ buildId: manifest.buildId, renders, started, memory: process.memoryUsage() }));
+    res.setHeader('Cache-Control', 'no-store');
+    res.statusCode = ready ? 200 : 503;
+    res.end(JSON.stringify({ ready, buildId: manifest.buildId, requests, cacheHits, cacheMisses, started, memory: process.memoryUsage() }));
     return;
   }
   if (!['GET', 'HEAD'].includes(req.method)) {
@@ -38,7 +43,14 @@ const server = http.createServer((req, res) => {
     res.end('API route not found');
     return;
   }
-  renders++;
+  if (req.headers.authorization) {
+    req.headers['x-aspire-cache-bypass'] = '1';
+  }
+  requests++;
+  res.once('finish', () => {
+    if (res.getHeader('X-Astro-Cache') === 'HIT') cacheHits++;
+    if (res.getHeader('X-Astro-Cache') === 'MISS') cacheMisses++;
+  });
   handler(req, res, () => {
     res.writeHead(404);
     res.end('API route not found');
@@ -52,8 +64,29 @@ const server = http.createServer((req, res) => {
   });
 });
 server.on('error', (error) => { console.error(error); process.exitCode = 1; });
-server.listen(Number(process.env.PORT || 4323), process.env.HOST || '127.0.0.1', () => {
-  console.log(`[hybrid-api-docs] ${manifest.buildId} listening on ${JSON.stringify(server.address())}`);
+server.listen(Number(process.env.PORT || 4323), process.env.HOST || '127.0.0.1', async () => {
+  try {
+    const path = manifest.routes.find(({ html }) => html?.split('/').length >= 7)?.html;
+    if (!path) throw new Error('The artifact has no API detail route for rendering readiness.');
+    const site = new URL(manifest.site);
+    const address = server.address();
+    const response = await fetch(`http://127.0.0.1:${address.port}${path}`, {
+      headers: {
+        Host: site.host, 'X-Forwarded-Host': site.host, 'X-Forwarded-Proto': site.protocol.slice(0, -1),
+        'X-Aspire-Cache-Bypass': '1',
+      },
+      signal: AbortSignal.timeout(30000),
+    });
+    const body = await response.text();
+    if (!response.ok || !body.includes('<html')) throw new Error(`API rendering readiness failed: HTTP ${response.status}`);
+    ready = true;
+    console.log(`[hybrid-api-docs] ${manifest.buildId} ready on ${JSON.stringify(address)}`);
+  } catch (error) {
+    console.error('[hybrid-api-docs] Startup rendering check failed', error);
+    process.exitCode = 1;
+    server.close();
+    server.closeAllConnections();
+  }
 });
 for (const signal of ['SIGINT', 'SIGTERM']) {
   process.on(signal, () => { server.close(); server.closeAllConnections(); });

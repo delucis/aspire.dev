@@ -64,26 +64,30 @@ Use `hybrid-api-docs-poc` on Linux or `hybrid-api-docs-poc-windows` on Windows.
 The Node adapter's build paths are platform-specific; a Linux artifact cannot
 run on Windows. The manifest checks the platform before starting the renderer.
 The manifest and server stay outside the public static root. Browse the
-StaticHost endpoint in the Aspire dashboard; the Node worker is internal.
+StaticHost endpoint in the Aspire dashboard. The AppHost runs two private Node
+processes, `api-docs` and `api-docs-standby`, from the same artifact. Dependencies
+must already be restored; startup does not install packages or rebuild the site.
 Missing or incompatible artifacts cause an actionable startup error instead of
 starting a development server or rebuilding the site.
 
-The API response cache is process-local, bounded to 128 MiB, and expires entries
-after 30 minutes. Individual renderer responses are limited to 64 MiB and use
-bounded buffering with an exact content length. Successful responses are keyed
-by build identity, request URL, and representation. Negotiated Markdown uses a
-separate variant so its private headers cannot contaminate direct Markdown or
-HTML responses. Failed, interrupted, authenticated, private, or cookie-setting
-responses are not cached.
+Astro's native `memoryCache()` is the only response cache: 128 LRU entries with a
+30-minute lifetime, not a 128 MiB byte budget. It does not guarantee cold-miss
+coalescing. StaticHost forwards every request, buffers up to 64 MiB, and sends
+on-demand output with `Cache-Control: no-store`. Negotiated Markdown shares the
+native `.md` entry; its private/Vary headers are applied during forwarding.
+Authorization requests bypass caching; preference cookies are not forwarded.
 
-Restart StaticHost to clear the cache; rebuild/download and restart the host and
-worker together to change builds. A worker outage does not prevent static pages
-or warmed API responses from being served, but a cold API request returns a
-gateway error. Existing Redis usage for live status is unchanged; API output
-caching does not use Redis. Azure hybrid publishing is intentionally rejected
-for this local POC, and the production deployment path remains static.
-On-demand image requests are limited to bundled local images and dimensions up
-to 4096 pixels; arbitrary remote URLs are not forwarded to the renderer.
+Workers verify a real API render before becoming ready. StaticHost retries a
+failed GET against the matching-build standby, with 10-second attempts within a
+30-second budget. `/healthz/api-docs` reports renderer readiness; `/healthz`
+reports host liveness. If both workers fail, APIs return gateway errors while
+static pages remain available. Restarting Node clears its cache; restarting
+StaticHost does not. Restart the whole pair when replacing the artifact.
+
+Existing Redis/live-status behavior and the static Azure deployment are
+unchanged. Hybrid Azure publishing remains blocked; the local Node processes
+are not deployed sidecar containers. Runtime images are restricted to bundled
+local files and dimensions up to 4096 pixels.
 
 Unset the flag to return to the ordinary Vite/local workflow:
 

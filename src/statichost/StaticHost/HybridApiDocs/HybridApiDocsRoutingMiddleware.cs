@@ -2,10 +2,7 @@ using Microsoft.AspNetCore.Http.Extensions;
 
 namespace StaticHost.HybridApiDocs;
 
-internal sealed record HybridApiDocsRequest(string RendererPath, string Representation, string? MarkdownPeer)
-{
-    public bool Cacheable { get; set; } = true;
-}
+internal sealed record HybridApiDocsRequest(string RendererPath, string Representation, string? MarkdownPeer);
 
 internal sealed class HybridApiDocsRoutingMiddleware(RequestDelegate next, HybridApiDocsArtifact artifact)
 {

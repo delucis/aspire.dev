@@ -16,7 +16,7 @@ public sealed class HybridApiDocsConfigurationTests
         => Assert.Throws<InvalidOperationException>(() => HybridApiDocsExtensions.IsHybridApiDocsEnabled("true"));
 
     [Fact]
-    public async Task LocalGraphUsesPrivateWorkerAndEndpointReferences()
+    public async Task LocalGraphUsesTwoPrivateWorkersAndEndpointReferences()
     {
         var directory = Path.Combine(Path.GetTempPath(), $"aspire-hybrid-graph-{Guid.NewGuid():N}");
         Directory.CreateDirectory(Path.Combine(directory, "dist-hybrid"));
@@ -31,10 +31,12 @@ public sealed class HybridApiDocsConfigurationTests
             var website = builder.AddProject<Projects.StaticHost>("aspiredev");
             website.WithHybridApiDocs(builder, directory);
             await using var app = builder.Build();
-            var worker = Assert.Single(builder.Resources.OfType<Aspire.Hosting.JavaScript.NodeAppResource>());
-            Assert.Equal("api-docs", worker.Name);
-            Assert.All(worker.Annotations.OfType<Aspire.Hosting.ApplicationModel.EndpointAnnotation>(),
-                endpoint => Assert.False(endpoint.IsExternal));
+            var workers = builder.Resources.OfType<Aspire.Hosting.JavaScript.NodeAppResource>().ToArray();
+            Assert.Equal(2, workers.Length);
+            Assert.Equal(["api-docs", "api-docs-standby"], workers.Select(worker => worker.Name).ToArray());
+            foreach (var worker in workers)
+                Assert.All(worker.Annotations.OfType<Aspire.Hosting.ApplicationModel.EndpointAnnotation>(),
+                    endpoint => Assert.False(endpoint.IsExternal));
 
             var environment = new Dictionary<string, object>();
             var context = new Aspire.Hosting.ApplicationModel.EnvironmentCallbackContext(
@@ -44,7 +46,8 @@ public sealed class HybridApiDocsConfigurationTests
             {
                 await annotation.Callback(context);
             }
-            Assert.IsType<Aspire.Hosting.ApplicationModel.EndpointReference>(environment["HybridApiDocs__RendererUrl"]);
+            Assert.IsType<Aspire.Hosting.ApplicationModel.EndpointReference>(environment["HybridApiDocs__RendererUrls__0"]);
+            Assert.IsType<Aspire.Hosting.ApplicationModel.EndpointReference>(environment["HybridApiDocs__RendererUrls__1"]);
             Assert.Equal(Path.Combine(directory, "dist-hybrid", "hybrid-api-docs.json"),
                 environment["HybridApiDocs__ArtifactPath"]);
         }

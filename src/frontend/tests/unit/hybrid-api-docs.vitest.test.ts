@@ -5,7 +5,7 @@ import { mkdtemp, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { pathToFileURL } from 'node:url';
 import { describe, expect, it } from 'vitest';
-import { hybridApiDocsIntegration, hybridOutputDirectory, isApiRouteComponent, isHybridApiDocs } from '../../config/hybrid-api-docs.mjs';
+import { hybridApiDocsIntegration, hybridOutputDirectory, isApiRouteComponent, isHybridApiDocs, hybridApiCacheConfig } from '../../config/hybrid-api-docs.mjs';
 import { buildApiRouteCatalog, getCSharpRouteEntries, getTypeScriptRouteEntries } from '@utils/api-route-catalog';
 import type { PackageApiDocument } from '@utils/packages';
 import type { TsApiDocument } from '@utils/ts-modules';
@@ -13,6 +13,14 @@ import { onRequest } from '../../src/middleware';
 import { verifyHybridOutput } from '../../scripts/verify-hybrid-output.mjs';
 
 describe('build-time hybrid opt-in', () => {
+  it('uses the official native in-memory provider in hybrid mode', () => {
+    const config = hybridApiCacheConfig();
+    expect(config.cache?.provider).toMatchObject({
+      entrypoint: 'astro/cache/memory',
+      config: { max: 128, query: { exclude: [] } },
+    });
+  });
+
   it('requires an explicit supported flag value', () => {
     expect(isHybridApiDocs('0')).toBe(false);
     expect(isHybridApiDocs('1')).toBe(true);
@@ -82,7 +90,7 @@ describe('build-time hybrid opt-in', () => {
   it('keeps hybrid Markdown URLs extension-based without changing normal prerendered endpoints', async () => {
     const url = 'https://aspire.dev/reference/api/typescript/aspire.hosting/item.md';
     const response: Response = await Reflect.apply(onRequest, undefined, [{
-      request: new Request(url), isPrerendered: false,
+      request: new Request(url), isPrerendered: false, cache: { enabled: false },
     }, () => Promise.resolve(new Response('Markdown endpoint'))]);
     expect(response.status).toBe(isHybridApiDocs() ? 200 : 308);
     const staticResponse: Response = await Reflect.apply(onRequest, undefined, [{

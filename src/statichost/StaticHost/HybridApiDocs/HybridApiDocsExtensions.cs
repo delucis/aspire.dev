@@ -6,14 +6,25 @@ internal static class HybridApiDocsExtensions
 {
     public static void AddHybridApiDocs(this IServiceCollection services,
         HybridApiDocsArtifact artifact, string? rendererUrl)
+        => services.AddHybridApiDocs(artifact, [rendererUrl ?? ""]);
+
+    public static void AddHybridApiDocs(this IServiceCollection services,
+        HybridApiDocsArtifact artifact, IEnumerable<string> rendererUrls)
     {
-        if (!Uri.TryCreate(rendererUrl, UriKind.Absolute, out var renderer) ||
-            renderer.Scheme is not ("http" or "https"))
-            throw new InvalidOperationException("HybridApiDocs:RendererUrl must specify the private Astro worker endpoint.");
+        var endpoints = rendererUrls.Select(value =>
+        {
+            if (!Uri.TryCreate(value, UriKind.Absolute, out var endpoint) ||
+                endpoint.Scheme is not ("http" or "https") ||
+                endpoint.UserInfo.Length > 0 || endpoint.Query.Length > 0 || endpoint.Fragment.Length > 0)
+                throw new InvalidOperationException("HybridApiDocs:RendererUrls must specify private Astro worker endpoints.");
+            return endpoint;
+        }).Distinct().ToArray();
+        if (endpoints.Length == 0)
+            throw new InvalidOperationException("At least one private Astro worker endpoint is required.");
         services.AddSingleton(artifact);
+        services.AddSingleton(new HybridApiDocsEndpointPool(endpoints));
         services.AddHttpClient<HybridApiDocsRenderer>(client =>
         {
-            client.BaseAddress = renderer;
             client.Timeout = Timeout.InfiniteTimeSpan;
             client.MaxResponseContentBufferSize = HybridApiDocsRenderer.MaximumBodySize;
         }).ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler
@@ -21,17 +32,6 @@ internal static class HybridApiDocsExtensions
             UseProxy = false, UseCookies = false, AllowAutoRedirect = false,
             AutomaticDecompression = DecompressionMethods.None,
             ConnectTimeout = TimeSpan.FromSeconds(5),
-        });
-        services.AddOutputCache(options =>
-        {
-            options.SizeLimit = 128 * 1024 * 1024;
-            options.MaximumBodySize = HybridApiDocsRenderer.MaximumBodySize;
-            options.AddPolicy("HybridApiDocs", policy => policy
-                .Expire(TimeSpan.FromMinutes(30))
-                .VaryByValue("build", artifact.Manifest.BuildId)
-                .VaryByValue(context => new KeyValuePair<string, string>("representation",
-                    context.Features.Get<HybridApiDocsRequest>()?.Representation ?? "none"))
-                .AddPolicy<HybridApiDocsCachePolicy>());
         });
     }
 
@@ -41,10 +41,14 @@ internal static class HybridApiDocsExtensions
     public static void MapHybridApiDocs(this IEndpointRouteBuilder app)
     {
         app.MapMethods("/reference/api/{**path}", ["GET", "HEAD"],
-            (HttpContext context, HybridApiDocsRenderer renderer) => renderer.RenderAsync(context))
-            .CacheOutput("HybridApiDocs");
+            (HttpContext context, HybridApiDocsRenderer renderer) => renderer.RenderAsync(context));
         app.MapMethods("/_image", ["GET", "HEAD"],
-            (HttpContext context, HybridApiDocsRenderer renderer) => renderer.RenderAsync(context))
-            .CacheOutput("HybridApiDocs");
+            (HttpContext context, HybridApiDocsRenderer renderer) => renderer.RenderAsync(context));
+        app.MapGet("/healthz/api-docs", async (HttpContext context, HybridApiDocsRenderer renderer) =>
+        {
+            context.Response.Headers.CacheControl = "no-store";
+            return Results.StatusCode(await renderer.IsReadyAsync(context.RequestAborted)
+                ? StatusCodes.Status200OK : StatusCodes.Status503ServiceUnavailable);
+        });
     }
 }
