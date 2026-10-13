@@ -11,6 +11,10 @@ on:
         description: Run the opt-in static/hybrid POC comparison
         default: false
         type: boolean
+      hybrid_artifact_run_id:
+        description: Recheck hybrid container packaging against an existing Linux artifact
+        default: ""
+        type: string
   workflow_call:
     inputs:
       node_version:
@@ -33,6 +37,11 @@ on:
         required: false
         default: false
         type: boolean
+      hybrid_artifact_run_id:
+        description: Recheck hybrid container packaging against an existing Linux artifact
+        required: false
+        default: ""
+        type: string
     secrets:
       ASPIRE_BOT_APP_ID:
         required: false
@@ -41,11 +50,14 @@ on:
 
 permissions:
   contents: read
+  actions: read
 
 jobs:
   hybrid-api-poc:
     if: ${{ inputs.hybrid_api_poc }}
     uses: ./.github/workflows/hybrid-api-docs-poc.yml
+    with:
+      artifact_run_id: ${{ inputs.hybrid_artifact_run_id }}
 
   build:
     if: ${{ github.event_name != 'workflow_dispatch' || !inputs.hybrid_api_poc }}

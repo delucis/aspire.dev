@@ -12,6 +12,7 @@ ENV NODE_ENV=production \
     PORT=4323 \
     HYBRID_API_DOCS_MANIFEST=/app/hybrid-api-docs.json
 COPY --from=dependencies --chown=node:node /app/node_modules ./node_modules
+COPY --chown=node:node package.json tsconfig.json ./
 COPY --chown=node:node dist-hybrid/server ./server
 COPY --chown=node:node dist-hybrid/renderer/client ./client
 COPY --chown=node:node dist-hybrid/renderer/.starlight-icons ./.starlight-icons

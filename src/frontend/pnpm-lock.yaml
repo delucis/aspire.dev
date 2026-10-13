@@ -110,15 +110,27 @@ importers:
       expressive-code-twoslash:
         specifier: ^0.6.1
         version: 0.6.1(@expressive-code/core@0.44.1)(eslint@10.7.0(jiti@2.7.0))(expressive-code@0.44.1)(typescript@6.0.3)
+      hast-util-select:
+        specifier: ^6.0.4
+        version: 6.0.4
       hast-util-to-html:
         specifier: ^9.0.5
         version: 9.0.5
+      https-proxy-agent:
+        specifier: ^9.1.0
+        version: 9.1.0
       mdast-util-to-hast:
         specifier: ^13.2.1
         version: 13.2.1
       mermaid:
         specifier: ^11.16.1
         version: 11.16.1
+      node-fetch:
+        specifier: ^3.3.2
+        version: 3.3.2
+      rehype-parse:
+        specifier: ^9.0.1
+        version: 9.0.1
       remark-directive:
         specifier: ^4.0.0
         version: 4.0.0
@@ -164,6 +176,9 @@ importers:
       typescript:
         specifier: ^6.0.3
         version: 6.0.3
+      unified:
+        specifier: ^11.0.5
+        version: 11.0.5
     devDependencies:
       '@axe-core/playwright':
         specifier: ^4.12.1
@@ -210,27 +225,15 @@ importers:
       globals:
         specifier: ^17.7.0
         version: 17.7.0
-      hast-util-select:
-        specifier: ^6.0.4
-        version: 6.0.4
       http-proxy-agent:
         specifier: ^9.1.0
         version: 9.1.0
-      https-proxy-agent:
-        specifier: ^9.1.0
-        version: 9.1.0
-      node-fetch:
-        specifier: ^3.3.2
-        version: 3.3.2
       prettier:
         specifier: ^3.9.5
         version: 3.9.5
       prettier-plugin-astro:
         specifier: ^0.14.1
         version: 0.14.1
-      rehype-parse:
-        specifier: ^9.0.1
-        version: 9.0.1
       rehype-remark:
         specifier: ^10.0.1
         version: 10.0.1
@@ -243,9 +246,6 @@ importers:
       typescript-eslint:
         specifier: ^8.65.0
         version: 8.65.0(eslint@10.7.0(jiti@2.7.0))(typescript@6.0.3)
-      unified:
-        specifier: ^11.0.5
-        version: 11.0.5
       unist-util-remove:
         specifier: ^4.0.0
         version: 4.0.0
@@ -5167,6 +5167,13 @@ snapshots:
     dependencies:
       '@chevrotain/types': 11.1.2
 
+  '@napi-rs/wasm-runtime@1.1.6(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)':
+    dependencies:
+      '@emnapi/core': 1.10.0
+      '@emnapi/runtime': 1.10.0
+      '@tybys/wasm-util': 0.10.3
+    optional: true
+
   '@napi-rs/wasm-runtime@1.1.6(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.1)':
     dependencies:
       '@emnapi/core': 1.11.1
@@ -5242,6 +5249,7 @@ snapshots:
     dependencies:
       '@emnapi/core': 1.10.0
       '@emnapi/runtime': 1.10.0
+      '@napi-rs/wasm-runtime': 1.1.6(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)
     optional: true
 
   '@oxc-parser/binding-win32-arm64-msvc@0.131.0':
