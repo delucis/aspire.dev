@@ -146,6 +146,35 @@ public sealed class HybridApiDocsTests
         Assert.Equal(HttpStatusCode.BadGateway, cold.StatusCode);
     }
 
+    [Theory]
+    [InlineData("/reference/api/large/", "br")]
+    [InlineData("/reference/api/large/", "gzip")]
+    [InlineData("/reference/api/demo.md", "br")]
+    [InlineData("/guide/", "br")]
+    public async Task CompressesForwardedAndStaticResponsesWhenTheClientAllowsIt(string path, string encoding)
+    {
+        await using var host = await HybridHost.StartAsync();
+        using var plain = await host.Client.GetAsync(path);
+        var expected = await plain.Content.ReadAsByteArrayAsync();
+        Assert.Empty(plain.Content.Headers.ContentEncoding);
+
+        using var request = new HttpRequestMessage(HttpMethod.Get, path);
+        request.Headers.AcceptEncoding.ParseAdd(encoding);
+        using var response = await host.Client.SendAsync(request);
+        var compressed = await response.Content.ReadAsByteArrayAsync();
+        Assert.Equal(encoding, Assert.Single(response.Content.Headers.ContentEncoding));
+        Assert.Contains("Accept-Encoding", response.Headers.Vary);
+        Assert.True(compressed.Length < expected.Length);
+
+        await using var input = new MemoryStream(compressed);
+        await using Stream decoder = encoding == "br"
+            ? new System.IO.Compression.BrotliStream(input, System.IO.Compression.CompressionMode.Decompress)
+            : new System.IO.Compression.GZipStream(input, System.IO.Compression.CompressionMode.Decompress);
+        using var decoded = new MemoryStream();
+        await decoder.CopyToAsync(decoded);
+        Assert.Equal(expected, decoded.ToArray());
+    }
+
     [Fact]
     public async Task FailsOverAndKeepsUsingTheHealthyReplica()
     {
@@ -277,6 +306,7 @@ internal sealed class HybridHost : IAsyncDisposable
         var renderer = new TestApiRenderer();
         builder.Services.AddHttpClient<HybridApiDocsRenderer>().ConfigurePrimaryHttpMessageHandler(() => renderer);
         var app = builder.Build();
+        app.UseResponseCompression();
         app.UseHybridApiDocsRouting();
         app.UseAgentReadiness();
         app.UseDefaultFiles();

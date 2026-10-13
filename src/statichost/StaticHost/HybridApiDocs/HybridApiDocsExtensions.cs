@@ -1,4 +1,5 @@
 using System.Net;
+using Microsoft.AspNetCore.ResponseCompression;
 
 namespace StaticHost.HybridApiDocs;
 
@@ -21,6 +22,14 @@ internal static class HybridApiDocsExtensions
         }).Distinct().ToArray();
         if (endpoints.Length == 0)
             throw new InvalidOperationException("At least one private Astro worker endpoint is required.");
+        // The hybrid client is served from plain files and renderer responses are forwarded
+        // uncompressed, so neither has the build-time precompression of static web assets.
+        services.AddResponseCompression(options =>
+        {
+            options.EnableForHttps = true;
+            options.MimeTypes = ResponseCompressionDefaults.MimeTypes
+                .Union(["text/javascript", "text/markdown", "image/svg+xml"]);
+        });
         services.AddSingleton(artifact);
         services.AddSingleton(new HybridApiDocsEndpointPool(endpoints));
         services.AddHttpClient<HybridApiDocsRenderer>(client =>
