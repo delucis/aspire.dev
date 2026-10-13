@@ -46,6 +46,14 @@ internal static class HybridApiDocsExtensions
                 {
                     Name = "WEBSITE_HEALTHCHECK_MAXPINGFAILURES", Value = "2",
                 });
+                site.SiteConfig.AppSettings.Add(new AppServiceNameValuePair
+                {
+                    Name = "WEBSITE_WARMUP_PATH", Value = "/healthz/api-docs",
+                });
+                site.SiteConfig.AppSettings.Add(new AppServiceNameValuePair
+                {
+                    Name = "WEBSITE_WARMUP_STATUSES", Value = "200",
+                });
                 var main = infra.GetProvisionableResources().OfType<SiteContainer>()
                     .Single(container => ReferenceEquals(container.Parent, site) && container.IsMain.Value);
                 for (var index = 0; index < 2; index++)
