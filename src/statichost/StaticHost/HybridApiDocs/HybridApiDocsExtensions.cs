@@ -32,6 +32,7 @@ internal static class HybridApiDocsExtensions
         });
         services.AddSingleton(artifact);
         services.AddSingleton(new HybridApiDocsEndpointPool(endpoints));
+        services.AddSingleton<HybridApiDocsFlights>();
         services.AddHttpClient<HybridApiDocsRenderer>(client =>
         {
             client.Timeout = Timeout.InfiniteTimeSpan;

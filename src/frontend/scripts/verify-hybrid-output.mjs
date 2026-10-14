@@ -12,7 +12,8 @@ export async function verifyHybridOutput(staticRoot, hybridRoot) {
     measureOutput(staticRoot), measureOutput(resolve(hybridRoot, manifest.client)),
     measureOutput(resolve(hybridRoot, 'server')),
   ]);
-  const api = (path) => path.startsWith('reference/api/') && /\.(html|md)$/.test(path);
+  const landing = /^reference\/api\/(?:csharp|typescript)(?:\/index\.html|\.md)$/;
+  const api = (path) => path.startsWith('reference/api/') && /\.(html|md)$/.test(path) && !landing.test(path);
   assert.ok(baseline.files.some(({ path }) => api(path)), 'The baseline must include static API output.');
   assert.deepEqual(hybrid.files.filter(({ path }) => api(path)), [], 'API HTML/Markdown was prerendered.');
   assert.ok(server.files.some(({ path }) => path === 'entry.mjs'), 'Missing private renderer entrypoint.');
@@ -28,6 +29,9 @@ export async function verifyHybridOutput(staticRoot, hybridRoot) {
   const nonApi = (files) => files.filter(({ path }) =>
     /\.(html|md)$/.test(path) && !api(path) && !redirectFiles.has(path)).map(({ path }) => path);
   assert.deepEqual(nonApi(hybrid.files), nonApi(baseline.files), 'Non-API page inventory changed.');
+  for (const page of ['csharp/index.html', 'typescript/index.html', 'csharp.md', 'typescript.md']) {
+    assert.ok(clientFiles.has(`reference/api/${page}`), `The API landing pages must stay prerendered: ${page}`);
+  }
   const searchIndex = (files) => files.map(({ path }) => path)
     .filter((path) => path.startsWith('reference/api-search/') && path.endsWith('.json'));
   assert.ok(searchIndex(hybrid.files).includes('reference/api-search/typescript.json'), 'Missing API search index.');

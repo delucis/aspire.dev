@@ -53,6 +53,7 @@ internal sealed class HybridApiDocsRoutingMiddleware(RequestDelegate next, Hybri
         {
             context.Response.StatusCode = StatusCodes.Status404NotFound;
             context.Response.Headers.CacheControl = "no-store";
+            await NotFoundPage.WriteAsync(context);
             return;
         }
         var isMarkdown = path.EndsWith(".md", StringComparison.Ordinal);

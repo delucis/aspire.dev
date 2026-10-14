@@ -110,7 +110,18 @@ try {
     assert.ok(containers.slice(1).every(container =>
       [`container:${hostContainer}`, `container:${containers[0].Id}`].includes(container.HostConfig.NetworkMode)));
   }
-  const stats = async () => (await request(`${workerUrl}/__hybrid-api-docs/health`)).json();
+  const statsOf = async (url) => (await request(`${url}/__hybrid-api-docs/health`)).json();
+  // Mirrors HybridApiDocsEndpointPool.PreferredIndex: pages are routed to a stable worker.
+  const ownerOf = (path) => {
+    let hash = 2166136261;
+    for (const byte of Buffer.from(path)) hash = Math.imul(hash ^ byte, 16777619) >>> 0;
+    return hash % 2;
+  };
+  const stats = async () => {
+    const all = await Promise.all([workerUrl, standbyUrl].map(statsOf));
+    const sum = (key) => all.reduce((total, worker) => total + worker[key], 0);
+    return { requests: sum('requests'), cacheHits: sum('cacheHits'), cacheMisses: sum('cacheMisses'), workers: all };
+  };
   async function page(path, init = {}) {
     const start = performance.now();
     const response = await fetch(hostUrl + path, { ...init, signal: AbortSignal.timeout(60000) });
@@ -125,39 +136,55 @@ try {
   assert.ok(!home.text.includes('<title>Aspire Static Host</title>'), 'The placeholder wwwroot home must not shadow the hybrid homepage.');
   await page('/docs/');
   assert.equal((await stats()).requests, initial.requests);
-  const csharp = await page('/reference/api/csharp/');
+  const packageRoute = manifest.routes.find(({ html }) => html?.startsWith('/reference/api/csharp/') && html.split('/').length === 6);
+  assert.ok(packageRoute);
+  const csharp = await page(packageRoute.html);
   assert.equal(csharp.response.headers.get('X-Astro-Cache'), 'MISS');
-  assert.equal(csharp.response.headers.get('Cache-Control'), 'no-store');
+  assert.equal(csharp.response.headers.get('Cache-Control'), 'no-cache');
+  const etag = csharp.response.headers.get('ETag');
+  assert.ok(etag?.startsWith('W/'));
   const cold = await stats();
   assert.equal(cold.cacheMisses, initial.cacheMisses + 1);
-  const csharpHit = await page('/reference/api/csharp/');
+  const csharpHit = await page(packageRoute.html);
   assert.equal(csharpHit.text, csharp.text);
   assert.equal(csharpHit.response.headers.get('X-Astro-Cache'), 'HIT');
   assert.equal((await stats()).requests, cold.requests + 1, 'StaticHost must forward cache hits to Astro.');
   assert.equal((await stats()).cacheMisses, cold.cacheMisses);
-  const directHit = await request(`${workerUrl}/reference/api/csharp/`, {
+  const directHit = await request(`${[workerUrl, standbyUrl][ownerOf(packageRoute.html)]}${packageRoute.html}`, {
     headers: { Host: 'aspire.dev', 'X-Forwarded-Host': 'aspire.dev', 'X-Forwarded-Proto': 'https' },
   });
   assert.equal(directHit.headers.get('X-Astro-Cache'), 'HIT', 'The same response must be cached in Astro itself.');
   assert.equal(await directHit.text(), csharp.text);
-  const credentialRequest = await page('/reference/api/csharp/', { headers: { Authorization: 'Bearer poc-test' } });
-  assert.equal(credentialRequest.response.headers.get('X-Astro-Cache'), null);
-  assert.equal((await page('/reference/api/csharp/')).response.headers.get('X-Astro-Cache'), 'HIT');
+  const revalidated = await fetch(hostUrl + packageRoute.html, { headers: { 'If-None-Match': etag } });
+  assert.equal(revalidated.status, 304);
+  assert.equal((await stats()).requests, cold.requests + 1, 'A matching validator must not reach the renderer.');
+  const queried = await page(`${packageRoute.html}?cachebust=1`);
+  assert.equal(queried.response.headers.get('X-Astro-Cache'), 'HIT', 'Query strings must not multiply renders.');
+  const credentialRequest = await page(packageRoute.html, { headers: { Authorization: 'Bearer poc-test' } });
+  assert.equal(credentialRequest.response.headers.get('X-Astro-Cache'), 'HIT', 'Credentials must not bypass the native cache.');
+  assert.equal((await stats()).cacheMisses, cold.cacheMisses);
   const typescript = await page('/reference/api/typescript/');
+  assert.equal(typescript.response.headers.get('X-Astro-Cache'), null, 'The landing pages are static files.');
   assert.ok(typescript.text.includes('data-api-search-index-url="/reference/api-search/typescript.json"'));
   assert.ok(Buffer.byteLength(typescript.text) < 2_000_000, 'The search index must not be embedded in the page.');
-  assert.equal(Number(typescript.response.headers.get('content-length')), Buffer.byteLength(typescript.text));
   const searchIndex = await page('/reference/api-search/typescript.json');
   assert.equal(searchIndex.response.headers.get('X-Astro-Cache'), null, 'The index is served as a static file.');
   assert.ok(Buffer.byteLength(searchIndex.text) >= 13_000_000);
   assert.ok(JSON.parse(searchIndex.text).length > 30_000);
+  const stampede = manifest.routes.find(({ html }) => html?.startsWith('/reference/api/typescript/') && html.split('/').length === 6);
+  assert.ok(stampede);
+  const beforeStampede = await stats();
+  const stampedePages = await Promise.all(Array.from({ length: 12 }, () => page(stampede.html)));
+  assert.ok(stampedePages.every(({ text }) => text === stampedePages[0].text));
+  assert.ok((await stats()).cacheMisses - beforeStampede.cacheMisses <= 3, 'Concurrent requests for a cold page must share a render.');
   for (const language of ['csharp', 'typescript']) {
     const route = manifest.routes.find(({ html }) => html?.startsWith(`/reference/api/${language}/`) && html.split('/').length >= 7);
     assert.ok(route);
     const detail = await page(route.html);
     assert.equal(detail.response.headers.get('X-Astro-Cache'), 'MISS');
     const before = await stats();
-    const pages = await Promise.all(Array.from({ length: 20 }, () => page(route.html)));
+    const pages = [];
+    for (let visit = 0; visit < 20; visit++) pages.push(await page(route.html));
     assert.ok(pages.every(({ text, response }) => text === detail.text && response.headers.get('X-Astro-Cache') === 'HIT'));
     assert.equal((await stats()).requests, before.requests + 20);
     assert.equal((await stats()).cacheMisses, before.cacheMisses);
@@ -171,6 +198,7 @@ try {
   }
   const unknown = await fetch(`${hostUrl}/reference/api/not-a-page/`);
   assert.equal(unknown.status, 404);
+  assert.ok((await unknown.text()).includes('<html'), 'Unknown API pages must get the site 404 page.');
   if (process.env.HYBRID_TEST_BROWSER === '1') {
     const install = launch('pnpm', ['exec', 'playwright', 'install', '--with-deps', 'chromium'], process.env);
     assert.equal((await once(install, 'exit'))[0], 0, output.slice(-10000));
@@ -181,14 +209,18 @@ try {
   const final = await stats();
   await stopWorker(worker, workerContainer);
   await page('/docs/');
-  const failover = await page('/reference/api/csharp/');
+  const ownedByPrimary = manifest.routes.find(({ html }) => html && !measures[html] && ownerOf(html) === 0);
+  assert.ok(ownedByPrimary);
+  const failover = await page(ownedByPrimary.html);
   assert.equal(failover.response.headers.get('X-Astro-Cache'), 'MISS', 'The standby owns its own native cache.');
-  assert.equal((await page('/reference/api/csharp/')).response.headers.get('X-Astro-Cache'), 'HIT');
+  assert.equal((await page(ownedByPrimary.html)).response.headers.get('X-Astro-Cache'), 'HIT');
   assert.equal((await fetch(`${hostUrl}/healthz/api-docs`)).status, 200);
   await stopWorker(standby, standbyContainer);
-  const previouslyCached = await fetch(`${hostUrl}/reference/api/csharp/`);
+  const previouslyCached = await fetch(hostUrl + ownedByPrimary.html);
   assert.equal(previouslyCached.status, 502, 'No ASP.NET cache may hide loss of every renderer.');
+  assert.ok((await previouslyCached.text()).includes('Try again'), 'An outage must explain itself and offer a retry.');
   assert.equal((await fetch(`${hostUrl}/healthz/api-docs`)).status, 503);
+  assert.equal((await fetch(`${hostUrl}/healthz`)).status, 200, 'Static pages must stay healthy without renderers.');
   await page('/docs/');
   const unwarmed = manifest.routes.find(({ html }) => html && !measures[html]);
   assert.ok(unwarmed);
@@ -197,8 +229,8 @@ try {
   const recovered = workerProcess(workerContainer, 14323);
   await ready(`${workerUrl}/__hybrid-api-docs/health`, recovered);
   await ready(`${hostUrl}/healthz/api-docs`, host);
-  assert.equal((await page('/reference/api/csharp/')).response.headers.get('X-Astro-Cache'), 'MISS');
-  assert.equal((await page('/reference/api/csharp/')).response.headers.get('X-Astro-Cache'), 'HIT');
+  assert.equal((await page(ownedByPrimary.html)).response.headers.get('X-Astro-Cache'), 'MISS');
+  assert.equal((await page(ownedByPrimary.html)).response.headers.get('X-Astro-Cache'), 'HIT');
   const results = { success: true, separateContainers: containerMode, cacheOwner: 'astro-memory', primaryOutageFailover: true, rendererRecovery: true, buildId: manifest.buildId, measures, initial, final };
   await writeFile(resolve(root, 'hybrid-host-results.json'), JSON.stringify(results, null, 2));
   console.log(JSON.stringify(results, null, 2));

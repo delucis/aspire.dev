@@ -43,9 +43,6 @@ const server = http.createServer((req, res) => {
     res.end('API route not found');
     return;
   }
-  if (req.headers.authorization) {
-    req.headers['x-aspire-cache-bypass'] = '1';
-  }
   requests++;
   res.once('finish', () => {
     if (res.getHeader('X-Astro-Cache') === 'HIT') cacheHits++;
