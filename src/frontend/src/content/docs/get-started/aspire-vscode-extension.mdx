@@ -267,6 +267,8 @@ The extension detects each resource's language and attaches the right debugger:
 | C# / .NET              | `coreclr`    | [C# Dev Kit](https://marketplace.visualstudio.com/items?itemName=ms-dotnettools.csdevkit) (recommended) or [C#](https://marketplace.visualstudio.com/items?itemName=ms-dotnettools.csharp)          |
 | Azure Functions        | Per language | [Azure Functions](https://marketplace.visualstudio.com/items?itemName=ms-azuretools.vscode-azurefunctions) plus the language extension for your function app (C#, JavaScript/TypeScript, or Python) |
 
+For a TypeScript or JavaScript Azure Functions app, the extension starts Azure Functions Core Tools, reserves a loopback Node inspector port, and attaches `pwa-node` once the host task is ready. The Node debug session stops automatically when you stop the Functions task. Set `debuggers["azure-functions-node"]` in `launch.json` to forward options to this debugger, the same way `debuggers.node` and `debuggers.python` work for other languages.
+
 ## Feedback and issues
 
 Found a bug or have an idea? File it on the [microsoft/aspire](https://github.com/microsoft/aspire/issues) repo:
