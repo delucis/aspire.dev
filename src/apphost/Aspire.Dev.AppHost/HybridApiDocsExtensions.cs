@@ -43,7 +43,8 @@ internal static class HybridApiDocsExtensions
             {
                 site.SiteConfig.IsAlwaysOn = true;
                 site.SiteConfig.NumberOfWorkers = 2;
-                site.SiteConfig.HealthCheckPath = "/healthz/api-docs";
+                // Renderer readiness only gates warmup; a renderer outage must not make the instance unhealthy.
+                site.SiteConfig.HealthCheckPath = "/healthz";
                 site.SiteConfig.AppSettings.Add(new AppServiceNameValuePair
                 {
                     Name = "WEBSITE_HEALTHCHECK_MAXPINGFAILURES", Value = "2",
@@ -84,6 +85,7 @@ internal static class HybridApiDocsExtensions
                 .WithPnpm(install: false)
                 .WithHttpEndpoint(env: "PORT")
                 .WithEnvironment("HOST", "127.0.0.1")
+                .WithEnvironment("NODE_OPTIONS", "--max-old-space-size=1024")
                 .WithEnvironment("HYBRID_API_DOCS_MANIFEST", manifest)
                 .WithHttpHealthCheck("/__hybrid-api-docs/health");
             website.WithEnvironment($"HybridApiDocs__RendererUrls__{index}", worker.GetEndpoint("http"));

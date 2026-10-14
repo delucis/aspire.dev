@@ -112,7 +112,7 @@ public sealed class HybridApiDocsConfigurationTests
                     Assert.Equal(container.TargetPort.Value, port.Value.Value);
                 });
                 Assert.Equal(new string?[] { "4323", "4324" }, sidecars.Select(container => container.TargetPort.Value));
-                Assert.Equal("/healthz/api-docs", site.SiteConfig.HealthCheckPath.Value);
+                Assert.Equal("/healthz", site.SiteConfig.HealthCheckPath.Value);
                 Assert.Equal(2, site.SiteConfig.NumberOfWorkers.Value);
                 Assert.True(site.SiteConfig.IsAlwaysOn.Value);
                 Assert.True(site.IsEndToEndEncryptionEnabled.Value);
@@ -129,7 +129,7 @@ public sealed class HybridApiDocsConfigurationTests
             await using var app = builder.Build();
             var bicep = infrastructure.Resource.GetBicepTemplateString();
             Assert.Contains("isMain: false", bicep, StringComparison.Ordinal);
-            Assert.Contains("healthCheckPath: '/healthz/api-docs'", bicep, StringComparison.Ordinal);
+            Assert.Contains("healthCheckPath: '/healthz'", bicep, StringComparison.Ordinal);
             Assert.Contains("endToEndEncryptionEnabled: true", bicep, StringComparison.Ordinal);
         }
         finally

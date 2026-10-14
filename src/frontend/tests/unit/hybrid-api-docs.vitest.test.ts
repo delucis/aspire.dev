@@ -31,7 +31,7 @@ describe('build-time hybrid opt-in', () => {
     const setup = hybridApiDocsIntegration({}).hooks['astro:route:setup'];
     if (!setup) throw new Error('Missing route setup hook.');
     for (const component of [
-      'src/pages/reference/api/csharp/index.astro',
+      'src/pages/reference/api/csharp/[package]/index.astro',
       'E:\\repo\\src\\pages\\reference\\api\\typescript\\[module].md.ts',
       '/repo/src/pages/reference/api/typescript/[module]/[item]/index.astro',
     ]) {
@@ -44,8 +44,15 @@ describe('build-time hybrid opt-in', () => {
       'src/pages/reference/samples/[sample].md.ts',
       'src/pages/reference/api-search/typescript.json.ts',
       'src/pages/reference/api-search/csharp/[package].json.ts',
+      'src/pages/reference/api/csharp/index.astro',
+      'E:\\repo\\src\\pages\\reference\\api\\typescript\\index.astro',
+      'src/pages/reference/api/csharp.md.ts',
+      '/repo/src/pages/reference/api/typescript.md.ts',
     ]) {
       expect(isApiRouteComponent(component)).toBe(false);
+      const route = { component, prerender: true };
+      await Reflect.apply(setup, undefined, [{ route }]);
+      expect(route.prerender).toBe(true);
     }
   });
 
@@ -75,6 +82,9 @@ describe('build-time hybrid opt-in', () => {
       await writeFile(resolve(out, 'client/_astro/script.js'), 'client script');
       await writeFile(resolve(root, '.starlight-icons/version.txt'), 'test');
       await writeFile(resolve(root, 'src/data/twoslash/aspire.d.ts'), 'export {};');
+      await writeFile(resolve(root, 'src/data/pkgs/test.json'), JSON.stringify({
+        package: { name: 'Test.Package' }, types: [{ name: 'Thing', kind: 'class' }],
+      }));
       await writeFile(resolve(out, 'server/entry.mjs'), 'export const handler = () => {};');
       const integration = hybridApiDocsIntegration({ '/old/': '/new/' });
       const configure = integration.hooks['astro:config:done'];
@@ -90,8 +100,12 @@ describe('build-time hybrid opt-in', () => {
       expect(manifest.buildId).toMatch(/^[a-f0-9]{64}$/);
       expect(manifest.client).toBe('client');
       expect(manifest.server).toBe('server/entry.mjs');
-      expect(manifest.routes).toHaveLength(2);
-      expect(await readFile(resolve(out, 'client/sitemap-api.xml'), 'utf8')).toContain('https://aspire.dev/reference/api/typescript/');
+      expect(manifest.routes.map(({ html }) => html)).toEqual([
+        '/reference/api/csharp/test.package/', '/reference/api/csharp/test.package/thing/',
+      ]);
+      const sitemap = await readFile(resolve(out, 'client/sitemap-api.xml'), 'utf8');
+      expect(sitemap).toContain('https://aspire.dev/reference/api/csharp/test.package/thing/');
+      expect(sitemap).not.toContain('https://aspire.dev/reference/api/typescript/</loc>');
       expect(await readFile(resolve(out, 'client/scalar/theme.css'), 'utf8')).toBe('scalar styles');
       expect(await readFile(resolve(out, 'renderer/client/_astro/logo.svg'), 'utf8')).toBe('<svg/>');
       expect((await readdir(resolve(out, 'renderer/client/_astro'))).sort()).toEqual(['image.PNG', 'logo.svg']);
@@ -122,30 +136,43 @@ describe('API route catalogue', () => {
     try {
       const baseline = resolve(directory, 'static');
       const hybrid = resolve(directory, 'hybrid');
-      await mkdir(resolve(baseline, 'reference/api/csharp'), { recursive: true });
+      await mkdir(resolve(baseline, 'reference/api/csharp/package'), { recursive: true });
       await mkdir(resolve(hybrid, 'client'), { recursive: true });
       await mkdir(resolve(hybrid, 'server'), { recursive: true });
-      await writeFile(resolve(baseline, 'reference/api/csharp/index.html'), 'API');
+      await writeFile(resolve(baseline, 'reference/api/csharp/package/index.html'), 'API');
       await mkdir(resolve(baseline, 'reference/api-search'), { recursive: true });
       await mkdir(resolve(hybrid, 'client/reference/api-search'), { recursive: true });
       await writeFile(resolve(baseline, 'reference/api-search/typescript.json'), '[]');
       await writeFile(resolve(hybrid, 'client/reference/api-search/typescript.json'), '[]');
+      await mkdir(resolve(hybrid, 'client/reference/api/csharp'), { recursive: true });
+      await mkdir(resolve(hybrid, 'client/reference/api/typescript'), { recursive: true });
+      await mkdir(resolve(baseline, 'reference/api/typescript'), { recursive: true });
+      const landings = ['csharp/index.html', 'typescript/index.html', 'csharp.md', 'typescript.md'];
+      for (const landing of landings) {
+        await writeFile(resolve(baseline, 'reference/api', landing), 'landing');
+        await writeFile(resolve(hybrid, 'client/reference/api', landing), 'landing');
+      }
       for (const file of ['index.html', '404.html', 'llms.txt', 'sitemap-index.xml']) {
         await writeFile(resolve(baseline, file), 'static');
         await writeFile(resolve(hybrid, 'client', file), 'static');
       }
       await writeFile(resolve(hybrid, 'server/entry.mjs'), 'renderer');
       await writeFile(resolve(hybrid, 'client/sitemap-api.xml'),
-        '<loc>https://aspire.dev/reference/api/csharp/</loc>');
+        '<loc>https://aspire.dev/reference/api/csharp/package/</loc>');
       await writeFile(resolve(hybrid, 'hybrid-api-docs.json'), JSON.stringify({
         mode: 'hybrid-api-docs', schemaVersion: 1, buildId: 'test', client: 'client', site: 'https://aspire.dev',
-        routes: [{ html: '/reference/api/csharp/', markdown: '/reference/api/csharp.md' }], redirects: [],
+        routes: [{ html: '/reference/api/csharp/package/', markdown: '/reference/api/csharp/package.md' }], redirects: [],
       }));
       expect((await verifyHybridOutput(baseline, hybrid)).staticApiFilesAvoided).toBe(1);
-      await mkdir(resolve(hybrid, 'client/reference/api/csharp'), { recursive: true });
-      await writeFile(resolve(hybrid, 'client/reference/api/csharp/index.html'), 'unexpected API');
+      await mkdir(resolve(hybrid, 'client/reference/api/csharp/package'), { recursive: true });
+      await writeFile(resolve(hybrid, 'client/reference/api/csharp/package/index.html'), 'unexpected API');
       await expect(verifyHybridOutput(baseline, hybrid)).rejects.toThrow('API HTML/Markdown was prerendered.');
-      await rm(resolve(hybrid, 'client/reference/api/csharp/index.html'));
+      await rm(resolve(hybrid, 'client/reference/api/csharp/package/index.html'));
+      await rm(resolve(hybrid, 'client/reference/api/typescript.md'));
+      await rm(resolve(baseline, 'reference/api/typescript.md'));
+      await expect(verifyHybridOutput(baseline, hybrid)).rejects.toThrow('The API landing pages must stay prerendered');
+      await writeFile(resolve(hybrid, 'client/reference/api/typescript.md'), 'landing');
+      await writeFile(resolve(baseline, 'reference/api/typescript.md'), 'landing');
       await rm(resolve(hybrid, 'client/reference/api-search/typescript.json'));
       await expect(verifyHybridOutput(baseline, hybrid)).rejects.toThrow('Missing API search index.');
     } finally {
@@ -186,8 +213,8 @@ describe('API route catalogue', () => {
     expect(routes.filter(({ html }) => html).length).toBeGreaterThan(24000);
     expect(new Set(routes.map(({ markdown }) => markdown)).size).toBe(routes.length);
     expect(routes.every((route) => Object.keys(route).length === 2)).toBe(true);
-    expect(routes.slice(0, 2).map(({ html }) => html)).toEqual([
-      '/reference/api/csharp/', '/reference/api/typescript/',
-    ]);
+    expect(routes.map(({ html }) => html)).not.toContain('/reference/api/csharp/');
+    expect(routes.map(({ html }) => html)).not.toContain('/reference/api/typescript/');
+    expect(routes.every(({ markdown }) => markdown.split('/').length > 4)).toBe(true);
   });
 });

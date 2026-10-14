@@ -14,19 +14,104 @@ namespace StaticHost.Tests;
 public sealed class HybridApiDocsTests
 {
     [Fact]
-    public async Task AlwaysForwardsRequestsEvenWhenAstroReportsCacheHits()
+    public async Task AlwaysForwardsSequentialRequestsEvenWhenAstroReportsCacheHits()
     {
         await using var host = await HybridHost.StartAsync();
-        var responses = await Task.WhenAll(Enumerable.Range(0, 20)
-            .Select(_ => host.Client.GetStringAsync("/reference/api/demo/")));
-        Assert.All(responses, body => Assert.Equal("html:demo", body));
-        Assert.Equal(20, host.Renderer.Calls["/reference/api/demo/"]);
-        Assert.Equal("html:demo", await host.Client.GetStringAsync("/reference/api/demo/"));
-        Assert.Equal(21, host.Renderer.Calls["/reference/api/demo/"]);
+        for (var index = 0; index < 3; index++)
+            Assert.Equal("html:demo", await host.Client.GetStringAsync("/reference/api/demo/"));
+        Assert.Equal(3, host.Renderer.Calls["/reference/api/demo/"]);
         using var response = await host.Client.GetAsync("/reference/api/demo/");
         Assert.Equal("HIT", Assert.Single(response.Headers.GetValues("X-Astro-Cache")));
-        Assert.True(response.Headers.CacheControl!.NoStore);
+        Assert.True(response.Headers.CacheControl!.NoCache);
+        Assert.False(response.Headers.CacheControl.NoStore);
+        Assert.True(response.Headers.ETag!.IsWeak);
         Assert.False(response.Headers.Contains("Vary"));
+    }
+
+    [Fact]
+    public async Task ConcurrentRequestsForOneColdPageShareASingleRender()
+    {
+        await using var host = await HybridHost.StartAsync();
+        host.Renderer.Gate = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        var requests = Enumerable.Range(0, 20).Select(_ => host.Client.GetStringAsync("/reference/api/demo/")).ToArray();
+        await Task.Delay(200);
+        host.Renderer.Gate.SetResult();
+        Assert.All(await Task.WhenAll(requests), body => Assert.Equal("html:demo", body));
+        Assert.Equal(1, host.Renderer.Calls["/reference/api/demo/"]);
+        Assert.Equal("html:demo", await host.Client.GetStringAsync("/reference/api/demo/"));
+        Assert.Equal(2, host.Renderer.Calls["/reference/api/demo/"]);
+    }
+
+    [Fact]
+    public async Task AbandonedRequestsDoNotCancelTheRenderOthersAreWaitingFor()
+    {
+        await using var host = await HybridHost.StartAsync();
+        host.Renderer.Gate = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        using var abandon = new CancellationTokenSource();
+        var abandoned = host.Client.GetAsync("/reference/api/demo/", abandon.Token);
+        var waiting = host.Client.GetStringAsync("/reference/api/demo/");
+        await Task.Delay(200);
+        abandon.Cancel();
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => abandoned);
+        host.Renderer.Gate.SetResult();
+        Assert.Equal("html:demo", await waiting);
+        Assert.Equal(1, host.Renderer.Calls["/reference/api/demo/"]);
+    }
+
+    [Fact]
+    public async Task AnswersMatchingValidatorsWithoutCallingTheRenderer()
+    {
+        await using var host = await HybridHost.StartAsync();
+        using var first = await host.Client.GetAsync("/reference/api/demo/");
+        var etag = first.Headers.ETag!;
+        async Task<HttpResponseMessage> Revalidate(string path, string tag)
+        {
+            using var request = new HttpRequestMessage(HttpMethod.Get, path);
+            request.Headers.TryAddWithoutValidation("If-None-Match", tag);
+            return await host.Client.SendAsync(request);
+        }
+
+        using var notModified = await Revalidate("/reference/api/demo/", $"\"other\", {etag}");
+        Assert.Equal(HttpStatusCode.NotModified, notModified.StatusCode);
+        Assert.Equal(etag, notModified.Headers.ETag);
+        Assert.Empty(await notModified.Content.ReadAsByteArrayAsync());
+        using var any = await Revalidate("/reference/api/demo/", "*");
+        Assert.Equal(HttpStatusCode.NotModified, any.StatusCode);
+        Assert.Equal(1, host.Renderer.Calls["/reference/api/demo/"]);
+
+        using var changed = await Revalidate("/reference/api/demo/", "W/\"stale\"");
+        Assert.Equal(HttpStatusCode.OK, changed.StatusCode);
+        Assert.Equal(2, host.Renderer.Calls["/reference/api/demo/"]);
+        using var markdown = await Revalidate("/reference/api/demo.md", etag.ToString());
+        Assert.Equal(HttpStatusCode.OK, markdown.StatusCode);
+        Assert.NotEqual(etag, markdown.Headers.ETag);
+    }
+
+    [Fact]
+    public async Task OnlyCacheablePagesGetValidators()
+    {
+        await using var host = await HybridHost.StartAsync();
+        foreach (var page in new[] { "private", "cookie", "failure" })
+        {
+            using var response = await host.Client.GetAsync($"/reference/api/{page}/");
+            Assert.Null(response.Headers.ETag);
+            Assert.True(response.Headers.CacheControl!.NoStore);
+        }
+        using var request = new HttpRequestMessage(HttpMethod.Get, "/reference/api/demo/");
+        request.Headers.Accept.ParseAdd("text/markdown");
+        using var negotiated = await host.Client.SendAsync(request);
+        Assert.Null(negotiated.Headers.ETag);
+    }
+
+    [Fact]
+    public async Task QueryStringsAreNotForwardedForPages()
+    {
+        await using var host = await HybridHost.StartAsync();
+        foreach (var path in new[] { "/reference/api/demo/?a=1", "/reference/api/demo/?a=2&q=redis", "/reference/api/demo.md?x=1" })
+            await host.Client.GetStringAsync(path);
+        Assert.Equal(3, host.Renderer.Requests.Count);
+        Assert.DoesNotContain(host.Renderer.Requests, request => request.Contains('?'));
+        Assert.Equal(2, host.Renderer.Calls["/reference/api/demo/"]);
     }
 
     [Theory]
@@ -95,14 +180,13 @@ public sealed class HybridApiDocsTests
     }
 
     [Fact]
-    public async Task MarksAuthenticatedRequestsForNativeCacheBypass()
+    public async Task AuthorizationHeadersDoNotBypassTheNativeCache()
     {
         await using var host = await HybridHost.StartAsync();
         host.Client.DefaultRequestHeaders.Authorization = new("Bearer", "test");
-        await host.Client.GetStringAsync("/reference/api/demo/");
-        await host.Client.GetStringAsync("/reference/api/demo/");
-        Assert.Equal(2, host.Renderer.Calls["/reference/api/demo/"]);
-        Assert.True(host.Renderer.SawCacheBypass);
+        using var response = await host.Client.GetAsync("/reference/api/demo/");
+        Assert.NotNull(response.Headers.ETag);
+        Assert.False(host.Renderer.SawCacheBypass);
     }
 
     [Fact]
@@ -176,14 +260,28 @@ public sealed class HybridApiDocsTests
     }
 
     [Fact]
-    public async Task FailsOverAndKeepsUsingTheHealthyReplica()
+    public async Task SpreadsPagesAcrossReplicasAndKeepsEachPageOnTheSameOne()
+    {
+        await using var host = await HybridHost.StartAsync(["http://primary/", "http://standby/"]);
+        foreach (var page in HybridHost.SpreadPages)
+            for (var visit = 0; visit < 3; visit++)
+                Assert.Equal($"html:{page}", await host.Client.GetStringAsync($"/reference/api/{page}/"));
+        var primaryPages = HybridHost.SpreadPages.Count(page => HybridHost.PreferredReplica(page) == 0);
+        Assert.InRange(primaryPages, 1, HybridHost.SpreadPages.Length - 1);
+        Assert.Equal(primaryPages * 3, host.Renderer.EndpointCalls["primary"]);
+        Assert.Equal((HybridHost.SpreadPages.Length - primaryPages) * 3, host.Renderer.EndpointCalls["standby"]);
+    }
+
+    [Fact]
+    public async Task FailsOverAndSkipsAFailedReplicaDuringItsCooldown()
     {
         await using var host = await HybridHost.StartAsync(["http://primary/", "http://standby/"]);
         host.Renderer.OfflineHosts.Add("primary");
-        Assert.Equal("html:demo", await host.Client.GetStringAsync("/reference/api/demo/"));
+        var page = HybridHost.PageFor(0);
+        Assert.Equal($"html:{page}", await host.Client.GetStringAsync($"/reference/api/{page}/"));
         Assert.Equal(1, host.Renderer.EndpointCalls["primary"]);
         Assert.Equal(1, host.Renderer.EndpointCalls["standby"]);
-        Assert.Equal("html:demo", await host.Client.GetStringAsync("/reference/api/demo/"));
+        Assert.Equal($"html:{page}", await host.Client.GetStringAsync($"/reference/api/{page}/"));
         Assert.Equal(1, host.Renderer.EndpointCalls["primary"]);
         Assert.Equal(2, host.Renderer.EndpointCalls["standby"]);
     }
@@ -205,16 +303,17 @@ public sealed class HybridApiDocsTests
     }
 
     [Fact]
-    public async Task RejectsMismatchedPrimaryAndRecoversAfterReplicaAvailabilityChanges()
+    public async Task RejectsMismatchedReplicasButStillUsesThemAsALastResort()
     {
         await using var host = await HybridHost.StartAsync(["http://primary/", "http://standby/"]);
+        var page = HybridHost.PageFor(0);
         host.Renderer.MismatchedHosts.Add("primary");
-        Assert.Equal("html:demo", await host.Client.GetStringAsync("/reference/api/demo/"));
+        Assert.Equal($"html:{page}", await host.Client.GetStringAsync($"/reference/api/{page}/"));
+        Assert.Equal(1, host.Renderer.EndpointCalls["standby"]);
         host.Renderer.MismatchedHosts.Clear();
         host.Renderer.OfflineHosts.Add("standby");
-        Assert.Equal("html:demo", await host.Client.GetStringAsync("/reference/api/demo/"));
+        Assert.Equal($"html:{page}", await host.Client.GetStringAsync($"/reference/api/{page}/"));
         Assert.Equal(2, host.Renderer.EndpointCalls["primary"]);
-        Assert.Equal(2, host.Renderer.EndpointCalls["standby"]);
     }
 
     [Fact]
@@ -222,9 +321,42 @@ public sealed class HybridApiDocsTests
     {
         await using var host = await HybridHost.StartAsync(["http://primary/", "http://standby/"]);
         host.Renderer.ErrorHosts.Add("primary");
-        Assert.Equal("html:demo", await host.Client.GetStringAsync("/reference/api/demo/"));
+        var page = HybridHost.PageFor(0);
+        Assert.Equal($"html:{page}", await host.Client.GetStringAsync($"/reference/api/{page}/"));
         Assert.Equal(1, host.Renderer.EndpointCalls["primary"]);
         Assert.Equal(1, host.Renderer.EndpointCalls["standby"]);
+    }
+
+    [Fact]
+    public async Task UnknownApiPagesGetTheSiteNotFoundPage()
+    {
+        await using var host = await HybridHost.StartAsync();
+        using var missing = await host.Client.GetAsync("/reference/api/not-a-page/");
+        Assert.Equal(HttpStatusCode.NotFound, missing.StatusCode);
+        Assert.Equal("site not found", await missing.Content.ReadAsStringAsync());
+        Assert.Contains("text/html", missing.Content.Headers.ContentType!.ToString());
+        Assert.True(missing.Headers.CacheControl!.NoStore);
+        Assert.Empty(host.Renderer.Calls);
+    }
+
+    [Theory]
+    [InlineData(false, HttpStatusCode.BadGateway)]
+    [InlineData(true, HttpStatusCode.GatewayTimeout)]
+    public async Task UnavailableRenderersGetARetryPage(bool timeout, HttpStatusCode expected)
+    {
+        await using var host = await HybridHost.StartAsync();
+        host.Renderer.Offline = !timeout;
+        host.Renderer.Timeout = timeout;
+        using var response = await host.Client.GetAsync("/reference/api/demo/");
+        Assert.Equal(expected, response.StatusCode);
+        Assert.Contains("Try again", await response.Content.ReadAsStringAsync());
+        Assert.Contains("text/html", response.Content.Headers.ContentType!.ToString());
+        Assert.True(response.Headers.CacheControl!.NoStore);
+        Assert.Equal("5", Assert.Single(response.Headers.GetValues("Retry-After")));
+
+        using var head = await host.Client.SendAsync(new HttpRequestMessage(HttpMethod.Head, "/reference/api/demo/"));
+        Assert.Equal(expected, head.StatusCode);
+        Assert.Empty(await head.Content.ReadAsByteArrayAsync());
     }
 
     [Fact]
@@ -258,6 +390,7 @@ public sealed class HybridApiDocsTests
         using var oversized = await host.Client.GetAsync("/_image?href=%2F_astro%2Flogo.svg&w=999999");
         Assert.Equal(HttpStatusCode.BadRequest, oversized.StatusCode);
         Assert.Equal(1, host.Renderer.Calls["/_image"]);
+        Assert.Contains(host.Renderer.Requests, request => request.StartsWith("/_image?href=", StringComparison.Ordinal));
     }
 
     [Fact]
@@ -279,6 +412,11 @@ internal sealed class HybridHost : IAsyncDisposable
     public HttpClient Client { get; }
     public TestApiRenderer Renderer { get; }
 
+    // Generic pages with a stable preferred replica, so routing assertions do not depend on a hash value.
+    internal static readonly string[] SpreadPages = ["alpha", "beta", "gamma", "delta", "epsilon", "zeta", "eta", "theta"];
+    internal static int PreferredReplica(string page) => HybridApiDocsEndpointPool.PreferredIndex($"/reference/api/{page}/", 2);
+    internal static string PageFor(int replica) => SpreadPages.First(page => PreferredReplica(page) == replica);
+
     private HybridHost(WebApplication app, TempWebRoot root, TestApiRenderer renderer)
     {
         _app = app;
@@ -291,8 +429,10 @@ internal sealed class HybridHost : IAsyncDisposable
     {
         var root = new TempWebRoot();
         root.WriteFile("client/guide/index.html", "static guide");
+        root.WriteFile("client/404.html", "site not found");
         root.WriteFile("client/_astro/logo.svg", "<svg/>");
-        var pages = new[] { "demo", "private", "cookie", "failure", "broken", "mismatch", "oversize", "large", "cold" };
+        var pages = new[] { "demo", "private", "cookie", "failure", "broken", "mismatch", "oversize", "large", "cold" }
+            .Concat(SpreadPages).ToArray();
         root.WriteFile("hybrid.json", JsonSerializer.Serialize(new HybridApiManifest(
             1, "hybrid-api-docs", new string('a', 64), "client", "server/entry.mjs", "https://aspire.dev",
             pages.Select(page => new HybridApiRoute($"/reference/api/{page}/", $"/reference/api/{page}.md")).ToArray(),
@@ -328,12 +468,14 @@ internal sealed class HybridHost : IAsyncDisposable
 internal sealed class TestApiRenderer : HttpMessageHandler
 {
     public ConcurrentDictionary<string, int> Calls { get; } = new();
+    public ConcurrentQueue<string> Requests { get; } = new();
     public ConcurrentDictionary<string, int> EndpointCalls { get; } = new();
     public HashSet<string> OfflineHosts { get; } = [];
     public HashSet<string> MismatchedHosts { get; } = [];
     public HashSet<string> ErrorHosts { get; } = [];
     public bool Offline { get; set; }
     public bool Timeout { get; set; }
+    public TaskCompletionSource? Gate { get; set; }
     public bool SawCacheBypass { get; private set; }
     public bool SawCookie { get; private set; }
 
@@ -346,8 +488,10 @@ internal sealed class TestApiRenderer : HttpMessageHandler
             && bypass.SequenceEqual(["1"]);
         SawCookie = request.Headers.Contains("Cookie");
         Calls.AddOrUpdate(path, 1, (_, count) => count + 1);
+        if (request.RequestUri.AbsolutePath != "/__hybrid-api-docs/health") Requests.Enqueue(request.RequestUri.PathAndQuery);
         if (Offline || OfflineHosts.Contains(endpoint)) throw new HttpRequestException("Renderer unavailable.");
         if (Timeout) throw new OperationCanceledException("Renderer timed out.");
+        if (Gate is not null) await Gate.Task.WaitAsync(cancellationToken);
         await Task.Delay(30, cancellationToken);
         var page = path.Split('/').Last(segment => segment.Length > 0).Replace(".md", "");
         var response = new HttpResponseMessage(page == "failure" || ErrorHosts.Contains(endpoint)

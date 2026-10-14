@@ -100,27 +100,7 @@ if (hybridArtifact is not null)
 // add routing after default files, so the default file middleware can modify the path first
 app.UseRouting();
 
-app.UseStatusCodePages(async context =>
-{
-    var response = context.HttpContext.Response;
-    if (response is { StatusCode: 404, HasStarted: false })
-    {
-        var env = context.HttpContext.RequestServices.GetRequiredService<IWebHostEnvironment>();
-
-        var notFoundPath = Path.Combine(env.WebRootPath ?? string.Empty, "404.html");
-
-        if (File.Exists(notFoundPath))
-        {
-            // Ensure the 404 page itself is not cached aggressively so new deployments update quickly
-            response.Headers.CacheControl = "no-cache, no-store, must-revalidate";
-            response.Headers.Pragma = "no-cache";
-            response.Headers.Expires = "0";
-            response.ContentType = "text/html; charset=utf-8";
-
-            await response.SendFileAsync(notFoundPath);
-        }
-    }
-});
+app.UseStatusCodePages(context => NotFoundPage.WriteAsync(context.HttpContext));
 
 // Ensure text/plain responses include UTF-8 charset to fix encoding issues with .txt files
 app.Use(async (context, next) =>

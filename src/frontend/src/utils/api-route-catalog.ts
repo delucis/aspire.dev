@@ -93,9 +93,9 @@ export function getTypeScriptRouteEntries(pkg: TsApiDocument): RouteEntry<TypeSc
 }
 
 export function buildApiRouteCatalog(packages: PackageApiDocument[], modules: TsApiDocument[]): ApiRoute[] {
-  const routes: ApiRoute[] = ['csharp', 'typescript'].map((language) => ({
-    html: `/reference/api/${language}/`, markdown: `/reference/api/${language}.md`,
-  }));
+  // The two landing pages are the heaviest pages (about 0.5 s and 2.7 MB each) and the most visited,
+  // so they stay prerendered; only the per-package, type and member pages are rendered on demand.
+  const routes: ApiRoute[] = [];
   for (const pkg of packages) {
     if (pkg.types.length) routes.push(...getCSharpRouteEntries(pkg));
   }

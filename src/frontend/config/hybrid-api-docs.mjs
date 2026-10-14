@@ -19,9 +19,15 @@ export function hybridApiCacheConfig() {
   };
 }
 
-/** @param {string} component */
+/**
+ * API pages rendered on demand. The two landing pages stay prerendered: they are the heaviest
+ * and most visited pages, and rendering them on demand made them an easy way to exhaust a worker.
+ * @param {string} component
+ */
 export function isApiRouteComponent(component) {
-  return /(?:^|\/)src\/pages\/reference\/api\//.test(component.replace(/\\/g, '/'));
+  const path = component.replace(/\\/g, '/');
+  return /(?:^|\/)src\/pages\/reference\/api\//.test(path)
+    && !/(?:^|\/)src\/pages\/reference\/api\/(?:csharp|typescript)(?:\/index\.astro|\.md\.ts)$/.test(path);
 }
 
 /** @param {string} root @param {string | undefined} requested */
