@@ -109,9 +109,15 @@ public sealed class HybridApiDocsConfigurationTests
                     Assert.Equal("00000000-0000-0000-0000-000000000000", container.UserManagedIdentityClientId.Value);
                     var port = Assert.IsType<WebAppEnvironmentVariable>(Assert.Single(container.EnvironmentVariables).Value);
                     Assert.Equal("PORT", port.Name.Value);
-                    Assert.Equal(container.TargetPort.Value, port.Value.Value);
+                    // The value names an app setting (App Service does not treat it as a literal), so that
+                    // setting must exist and carry this sidecar's own port.
+                    Assert.Contains(site.SiteConfig.AppSettings, setting =>
+                        setting.Value is { } pair &&
+                        pair.Name.Value == port.Value.Value && pair.Value.Value == container.TargetPort.Value);
                 });
                 Assert.Equal(new string?[] { "4323", "4324" }, sidecars.Select(container => container.TargetPort.Value));
+                Assert.Equal(2, sidecars.Select(container =>
+                    Assert.IsType<WebAppEnvironmentVariable>(Assert.Single(container.EnvironmentVariables).Value).Value.Value).Distinct().Count());
                 Assert.Equal("/healthz", site.SiteConfig.HealthCheckPath.Value);
                 Assert.True(site.SiteConfig.IsAlwaysOn.Value);
                 // The plan's instance count and scaling stay as configured on the existing production plan.

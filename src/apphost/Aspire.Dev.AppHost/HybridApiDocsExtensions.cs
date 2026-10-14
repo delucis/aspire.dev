@@ -60,6 +60,12 @@ internal static class HybridApiDocsExtensions
                     .Single(container => ReferenceEquals(container.Parent, site) && container.IsMain.Value);
                 for (var index = 0; index < 2; index++)
                 {
+                    // A sidecar environment variable's value names an app setting; it is not a literal.
+                    var portSetting = $"API_DOCS_PORT_{index}";
+                    site.SiteConfig.AppSettings.Add(new AppServiceNameValuePair
+                    {
+                        Name = portSetting, Value = $"{4323 + index}",
+                    });
                     var sidecar = new SiteContainer($"apiDocs{index}")
                     {
                         Parent = site,
@@ -71,7 +77,7 @@ internal static class HybridApiDocsExtensions
                         UserManagedIdentityClientId = main.UserManagedIdentityClientId,
                         InheritAppSettingsAndConnectionStrings = false,
                     };
-                    sidecar.EnvironmentVariables.Add(new WebAppEnvironmentVariable { Name = "PORT", Value = $"{4323 + index}" });
+                    sidecar.EnvironmentVariables.Add(new WebAppEnvironmentVariable { Name = "PORT", Value = portSetting });
                     infra.Add(sidecar);
                 }
             });
