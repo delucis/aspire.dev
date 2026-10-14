@@ -327,6 +327,22 @@ public sealed class HybridApiDocsTests
         Assert.Equal(1, host.Renderer.EndpointCalls["standby"]);
     }
 
+    [Theory]
+    [InlineData("/casts/demo.cast", "application/octet-stream")]
+    [InlineData("/pagefind/pagefind.en_abc.pf_meta", "application/octet-stream")]
+    [InlineData("/pagefind/wasm.en.pagefind", "application/octet-stream")]
+    [InlineData("/_astro/logo.svg", "image/svg+xml")]
+    public async Task ServesEveryClientFileIncludingTypesWithoutAMimeMapping(string path, string contentType)
+    {
+        await using var host = await HybridHost.StartAsync();
+        using var response = await host.Client.GetAsync(path);
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Equal(contentType, response.Content.Headers.ContentType!.MediaType);
+        Assert.Equal(path.StartsWith("/_astro") ? "public, max-age=31536000, immutable" : "no-cache",
+            response.Headers.CacheControl!.ToString());
+        Assert.Empty(host.Renderer.Calls);
+    }
+
     [Fact]
     public async Task PrerenderedApiPagesAreServedAsStaticFilesWithoutTheRenderer()
     {
@@ -439,6 +455,9 @@ internal sealed class HybridHost : IAsyncDisposable
         root.WriteFile("client/guide/index.html", "static guide");
         root.WriteFile("client/404.html", "site not found");
         root.WriteFile("client/reference/api/landing/index.html", "static landing");
+        root.WriteFile("client/casts/demo.cast", "{\"version\":2}");
+        root.WriteFile("client/pagefind/pagefind.en_abc.pf_meta", "meta");
+        root.WriteFile("client/pagefind/wasm.en.pagefind", "wasm");
         root.WriteFile("client/_astro/logo.svg", "<svg/>");
         var pages = new[] { "demo", "private", "cookie", "failure", "broken", "mismatch", "oversize", "large", "cold" }
             .Concat(SpreadPages).ToArray();
@@ -459,7 +478,7 @@ internal sealed class HybridHost : IAsyncDisposable
         app.UseHybridApiDocsRouting();
         app.UseAgentReadiness();
         app.UseDefaultFiles();
-        app.UseStaticFiles();
+        app.UseStaticFiles(HybridApiDocsExtensions.HybridStaticFileOptions());
         app.UseRouting();
         app.MapHybridApiDocs();
         await app.StartAsync();

@@ -48,6 +48,22 @@ internal static class HybridApiDocsExtensions
     public static void UseHybridApiDocsRouting(this IApplicationBuilder app)
         => app.UseMiddleware<HybridApiDocsRoutingMiddleware>();
 
+    /// <summary>
+    /// Serves the prebuilt client as plain files. Unlike static web assets, <c>UseStaticFiles</c> refuses
+    /// extensions without a MIME mapping, which would drop Pagefind's index files and the terminal recordings.
+    /// </summary>
+    public static StaticFileOptions HybridStaticFileOptions() => new()
+    {
+        ServeUnknownFileTypes = true,
+        DefaultContentType = "application/octet-stream",
+        OnPrepareResponse = context =>
+        {
+            context.Context.Response.Headers.CacheControl =
+                context.Context.Request.Path.StartsWithSegments("/_astro")
+                    ? "public, max-age=31536000, immutable" : "no-cache";
+        },
+    };
+
     public static void MapHybridApiDocs(this IEndpointRouteBuilder app)
     {
         app.MapMethods("/reference/api/{**path}", ["GET", "HEAD"],

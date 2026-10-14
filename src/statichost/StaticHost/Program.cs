@@ -86,15 +86,7 @@ app.UseAgentReadiness();
 app.UseDefaultFiles();
 if (hybridArtifact is not null)
 {
-    app.UseStaticFiles(new StaticFileOptions
-    {
-        OnPrepareResponse = context =>
-        {
-            context.Context.Response.Headers.CacheControl =
-                context.Context.Request.Path.StartsWithSegments("/_astro")
-                    ? "public, max-age=31536000, immutable" : "no-cache";
-        },
-    });
+    app.UseStaticFiles(HybridApiDocsExtensions.HybridStaticFileOptions());
 }
 
 // add routing after default files, so the default file middleware can modify the path first

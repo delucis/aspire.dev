@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { execFile, execFileSync, spawn } from 'node:child_process';
 import { once } from 'node:events';
-import { readFile, writeFile } from 'node:fs/promises';
+import { readFile, readdir, writeFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
@@ -136,6 +136,21 @@ try {
   assert.ok(!home.text.includes('<title>Aspire Static Host</title>'), 'The placeholder wwwroot home must not shadow the hybrid homepage.');
   await page('/docs/');
   assert.equal((await stats()).requests, initial.requests);
+  // Every kind of file the static build emits (recordings, Pagefind indexes, WASM, ...) must be served.
+  const clientRoot = resolve(dirname(manifestPath), manifest.client);
+  const samples = new Map();
+  for (const entry of await readdir(clientRoot, { recursive: true, withFileTypes: true })) {
+    const extension = entry.name.includes('.') ? entry.name.slice(entry.name.lastIndexOf('.')) : '';
+    if (!entry.isFile() || !extension || extension === '.md' || samples.has(extension)) continue;
+    const relative = resolve(entry.parentPath, entry.name).slice(clientRoot.length).replaceAll('\\', '/');
+    samples.set(extension, relative.startsWith('/') ? relative : `/${relative}`);
+  }
+  for (const [extension, path] of samples) {
+    const response = await fetch(hostUrl + path.split('/').map(encodeURIComponent).join('/'));
+    assert.equal(response.status, 200, `Client files ending in ${extension} must be served: ${path}`);
+    await response.arrayBuffer();
+  }
+  assert.ok(['.cast', '.pagefind', '.pf_meta'].every((extension) => samples.has(extension)), 'The sample set must cover the file types that need explicit serving.');
   const packageRoute = manifest.routes.find(({ html }) => html?.startsWith('/reference/api/csharp/') && html.split('/').length === 6);
   assert.ok(packageRoute);
   const csharp = await page(packageRoute.html);
