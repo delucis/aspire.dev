@@ -155,9 +155,10 @@ try {
   });
   assert.equal(directHit.headers.get('X-Astro-Cache'), 'HIT', 'The same response must be cached in Astro itself.');
   assert.equal(await directHit.text(), csharp.text);
+  const beforeRevalidation = await stats();
   const revalidated = await fetch(hostUrl + packageRoute.html, { headers: { 'If-None-Match': etag } });
   assert.equal(revalidated.status, 304);
-  assert.equal((await stats()).requests, cold.requests + 1, 'A matching validator must not reach the renderer.');
+  assert.equal((await stats()).requests, beforeRevalidation.requests, 'A matching validator must not reach the renderer.');
   const queried = await page(`${packageRoute.html}?cachebust=1`);
   assert.equal(queried.response.headers.get('X-Astro-Cache'), 'HIT', 'Query strings must not multiply renders.');
   const credentialRequest = await page(packageRoute.html, { headers: { Authorization: 'Bearer poc-test' } });
