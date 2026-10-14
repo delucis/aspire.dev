@@ -113,8 +113,8 @@ public sealed class HybridApiDocsConfigurationTests
                 });
                 Assert.Equal(new string?[] { "4323", "4324" }, sidecars.Select(container => container.TargetPort.Value));
                 Assert.Equal("/healthz", site.SiteConfig.HealthCheckPath.Value);
-                Assert.Equal(2, site.SiteConfig.NumberOfWorkers.Value);
                 Assert.True(site.SiteConfig.IsAlwaysOn.Value);
+                // The plan's instance count and scaling stay as configured on the existing production plan.
                 Assert.True(site.IsEndToEndEncryptionEnabled.Value);
                 Assert.Contains(site.SiteConfig.AppSettings, setting =>
                     setting.Value is { } pair &&
@@ -129,6 +129,7 @@ public sealed class HybridApiDocsConfigurationTests
             await using var app = builder.Build();
             var bicep = infrastructure.Resource.GetBicepTemplateString();
             Assert.Contains("isMain: false", bicep, StringComparison.Ordinal);
+            Assert.DoesNotContain("numberOfWorkers", bicep, StringComparison.Ordinal);
             Assert.Contains("healthCheckPath: '/healthz'", bicep, StringComparison.Ordinal);
             Assert.Contains("endToEndEncryptionEnabled: true", bicep, StringComparison.Ordinal);
         }

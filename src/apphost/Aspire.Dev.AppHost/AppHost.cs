@@ -4,14 +4,6 @@ var hybridApiDocs = HybridApiDocsExtensions.IsHybridApiDocsEnabled(
 // For deployment: We want to pick AppService as the environment to publish to.
 var production = builder.AddAzureAppServiceEnvironment("production")
     .WithDashboard(false);
-if (hybridApiDocs)
-{
-    production.ConfigureInfrastructure(infra =>
-    {
-        var plan = infra.GetProvisionableResources().OfType<Azure.Provisioning.AppService.AppServicePlan>().Single();
-        plan.Sku.Capacity = 2;
-    });
-}
 
 var cache = builder.AddAzureManagedRedis("cache")
     .RunAsContainer();

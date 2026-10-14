@@ -42,7 +42,6 @@ internal static class HybridApiDocsExtensions
             website.PublishAsAzureAppServiceWebsite((infra, site) =>
             {
                 site.SiteConfig.IsAlwaysOn = true;
-                site.SiteConfig.NumberOfWorkers = 2;
                 // Renderer readiness only gates warmup; a renderer outage must not make the instance unhealthy.
                 site.SiteConfig.HealthCheckPath = "/healthz";
                 site.SiteConfig.AppSettings.Add(new AppServiceNameValuePair
