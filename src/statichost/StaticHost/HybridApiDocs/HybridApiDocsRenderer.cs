@@ -20,6 +20,8 @@ internal sealed class HybridApiDocsRenderer(HttpClient client, HybridApiDocsArti
         if (selection is null)
         {
             context.Response.StatusCode = StatusCodes.Status404NotFound;
+            context.Response.Headers.CacheControl = "no-store";
+            await NotFoundPage.WriteAsync(context);
             return;
         }
 

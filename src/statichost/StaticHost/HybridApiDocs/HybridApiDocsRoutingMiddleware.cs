@@ -49,11 +49,10 @@ internal sealed class HybridApiDocsRoutingMiddleware(RequestDelegate next, Hybri
             await next(context);
             return;
         }
+        // Prerendered API pages (the landings) are plain static files; anything else is a 404.
         if (!artifact.TryRoute(path, out var route))
         {
-            context.Response.StatusCode = StatusCodes.Status404NotFound;
-            context.Response.Headers.CacheControl = "no-store";
-            await NotFoundPage.WriteAsync(context);
+            await next(context);
             return;
         }
         var isMarkdown = path.EndsWith(".md", StringComparison.Ordinal);

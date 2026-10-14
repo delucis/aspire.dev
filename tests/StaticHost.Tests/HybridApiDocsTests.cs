@@ -328,6 +328,14 @@ public sealed class HybridApiDocsTests
     }
 
     [Fact]
+    public async Task PrerenderedApiPagesAreServedAsStaticFilesWithoutTheRenderer()
+    {
+        await using var host = await HybridHost.StartAsync();
+        Assert.Equal("static landing", await host.Client.GetStringAsync("/reference/api/landing/"));
+        Assert.Empty(host.Renderer.Calls);
+    }
+
+    [Fact]
     public async Task UnknownApiPagesGetTheSiteNotFoundPage()
     {
         await using var host = await HybridHost.StartAsync();
@@ -430,6 +438,7 @@ internal sealed class HybridHost : IAsyncDisposable
         var root = new TempWebRoot();
         root.WriteFile("client/guide/index.html", "static guide");
         root.WriteFile("client/404.html", "site not found");
+        root.WriteFile("client/reference/api/landing/index.html", "static landing");
         root.WriteFile("client/_astro/logo.svg", "<svg/>");
         var pages = new[] { "demo", "private", "cookie", "failure", "broken", "mismatch", "oversize", "large", "cold" }
             .Concat(SpreadPages).ToArray();
