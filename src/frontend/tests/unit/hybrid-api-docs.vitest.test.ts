@@ -5,7 +5,7 @@ import { mkdtemp, mkdir, readFile, readdir, rm, writeFile } from 'node:fs/promis
 import { tmpdir } from 'node:os';
 import { pathToFileURL } from 'node:url';
 import { describe, expect, it } from 'vitest';
-import { hybridApiDocsIntegration, hybridOutputDirectory, isApiRouteComponent, isHybridApiDocs, hybridApiCacheConfig } from '../../config/hybrid-api-docs.mjs';
+import { hybridApiDocsIntegration, hybridEngine, hybridOutputDirectory, isApiRouteComponent, isHybridApiDocs, hybridApiCacheConfig } from '../../config/hybrid-api-docs.mjs';
 import { buildApiRouteCatalog, getCSharpRouteEntries, getTypeScriptRouteEntries } from '@utils/api-route-catalog';
 import type { PackageApiDocument } from '@utils/packages';
 import type { TsApiDocument } from '@utils/ts-modules';
@@ -25,6 +25,14 @@ describe('build-time hybrid opt-in', () => {
     expect(isHybridApiDocs('0')).toBe(false);
     expect(isHybridApiDocs('1')).toBe(true);
     expect(() => isHybridApiDocs('true')).toThrow('ASPIRE_HYBRID_API_DOCS');
+  });
+
+  it('selects the Node renderer unless the Jint engine is requested explicitly', () => {
+    expect(hybridEngine(undefined)).toBe('node');
+    expect(hybridEngine('')).toBe('node');
+    expect(hybridEngine('node')).toBe('node');
+    expect(hybridEngine('jint')).toBe('jint');
+    expect(() => hybridEngine('Jint')).toThrow('ASPIRE_HYBRID_ENGINE');
   });
 
   it('only opts API HTML and Markdown entrypoints out of prerendering', async () => {
@@ -112,6 +120,39 @@ describe('build-time hybrid opt-in', () => {
       expect(await readFile(resolve(out, 'renderer/client/404.html'), 'utf8')).toBe('not found');
       expect(await readFile(resolve(out, 'renderer/.starlight-icons/version.txt'), 'utf8')).toBe('test');
       expect(await readFile(resolve(out, 'server/src/data/twoslash/aspire.d.ts'), 'utf8')).toBe('export {};');
+    } finally {
+      await rm(directory, { recursive: true, force: true });
+    }
+  });
+
+  it('writes only the route catalogue for the Jint engine, which serves client/ and server/ in place', async () => {
+    const directory = await mkdtemp(resolve(tmpdir(), 'aspire-hybrid-jint-'));
+    try {
+      const root = resolve(directory, 'frontend');
+      const out = resolve(root, 'dist-hybrid');
+      for (const path of ['src/data/pkgs', 'src/data/ts-modules', 'dist-hybrid/client', 'dist-hybrid/server']) {
+        await mkdir(resolve(root, path), { recursive: true });
+      }
+      await writeFile(resolve(root, 'src/data/pkgs/test.json'), JSON.stringify({
+        package: { name: 'Test.Package' }, types: [{ name: 'Thing', kind: 'class' }],
+      }));
+      const integration = hybridApiDocsIntegration({ '/old/': '/new/' }, 'jint');
+      const configure = integration.hooks['astro:config:done'];
+      const done = integration.hooks['astro:build:done'];
+      if (!configure || !done) throw new Error('Missing hybrid build hooks.');
+      await Reflect.apply(configure, undefined, [{
+        config: { root: pathToFileURL(root + '/'), outDir: pathToFileURL(out + '/'), site: 'https://aspire.dev' },
+      }]);
+      await Reflect.apply(done, undefined, [{}]);
+      const manifest = JSON.parse(await readFile(resolve(out, 'hybrid-api-docs.json'), 'utf8')) as {
+        engine: string; routes: { html: string }[]; redirects: { path: string; status: number }[];
+      };
+      expect(manifest.engine).toBe('jint');
+      expect(manifest.routes.map(({ html }) => html)).toEqual([
+        '/reference/api/csharp/test.package/', '/reference/api/csharp/test.package/thing/',
+      ]);
+      expect(manifest.redirects).toEqual([{ path: '/old/', destination: '/new/', status: 301 }]);
+      expect((await readdir(out)).sort()).toEqual(['client', 'hybrid-api-docs.json', 'server']);
     } finally {
       await rm(directory, { recursive: true, force: true });
     }

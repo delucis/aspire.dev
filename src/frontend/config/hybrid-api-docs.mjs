@@ -12,6 +12,36 @@ export function isHybridApiDocs(value = process.env.ASPIRE_HYBRID_API_DOCS) {
   throw new Error('ASPIRE_HYBRID_API_DOCS must be unset, 0, or 1.');
 }
 
+/**
+ * Which on-demand renderer the hybrid build targets. `node` is the POC's Node sidecar (default);
+ * `jint` is the astro-adapter-jint prototype, which runs the same routes inside Jint.
+ * @param {string | undefined} value
+ * @returns {'node' | 'jint'}
+ */
+export function hybridEngine(value = process.env.ASPIRE_HYBRID_ENGINE) {
+  if (value === undefined || value === '' || value === 'node') return 'node';
+  if (value === 'jint') return 'jint';
+  throw new Error('ASPIRE_HYBRID_ENGINE must be unset, node, or jint.');
+}
+
+/**
+ * Loads astro-adapter-jint from node_modules, next to the site's own `astro`, so the server bundle
+ * contains a single copy of Astro. The package is not published; see src/tools/HybridEngineBenchmark.
+ * @returns {Promise<import('astro').AstroIntegration>}
+ */
+export async function jintAdapter() {
+  // A variable specifier keeps type-checking from requiring a package that is only present for Jint builds.
+  const specifier = 'astro-adapter-jint';
+  try {
+    const { default: jint } = await import(/* @vite-ignore */ specifier);
+    return jint();
+  } catch (error) {
+    throw new Error('ASPIRE_HYBRID_ENGINE=jint needs astro-adapter-jint in node_modules. '
+      + 'Build it from https://github.com/IEvangelist/astro-jint and copy dist/ and package.json to node_modules/astro-adapter-jint.',
+      { cause: error });
+  }
+}
+
 /** @returns {Pick<import('astro').AstroUserConfig, 'cache'>} */
 export function hybridApiCacheConfig() {
   return {
@@ -61,9 +91,10 @@ async function hashDirectory(directory, hash, prefix = '') {
 
 /**
  * @param {Record<string, string | { destination: string, status: number }>} redirects
+ * @param {'node' | 'jint'} [engine]
  * @returns {import('astro').AstroIntegration}
  */
-export function hybridApiDocsIntegration(redirects) {
+export function hybridApiDocsIntegration(redirects, engine = 'node') {
   let root = '';
   let out = '';
   let site = '';
@@ -90,6 +121,14 @@ export function hybridApiDocsIntegration(redirects) {
           path, destination: typeof value === 'string' ? value : value.destination,
           status: typeof value === 'string' ? 301 : value.status,
         }));
+        if (engine === 'jint') {
+          // The Jint host serves client/ and renders from server/ in place (astro-jint.json describes both),
+          // so none of the Node renderer layout below applies. Only the route catalogue is kept.
+          await writeFile(resolve(out, 'hybrid-api-docs.json'), JSON.stringify({
+            schemaVersion: 1, mode: 'hybrid-api-docs', engine, site, routes, redirects: redirectEntries,
+          }));
+          return;
+        }
         await cp(resolve(root, '../statichost/StaticHost/wwwroot/scalar'),
           resolve(out, 'client/scalar'), { recursive: true });
         const rendererClient = resolve(out, 'renderer/client');

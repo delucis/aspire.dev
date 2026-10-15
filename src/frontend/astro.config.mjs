@@ -26,9 +26,10 @@ import { contributorCacheIntegration } from './src/utils/contributors.ts';
 import UnoCSS from 'unocss/astro';
 import Icons from 'starlight-plugin-icons';
 import node from '@astrojs/node';
-import { isHybridApiDocs, hybridOutputDirectory, hybridApiDocsIntegration, hybridApiCacheConfig } from './config/hybrid-api-docs.mjs';
+import { isHybridApiDocs, hybridEngine, hybridOutputDirectory, hybridApiDocsIntegration, hybridApiCacheConfig, jintAdapter } from './config/hybrid-api-docs.mjs';
 
 const hybridApiDocs = isHybridApiDocs();
+const hybridApiEngine = hybridEngine();
 const modeArgIndex = process.argv.indexOf('--mode');
 const isSkipSearchBuild = modeArgIndex >= 0 && process.argv[modeArgIndex + 1] === 'skip-search';
 const outDir = process.env.ASTRO_OUT_DIR;
@@ -62,9 +63,9 @@ export default defineConfig({
   ...(hybridApiDocs
     ? {
         outDir: hybridOutputDirectory(process.cwd(), outDir),
-        adapter: node({ mode: 'middleware' }),
+        adapter: hybridApiEngine === 'jint' ? await jintAdapter() : node({ mode: 'middleware' }),
         session: false,
-        ...hybridApiCacheConfig(),
+        ...(hybridApiEngine === 'node' ? hybridApiCacheConfig() : {}),
       }
     : outDir ? { outDir } : {}),
   vite: {
@@ -252,7 +253,7 @@ export default defineConfig({
     }),
     ...(isBuildTimingEnabled ? [buildTiming()] : []),
     aspireVersionPlaceholdersIntegration(),
-    ...(hybridApiDocs ? [hybridApiDocsIntegration(redirects)] : []),
+    ...(hybridApiDocs ? [hybridApiDocsIntegration(redirects, hybridApiEngine)] : []),
   ],
   build: {
     concurrency: buildConcurrency,

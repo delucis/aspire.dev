@@ -1,0 +1,130 @@
+name: Hybrid API docs Jint feasibility
+
+# Builds the real site with the astro-adapter-jint prototype (and, as a control, with the Node adapter)
+# so the build cost, server bundle and what Jint cannot load can be compared. See
+# src/tools/HybridEngineBenchmark for how the artifact is benchmarked.
+on:
+  push:
+    branches:
+      - ievangelist-hybrid-api-jint-comparison
+    paths:
+      - .github/workflows/hybrid-api-docs-jint.yml
+      - src/frontend/astro.config.mjs
+      - src/frontend/config/hybrid-api-docs.mjs
+      - src/frontend/src/**
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  ASTRO_JINT_REPOSITORY: https://github.com/IEvangelist/astro-jint.git
+  ASTRO_JINT_COMMIT: 3c4795cdaad1d07b6fd3bcabba336a5fb4c7b7d6
+
+jobs:
+  build:
+    name: Hybrid build (${{ matrix.engine }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        engine: [jint, node]
+    defaults:
+      run:
+        shell: bash
+        working-directory: src/frontend
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24.x
+          cache: pnpm
+          cache-dependency-path: src/frontend/pnpm-lock.yaml
+      - name: Prepare results folder
+        run: |
+          echo "RESULTS=$RUNNER_TEMP/hybrid-engine" >> "$GITHUB_ENV"
+          mkdir -p "$RUNNER_TEMP/hybrid-engine"
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --prefer-offline
+      - name: Build astro-adapter-jint
+        if: ${{ matrix.engine == 'jint' }}
+        run: |
+          git clone --quiet "$ASTRO_JINT_REPOSITORY" "$RUNNER_TEMP/astro-jint"
+          git -C "$RUNNER_TEMP/astro-jint" checkout --quiet "$ASTRO_JINT_COMMIT"
+          cd "$RUNNER_TEMP/astro-jint"
+          pnpm install --frozen-lockfile --filter astro-adapter-jint
+          pnpm --filter astro-adapter-jint build
+          # Next to the site's own `astro`, so the server bundle holds a single copy of Astro.
+          adapter="$GITHUB_WORKSPACE/src/frontend/node_modules/astro-adapter-jint"
+          mkdir -p "$adapter"
+          cp -r packages/astro-adapter-jint/dist packages/astro-adapter-jint/package.json "$adapter/"
+          echo "astro-jint $(git rev-parse HEAD)" | tee -a "$GITHUB_STEP_SUMMARY"
+      - name: Build hybrid site
+        env:
+          ASTRO_TELEMETRY_DISABLED: '1'
+          NODE_OPTIONS: --max-old-space-size=8192
+          ASPIRE_HYBRID_API_DOCS: '1'
+          ASPIRE_HYBRID_ENGINE: ${{ matrix.engine }}
+          BUILD_TIMING: '1'
+          BUILD_TIMING_LABEL: ${{ matrix.engine }}
+          BUILD_TIMING_OUT: ${{ runner.temp }}/hybrid-engine/build-timing.jsonl
+        run: |
+          /usr/bin/time -v -o "$RESULTS/build-resources.txt" pnpm build:production 2>&1 | tee "$RESULTS/build.log"
+      - name: Summarize output
+        if: ${{ always() }}
+        run: |
+          size() { du -sb "$1" 2>/dev/null | cut -f1; }
+          count() { find "$1" -type f 2>/dev/null | wc -l; }
+          {
+            echo "### Hybrid build: ${{ matrix.engine }}"
+            echo
+            echo '```text'
+            grep -E 'Elapsed \(wall clock\)|Maximum resident set size|User time|System time' "$RESULTS/build-resources.txt" || echo 'no resource file'
+            echo "client: $(size dist-hybrid/client) bytes in $(count dist-hybrid/client) files"
+            echo "server: $(size dist-hybrid/server) bytes in $(count dist-hybrid/server) files"
+            echo "server .mjs files: $(find dist-hybrid/server -name '*.mjs' 2>/dev/null | wc -l)"
+            echo '```'
+          } | tee "$RESULTS/summary.md" >> "$GITHUB_STEP_SUMMARY"
+          grep -E 'astro-adapter-jint' "$RESULTS/build.log" > "$RESULTS/adapter-messages.txt" || true
+          if [ -s "$RESULTS/adapter-messages.txt" ]; then
+            {
+              echo
+              echo '#### astro-adapter-jint messages'
+              echo '```text'
+              cut -c1-600 "$RESULTS/adapter-messages.txt" | head -n 80
+              echo '```'
+            } >> "$GITHUB_STEP_SUMMARY"
+          fi
+      - name: Assemble Jint artifact
+        if: ${{ always() && matrix.engine == 'jint' }}
+        run: |
+          mkdir -p "$RESULTS/artifact"
+          cp "$RESULTS"/*.txt "$RESULTS"/*.md "$RESULTS"/build.log "$RESULTS/artifact/" 2>/dev/null || true
+          cp "$RESULTS"/build-timing.jsonl "$RESULTS/artifact/" 2>/dev/null || true
+          if [ -d dist-hybrid/server ]; then
+            cp -r dist-hybrid/server "$RESULTS/artifact/server"
+            cp dist-hybrid/astro-jint.json dist-hybrid/hybrid-api-docs.json "$RESULTS/artifact/" 2>/dev/null || true
+            mkdir -p "$RESULTS/artifact/client"
+            rsync -a --prune-empty-dirs --include='*/' --include='*.css' --include='*.js' --exclude='*' dist-hybrid/client/ "$RESULTS/artifact/client/"
+            cp dist-hybrid/client/404.html "$RESULTS/artifact/client/" 2>/dev/null || true
+          fi
+          du -sh "$RESULTS/artifact"
+      - name: Upload build results
+        if: ${{ always() }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: hybrid-engine-${{ matrix.engine }}
+          path: ${{ matrix.engine == 'jint' && format('{0}/hybrid-engine/artifact', runner.temp) || format('{0}/hybrid-engine', runner.temp) }}
+          include-hidden-files: true
+          if-no-files-found: warn
+          retention-days: 7
