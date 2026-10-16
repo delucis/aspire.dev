@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using System.Net;
+using System.Text;
 using System.Text.Json;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -418,6 +419,42 @@ public sealed class HybridApiDocsTests
     }
 
     [Fact]
+    public async Task ServesPagesFromAnyEngine()
+    {
+        var engine = new TestApiEngine();
+        await using var host = await HybridHost.StartAsync(engine: engine);
+        using var page = await host.Client.GetAsync("/reference/api/demo/");
+        Assert.Equal("engine:/reference/api/demo/", await page.Content.ReadAsStringAsync());
+        Assert.True(page.Headers.CacheControl!.NoCache);
+        Assert.True(page.Headers.ETag!.IsWeak);
+        Assert.Equal(new string('a', 64), Assert.Single(page.Headers.GetValues("X-Aspire-Build-Id")));
+        Assert.Equal("engine:/reference/api/demo.md", await host.Client.GetStringAsync("/reference/api/demo.md"));
+        const string image = "/_image?href=%2F_astro%2Flogo.svg&w=48&h=48";
+        Assert.Equal($"engine:{image}", await host.Client.GetStringAsync(image));
+        Assert.Equal(["/reference/api/demo/", "/reference/api/demo.md", image], engine.Requests);
+        Assert.Equal("static guide", await host.Client.GetStringAsync("/guide/"));
+        Assert.Empty(host.Renderer.Requests);
+    }
+
+    [Fact]
+    public async Task ReportsEngineStateWithoutAnyRenderer()
+    {
+        var engine = new TestApiEngine();
+        await using var host = await HybridHost.StartAsync(engine: engine);
+        using var ready = await host.Client.GetAsync("/healthz/api-docs");
+        Assert.Equal(HttpStatusCode.OK, ready.StatusCode);
+
+        engine.Ready = false;
+        engine.FailureStatus = 504;
+        using var notReady = await host.Client.GetAsync("/healthz/api-docs");
+        Assert.Equal(HttpStatusCode.ServiceUnavailable, notReady.StatusCode);
+        using var timedOut = await host.Client.GetAsync("/reference/api/demo/");
+        Assert.Equal(HttpStatusCode.GatewayTimeout, timedOut.StatusCode);
+        Assert.Contains("Try again", await timedOut.Content.ReadAsStringAsync());
+        Assert.Equal("5", Assert.Single(timedOut.Headers.GetValues("Retry-After")));
+    }
+
+    [Fact]
     public void RejectsMissingOrEscapingArtifacts()
     {
         using var root = new TempWebRoot();
@@ -449,7 +486,7 @@ internal sealed class HybridHost : IAsyncDisposable
         Client = app.GetTestClient();
     }
 
-    public static async Task<HybridHost> StartAsync(string[]? endpoints = null)
+    public static async Task<HybridHost> StartAsync(string[]? endpoints = null, IHybridApiDocsEngine? engine = null)
     {
         var root = new TempWebRoot();
         root.WriteFile("client/guide/index.html", "static guide");
@@ -470,9 +507,17 @@ internal sealed class HybridHost : IAsyncDisposable
         var builder = WebApplication.CreateBuilder(new WebApplicationOptions { WebRootPath = artifact.ClientDirectory });
         builder.Logging.ClearProviders();
         builder.WebHost.UseTestServer();
-        builder.Services.AddHybridApiDocs(artifact, endpoints ?? ["http://renderer/"]);
         var renderer = new TestApiRenderer();
-        builder.Services.AddHttpClient<HybridApiDocsRenderer>().ConfigurePrimaryHttpMessageHandler(() => renderer);
+        if (engine is null)
+        {
+            builder.Services.AddHybridApiDocs(artifact, endpoints ?? ["http://renderer/"]);
+            builder.Services.AddHttpClient<HybridApiDocsSidecarEngine>().ConfigurePrimaryHttpMessageHandler(() => renderer);
+        }
+        else
+        {
+            builder.Services.AddHybridApiDocsCore(artifact);
+            builder.Services.AddSingleton(engine);
+        }
         var app = builder.Build();
         app.UseResponseCompression();
         app.UseHybridApiDocsRouting();
@@ -491,6 +536,23 @@ internal sealed class HybridHost : IAsyncDisposable
         await _app.DisposeAsync();
         _root.Dispose();
     }
+}
+
+internal sealed class TestApiEngine : IHybridApiDocsEngine
+{
+    public ConcurrentQueue<string> Requests { get; } = new();
+    public bool Ready { get; set; } = true;
+    public int? FailureStatus { get; set; }
+
+    public Task<HybridApiDocsResponse> RenderAsync(string upstream)
+    {
+        Requests.Enqueue(upstream);
+        if (FailureStatus is { } status) return Task.FromResult(HybridApiDocsResponse.Failure(status));
+        KeyValuePair<string, string[]>[] headers = [new("Content-Type", ["text/html"]), new("X-Astro-Cache", ["MISS"])];
+        return Task.FromResult(new HybridApiDocsResponse(200, headers, Encoding.UTF8.GetBytes($"engine:{upstream}"), false, true));
+    }
+
+    public Task<bool> IsReadyAsync(CancellationToken cancellationToken) => Task.FromResult(Ready);
 }
 
 internal sealed class TestApiRenderer : HttpMessageHandler

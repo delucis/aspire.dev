@@ -17,6 +17,7 @@ internal sealed class HybridApiDocsArtifact
     private readonly HashSet<string> _images = new(StringComparer.Ordinal);
 
     public HybridApiManifest Manifest { get; }
+    public string RootDirectory { get; }
     public string ClientDirectory { get; }
     public Uri Site { get; }
 
@@ -34,6 +35,7 @@ internal sealed class HybridApiDocsArtifact
         }
         Site = site;
         var root = Path.GetDirectoryName(Path.GetFullPath(path))!;
+        RootDirectory = root;
         ClientDirectory = ResolveArtifactPath(root, manifest.Client);
         if (!Directory.Exists(ClientDirectory))
         {

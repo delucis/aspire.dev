@@ -125,7 +125,7 @@ describe('build-time hybrid opt-in', () => {
     }
   });
 
-  it('writes only the route catalogue for the Jint engine, which serves client/ and server/ in place', async () => {
+  it('writes a deployable manifest for the Jint engine without the Node renderer layout', async () => {
     const directory = await mkdtemp(resolve(tmpdir(), 'aspire-hybrid-jint-'));
     try {
       const root = resolve(directory, 'frontend');
@@ -133,6 +133,9 @@ describe('build-time hybrid opt-in', () => {
       for (const path of ['src/data/pkgs', 'src/data/ts-modules', 'dist-hybrid/client', 'dist-hybrid/server']) {
         await mkdir(resolve(root, path), { recursive: true });
       }
+      await mkdir(resolve(directory, 'statichost/StaticHost/wwwroot/scalar'), { recursive: true });
+      await writeFile(resolve(directory, 'statichost/StaticHost/wwwroot/scalar/theme.css'), 'scalar styles');
+      await writeFile(resolve(out, 'client/sitemap-index.xml'), '<sitemapindex></sitemapindex>');
       await writeFile(resolve(root, 'src/data/pkgs/test.json'), JSON.stringify({
         package: { name: 'Test.Package' }, types: [{ name: 'Thing', kind: 'class' }],
       }));
@@ -145,13 +148,20 @@ describe('build-time hybrid opt-in', () => {
       }]);
       await Reflect.apply(done, undefined, [{}]);
       const manifest = JSON.parse(await readFile(resolve(out, 'hybrid-api-docs.json'), 'utf8')) as {
-        engine: string; routes: { html: string }[]; redirects: { path: string; status: number }[];
+        engine: string; buildId: string; platform: string; client: string;
+        routes: { html: string }[]; redirects: { path: string; status: number }[];
       };
       expect(manifest.engine).toBe('jint');
+      expect(manifest.buildId).toMatch(/^[a-f0-9]{64}$/);
+      expect(manifest.platform).toBe(process.platform);
+      expect(manifest.client).toBe('client');
       expect(manifest.routes.map(({ html }) => html)).toEqual([
         '/reference/api/csharp/test.package/', '/reference/api/csharp/test.package/thing/',
       ]);
       expect(manifest.redirects).toEqual([{ path: '/old/', destination: '/new/', status: 301 }]);
+      expect(await readFile(resolve(out, 'client/scalar/theme.css'), 'utf8')).toBe('scalar styles');
+      expect(await readFile(resolve(out, 'client/sitemap-api.xml'), 'utf8'))
+        .toContain('https://aspire.dev/reference/api/csharp/test.package/thing/');
       expect((await readdir(out)).sort()).toEqual(['client', 'hybrid-api-docs.json', 'server']);
     } finally {
       await rm(directory, { recursive: true, force: true });

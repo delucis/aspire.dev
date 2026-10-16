@@ -16,6 +16,19 @@
     <PublishCompressionFormats>brotli</PublishCompressionFormats>
   </PropertyGroup>
 
+  <!--
+    ASPIRE_HYBRID_ENGINE=jint renders the API pages in process with astro-jint instead of in Node sidecars.
+    Jint formats display names with Intl, which needs ICU, so this variant keeps globalization on and uses the
+    chiseled base image that ships ICU. Jint 5 is only published to a preview feed, so it restores from its own config.
+  -->
+  <PropertyGroup Condition="'$(ASPIRE_HYBRID_API_DOCS)' == '1' And '$(ASPIRE_HYBRID_ENGINE)' == 'jint'">
+    <IntermediateOutputPath>obj/$(Configuration)/hybrid-jint/</IntermediateOutputPath>
+    <DefineConstants>$(DefineConstants);HYBRID_API_DOCS_JINT</DefineConstants>
+    <InvariantGlobalization>false</InvariantGlobalization>
+    <ContainerFamily>noble-chiseled-extra</ContainerFamily>
+    <RestoreConfigFile>$(MSBuildProjectDirectory)/NuGet.jint.config</RestoreConfigFile>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="Azure.Monitor.OpenTelemetry.AspNetCore" Version="1.4.0" />
     <PackageReference Include="Aspire.Azure.Security.KeyVault" Version="13.6.0" />
@@ -48,6 +61,16 @@
              Link="hybrid/hybrid-api-docs.json"
              CopyToPublishDirectory="PreserveNewest"
              Condition="'$(ASPIRE_HYBRID_API_DOCS)' == '1'" />
+    <Content Include="$(HybridApiDocsArtifactDirectory)/astro-jint.json"
+             Link="hybrid/astro-jint.json"
+             CopyToPublishDirectory="PreserveNewest"
+             Condition="'$(ASPIRE_HYBRID_API_DOCS)' == '1' And '$(ASPIRE_HYBRID_ENGINE)' == 'jint'" />
+    <Content Include="$(HybridApiDocsArtifactDirectory)/server/**/*"
+             Link="hybrid/server/%(RecursiveDir)%(Filename)%(Extension)"
+             CopyToPublishDirectory="PreserveNewest"
+             Condition="'$(ASPIRE_HYBRID_API_DOCS)' == '1' And '$(ASPIRE_HYBRID_ENGINE)' == 'jint'" />
+    <ProjectReference Include="$(AstroJintRoot)src/AstroJint.AspNetCore/AstroJint.AspNetCore.csproj"
+                      Condition="'$(ASPIRE_HYBRID_API_DOCS)' == '1' And '$(ASPIRE_HYBRID_ENGINE)' == 'jint' And '$(AstroJintRoot)' != ''" />
     <!--
       The frontend ESProj produces wwwroot static assets at build time.
       PrivateAssets="all" prevents MSBuild from propagating its output (the
@@ -60,6 +83,12 @@
     <ProjectReference Include="../../frontend/frontend.esproj" PrivateAssets="all"
                       Condition="'$(ASPIRE_HYBRID_API_DOCS)' != '1'" />
   </ItemGroup>
+
+  <Target Name="RequireAstroJintRoot" BeforeTargets="PrepareForBuild"
+          Condition="'$(ASPIRE_HYBRID_API_DOCS)' == '1' And '$(ASPIRE_HYBRID_ENGINE)' == 'jint'">
+    <Error Condition="'$(AstroJintRoot)' == ''"
+           Text="ASPIRE_HYBRID_ENGINE=jint needs AstroJintRoot, the folder of an astro-jint checkout that ends with a path separator." />
+  </Target>
 
   <Import Project="Caching.targets" />
 </Project>

@@ -22,18 +22,9 @@ internal static class HybridApiDocsExtensions
         }).Distinct().ToArray();
         if (endpoints.Length == 0)
             throw new InvalidOperationException("At least one private Astro worker endpoint is required.");
-        // The hybrid client is served from plain files and renderer responses are forwarded
-        // uncompressed, so neither has the build-time precompression of static web assets.
-        services.AddResponseCompression(options =>
-        {
-            options.EnableForHttps = true;
-            options.MimeTypes = ResponseCompressionDefaults.MimeTypes
-                .Union(["text/javascript", "text/markdown", "image/svg+xml"]);
-        });
-        services.AddSingleton(artifact);
+        services.AddHybridApiDocsCore(artifact);
         services.AddSingleton(new HybridApiDocsEndpointPool(endpoints));
-        services.AddSingleton<HybridApiDocsFlights>();
-        services.AddHttpClient<HybridApiDocsRenderer>(client =>
+        services.AddHttpClient<HybridApiDocsSidecarEngine>(client =>
         {
             client.Timeout = Timeout.InfiniteTimeSpan;
             client.MaxResponseContentBufferSize = HybridApiDocsRenderer.MaximumBodySize;
@@ -43,6 +34,23 @@ internal static class HybridApiDocsExtensions
             AutomaticDecompression = DecompressionMethods.None,
             ConnectTimeout = TimeSpan.FromSeconds(5),
         });
+        services.AddTransient<IHybridApiDocsEngine>(provider => provider.GetRequiredService<HybridApiDocsSidecarEngine>());
+    }
+
+    /// <summary>Registers what every engine shares: the artifact, response compression, request collapsing and the renderer.</summary>
+    internal static void AddHybridApiDocsCore(this IServiceCollection services, HybridApiDocsArtifact artifact)
+    {
+        // The hybrid client is served from plain files and renderer responses are forwarded
+        // uncompressed, so neither has the build-time precompression of static web assets.
+        services.AddResponseCompression(options =>
+        {
+            options.EnableForHttps = true;
+            options.MimeTypes = ResponseCompressionDefaults.MimeTypes
+                .Union(["text/javascript", "text/markdown", "image/svg+xml"]);
+        });
+        services.AddSingleton(artifact);
+        services.AddSingleton<HybridApiDocsFlights>();
+        services.AddTransient<HybridApiDocsRenderer>();
     }
 
     public static void UseHybridApiDocsRouting(this IApplicationBuilder app)

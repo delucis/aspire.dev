@@ -2,7 +2,8 @@ name: Hybrid API docs Jint feasibility
 
 # Builds the real site with the astro-adapter-jint prototype (and, as a control, with the Node adapter)
 # so the build cost, server bundle and what Jint cannot load can be compared. See
-# src/tools/HybridEngineBenchmark for how the artifact is benchmarked.
+# src/tools/HybridEngineBenchmark for how the artifact is benchmarked. The Jint leg also assembles a
+# deployable Linux artifact (hybrid-api-docs-jint-linux) for the StaticHost that renders in process.
 on:
   push:
     branches:
@@ -127,4 +128,33 @@ jobs:
           path: ${{ matrix.engine == 'jint' && format('{0}/hybrid-engine/artifact', runner.temp) || format('{0}/hybrid-engine', runner.temp) }}
           include-hidden-files: true
           if-no-files-found: warn
+          retention-days: 7
+      # The server bundle needs three patches before Jint can load it (no WebAssembly, no node: imports,
+      # and Expressive Code needs WebAssembly). They are applied to a copy, so the artifact above stays as built.
+      - name: Assemble deployable Jint artifact
+        if: ${{ matrix.engine == 'jint' }}
+        run: |
+          deploy="$RUNNER_TEMP/hybrid-api-docs-jint"
+          mkdir -p "$deploy"
+          cp -r dist-hybrid/client "$deploy/client"
+          cp -r dist-hybrid/server "$deploy/server"
+          cp dist-hybrid/astro-jint.json dist-hybrid/hybrid-api-docs.json "$deploy/"
+          node ../tools/HybridEngineBenchmark/scripts/patch-server-bundle.mjs "$deploy" --no-wasm --stub-node --plain-code
+          {
+            echo '### Deployable Jint artifact'
+            echo
+            echo '```text'
+            echo "client: $(du -sb "$deploy/client" | cut -f1) bytes in $(find "$deploy/client" -type f | wc -l) files"
+            echo "server: $(du -sb "$deploy/server" | cut -f1) bytes in $(find "$deploy/server" -type f | wc -l) files"
+            node -e "const m = require('$deploy/hybrid-api-docs.json'); console.log('platform ' + m.platform + ', engine ' + m.engine + ', routes ' + m.routes.length + ', buildId ' + m.buildId)"
+            echo '```'
+          } | tee -a "$GITHUB_STEP_SUMMARY"
+      - name: Upload deployable Jint artifact
+        if: ${{ matrix.engine == 'jint' }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: hybrid-api-docs-jint-linux
+          path: ${{ runner.temp }}/hybrid-api-docs-jint
+          include-hidden-files: true
+          if-no-files-found: error
           retention-days: 7

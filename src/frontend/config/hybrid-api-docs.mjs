@@ -121,33 +121,30 @@ export function hybridApiDocsIntegration(redirects, engine = 'node') {
           path, destination: typeof value === 'string' ? value : value.destination,
           status: typeof value === 'string' ? 301 : value.status,
         }));
-        if (engine === 'jint') {
-          // The Jint host serves client/ and renders from server/ in place (astro-jint.json describes both),
-          // so none of the Node renderer layout below applies. Only the route catalogue is kept.
-          await writeFile(resolve(out, 'hybrid-api-docs.json'), JSON.stringify({
-            schemaVersion: 1, mode: 'hybrid-api-docs', engine, site, routes, redirects: redirectEntries,
-          }));
-          return;
-        }
         await cp(resolve(root, '../statichost/StaticHost/wwwroot/scalar'),
           resolve(out, 'client/scalar'), { recursive: true });
-        const rendererClient = resolve(out, 'renderer/client');
-        await mkdir(resolve(rendererClient, '_astro'), { recursive: true });
-        for (const file of await readdir(resolve(out, 'client/_astro'))) {
-          if (['.svg', '.png', '.jpg', '.jpeg', '.webp', '.avif', '.gif'].includes(extname(file).toLowerCase())) {
-            await cp(resolve(out, 'client/_astro', file), resolve(rendererClient, '_astro', file));
+        if (engine === 'node') {
+          const rendererClient = resolve(out, 'renderer/client');
+          await mkdir(resolve(rendererClient, '_astro'), { recursive: true });
+          for (const file of await readdir(resolve(out, 'client/_astro'))) {
+            if (['.svg', '.png', '.jpg', '.jpeg', '.webp', '.avif', '.gif'].includes(extname(file).toLowerCase())) {
+              await cp(resolve(out, 'client/_astro', file), resolve(rendererClient, '_astro', file));
+            }
           }
+          await cp(resolve(out, 'client/404.html'), resolve(rendererClient, '404.html'));
+          await cp(resolve(root, '.starlight-icons'), resolve(out, 'renderer/.starlight-icons'), { recursive: true });
+          await mkdir(resolve(out, 'server/src/data/twoslash'), { recursive: true });
+          await cp(resolve(root, 'src/data/twoslash/aspire.d.ts'), resolve(out, 'server/src/data/twoslash/aspire.d.ts'));
         }
-        await cp(resolve(out, 'client/404.html'), resolve(rendererClient, '404.html'));
-        await cp(resolve(root, '.starlight-icons'), resolve(out, 'renderer/.starlight-icons'), { recursive: true });
-        await mkdir(resolve(out, 'server/src/data/twoslash'), { recursive: true });
-        await cp(resolve(root, 'src/data/twoslash/aspire.d.ts'), resolve(out, 'server/src/data/twoslash/aspire.d.ts'));
         const hash = createHash('sha256');
         hash.update(JSON.stringify({ routes, redirects: redirectEntries, site, platform: process.platform }));
         await hashDirectory(resolve(out, 'client'), hash, 'client/');
-        await hashDirectory(resolve(out, 'server'), hash, 'server/');
+        // Node sidecars check this id against the StaticHost that proxies to them. The Jint server runs inside
+        // StaticHost and is patched after the build, so only the Node build includes its server in the id.
+        if (engine === 'node') await hashDirectory(resolve(out, 'server'), hash, 'server/');
         const manifest = {
-          schemaVersion: 1, mode: 'hybrid-api-docs', buildId: hash.digest('hex'),
+          schemaVersion: 1, mode: 'hybrid-api-docs', ...(engine === 'jint' ? { engine } : {}),
+          buildId: hash.digest('hex'),
           platform: process.platform,
           client: 'client', server: 'server/entry.mjs', site,
           routes, redirects: redirectEntries,

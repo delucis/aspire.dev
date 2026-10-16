@@ -31,9 +31,13 @@ builder.AddLiveStatus();
 
 if (hybridArtifact is not null)
 {
+#if HYBRID_API_DOCS_JINT
+    builder.Services.AddHybridApiDocsJint(hybridArtifact);
+#else
     var rendererUrls = builder.Configuration.GetSection("HybridApiDocs:RendererUrls").Get<string[]>()
         ?? [builder.Configuration["HybridApiDocs:RendererUrl"] ?? ""];
     builder.Services.AddHybridApiDocs(hybridArtifact, rendererUrls);
+#endif
 }
 
 builder.Services.AddHsts(options =>
