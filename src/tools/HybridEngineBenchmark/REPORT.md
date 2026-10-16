@@ -10,7 +10,9 @@ Keep the Node sidecar. On the same pages, the same machine and the same CPU budg
 
 Jint's advantages are operational. It needs no Node runtime and no `node_modules`, which is 425 MB less to ship. It runs inside the StaticHost process instead of in a sidecar, and it accepts connections after a quarter of a second. It rendered every sampled page identically to Node once build noise is normalized, and no run in this study produced an error. Those advantages do not offset a throughput gap of this size.
 
-Two more findings count against Jint. The real site does not run in Jint as built: a WebAssembly reference, three Node built-ins and Expressive Code each have to be removed or replaced first. And after four minutes of load one Jint engine holds 1.1 to 1.2 GB of live heap and peaks at 2.4 to 2.5 GB of process memory.
+Two more findings count against Jint. The real site does not run in Jint as built: a WebAssembly reference, three Node built-ins and Expressive Code each have to be removed or replaced first. And one Jint engine needs a lot of memory. After four minutes of load it holds 1.1 to 1.2 GB of live heap and peaks at 2.4 to 2.5 GB of process memory. A one-hour crawl made 65,540 requests, which is 1.35 passes over the whole site. Over that crawl the engine held 1.3 to 1.4 GB of live heap and peaked at 3.0 GB of process memory on a machine with 31.7 GB of RAM. Node plain peaked at 0.7 GB in its crawl and Node as deployed at 1.0 GB.
+
+One finding goes against the Node sidecar as deployed. In the crawl its live heap rose from 256 MB to 380 MB over 55,815 requests. After the first 6,500 requests the rise was a steady 1.9 MB per 1,000 requests with no sign of a plateau. The plain Node bundle stayed near 230 MB. The cause was not investigated. A straight line at that rate would reach the sidecar's 1,024 MB heap limit after roughly 335,000 to 395,000 more requests of the crawl mix. That figure is modeled and not observed. The details are under [Full-site crawl](#full-site-crawl).
 
 ## At a glance
 
@@ -26,10 +28,13 @@ Two more findings count against Jint. The real site does not run in Jint as buil
 | Markdown endpoints per second on one core | 3,020 | 2,993 | 404 |
 | Peak process memory in the 240 s soak | 709 MB | 906 MB | 2,547 MB |
 | Live heap after the 240 s soak | 227 MB | 351 MB | 1,170 MB |
+| Live heap after a full-site crawl | 231 MB | 380 MB | 1,440 MB |
+| Live heap growth in the crawl after request 6,500, per 1,000 requests | 0.11 MB | 1.85 MB | 1.67 MB |
+| Peak process memory in the full-site crawl | 704 MB | 986 MB | 3,119 MB |
 | Production `node_modules` to ship | 425 MB | 425 MB | none |
 | The engine runs the real site unpatched | yes | yes | no |
 
-Plain means the bundle is patched so that `<Code>` renders a plain `<pre><code>`. Both engines run the same patched page code, so the engine is the main variable. The Jint bundle also carries the two patches that let it load at all. Node also runs unpatched as the as-deployed reference, which Jint cannot do. The Node rows need the Node runtime on top of the 425 MB. Tuned adds three .NET runtime settings, described in [Jint runtime settings](#jint-runtime-settings). Figures are means of three runs where three exist. Jint reports ready before its engines are warm, so the first-page row is the one to compare.
+Plain means the bundle is patched so that `<Code>` renders a plain `<pre><code>`. Both engines run the same patched page code, so the engine is the main variable. The Jint bundle also carries the two patches that let it load at all. Node also runs unpatched as the as-deployed reference, which Jint cannot do. The Node rows need the Node runtime on top of the 425 MB. Tuned adds three .NET runtime settings, described in [Jint runtime settings](#jint-runtime-settings). Figures are means of three runs where three exist. The three crawl rows come from one run per engine of 55,815 to 65,540 requests, described under [Full-site crawl](#full-site-crawl). Jint reports ready before its engines are warm, so the first-page row is the one to compare.
 
 ## The two approaches
 
@@ -264,7 +269,42 @@ Three probes on one pinned core, with a forced full collection every 30 s. Each 
 | Jint, replay of 40 pages | 1,264 | 40 | 784 MB | 881 MB | Between 881 and 917 MB after the first pass |
 | Node plain, distinct pages | 42,969 | about 12,600 | 204 MB | 227 MB | Within 225 to 227 MB from request 4,045 |
 
-The Jint replay stays flat, so the growth is tied to visiting new pages and is not a leak per request. The cause is not identified. If the 0.03 MB per page seen late in the distinct run continued, the live heap would be about 650 MB higher once all 24,205 pages had been visited, which is 21,557 more pages, and would stand near 1,860 MB. That figure is modeled.
+The Jint replay stays flat, so the growth is tied to visiting new pages and is not a leak per request. The cause is not identified. The full-site crawl below visits all 24,205 pages, and after one pass the live heap was 1,377 MB.
+
+### Full-site crawl
+
+A crawl requests every HTML page and every Markdown endpoint once. That is 48,447 requests. They go out in the order of the path file over a single connection, and the crawl starts again at the end. Each engine ran it on one pinned core with the renderer cache bypassed. A forced full collection read the live heap about every 15 s on Node and about every 2 minutes on Jint. The runs lasted 240 s for Node plain, 360 s for Node as deployed and 3,600 s for Jint, which gave each engine 1.15 to 1.35 passes over the site. Half of the requests are Markdown endpoints, which cost far less than HTML pages, so the rates and latencies here are not comparable with the HTML-only figures elsewhere in this report. Each engine ran the crawl once. The live heap rows are for the trend within one engine, and the RSS rows are the ones to compare between engines.
+
+| Measure | Node plain | Node as deployed | Jint plain |
+|---|---:|---:|---:|
+| Run length | 240 s | 360 s | 3,600 s |
+| Requests | 59,074 | 55,815 | 65,540 |
+| Passes over the site | 1.22 | 1.15 | 1.35 |
+| Requests per second | 246 | 155 | 18.2 |
+| Server cores in use | 0.94 | 0.94 | 0.95 |
+| CPU time per request | 3.82 ms | 6.06 ms | 52.25 ms |
+| Latency, 99th percentile | 28 ms | 32 ms | 467 ms |
+| Latency, slowest request | 211 ms | 419 ms | 2,115 ms |
+| Errors | 0 | 0 | 0 |
+| Live heap before the load | 204 MB | 256 MB | 784 MB |
+| Live heap after one pass | 231 MB | 370 MB | 1,377 MB |
+| Live heap after the last request | 231 MB | 380 MB | 1,440 MB |
+| Committed heap after the last request | 236 MB | 386 MB | 2,098 MB |
+| RSS after the last forced collection | 416 MB | 620 MB | 2,206 MB |
+| Peak RSS sampled during the load | 704 MB | 986 MB | 3,119 MB |
+| Live heap slope after request 6,500, per 1,000 requests | 0.11 MB | 1.85 MB | 1.67 MB |
+
+The reading after one pass is the forced collection nearest to request 48,447. The slope is a least-squares fit to the readings taken during the load after request 6,500. Its standard error is 0.01 for both Node bundles and 0.34 for Jint, and the readings scatter around the line by 0.4 MB on both Node bundles and by 30 MB on Jint.
+
+Node plain is flat. After the first 6,500 requests its live heap stayed between 226 and 232 MB to the end of the run.
+
+Node as deployed keeps rising. After the first 6,500 requests its live heap follows a straight line. The slope was 1.92, 1.86 and 1.64 MB per 1,000 requests over requests 2,000 to 24,000, 24,000 to 48,000 and 48,000 to the end, so the rate eased by about 15% and the data show no plateau. The two Node bundles differ only in how `<Code>` renders, so the extra growth appears only when Expressive Code highlights the code blocks. The mechanism was not investigated.
+
+Extending that line gives a modeled estimate. At 1.64 to 1.92 MB per 1,000 requests the live heap would reach the 1,024 MB limit of `--max-old-space-size=1024` after roughly 335,000 to 395,000 more requests of this mix, which is about 4 days at 1 request per second and about 10 hours at 10 requests per second. V8 needs headroom above the live heap, so a failure would come sooner. A restart or a deploy resets the heap. The crawl bypasses the renderer's LRU cache, and a cache hit does not render, so a deployment renders fewer pages than it serves. The crawl does not show whether the rise levels off. A long run of the as-deployed renderer is the way to find out.
+
+Jint's live heap climbed from 784 MB to 1,312 MB during the first 6,500 requests, which is 0.13 of a pass. After that the readings stayed between 1,301 and 1,438 MB for the other 59,000 requests. The fit gives a rise of 1.67 MB per 1,000 requests with a standard error of 0.34. The slope from request 48,000 on is lower at 0.41 MB per 1,000 requests, but the readings scatter by about 30 MB around the line, so the crawl cannot say whether the live heap levels off. Committed memory ranged from 1,965 to 2,612 MB and RSS after each forced collection from 2,072 to 2,721 MB. For planning, one Jint engine on one core needed 2.0 to 2.7 GB of RSS after a collection and peaked at 3.0 GB. No request failed.
+
+On this mix Node plain serves 13.5 times and Node as deployed 8.5 times as many requests per second as Jint, and Node plain spends 3.82 ms of CPU per request against 52.25 ms. A half-and-half mix should land between the ratios of its two halves, and it does. The Markdown-only and HTML-only runs give 7.5 and 17 times for Node plain and 7.4 and 10.6 times for Node as deployed.
 
 ## Garbage collection and the JIT
 
@@ -284,6 +324,8 @@ Jint allocates about 32 to 35 MB for each HTML page, about 160 times the size of
 The first count column is every collection, because .NET includes a collection of a higher generation in each lower generation's count. On one core .NET runs the workstation collector, and the table shows what server GC does at two and four cores. With four engines the workstation collector spent 81.7% of the time paused, so the multi-core runs use server GC. astro-jint's documentation recommends server GC for pools above about eight engines, and this run shows the same effect at four. In the Markdown run each collection paused for about 40 ms on average, against about 15 ms in the HTML runs. The cause is not identified.
 
 Node's garbage collector costs far less. In the V8 profile runs, which were unpinned and had the profiler attached, the pauses were 7.1% of wall time on plain and 4.6% as deployed, with 247 scavenges and 17 major collections in 20 s on plain.
+
+The one-hour crawl shows that Jint's collection cost holds over time. The pause share stayed between 23.6% and 26.5% in every five-minute window and was 25.4% over the whole run. The process allocated 16.6 MB per request, which fits an even mix of HTML pages at about 32 MB and Markdown endpoints at about 0.4 MB. The .NET JIT compiled 11,059 methods in the first five minutes, 504 in the next five and 216 in the five after that, and 39 or fewer in every five-minute window from 900 s on.
 
 ## Jint runtime settings
 
@@ -408,12 +450,12 @@ A cache in front of the origin, such as a CDN or the StaticHost response cache, 
 | Processes | StaticHost plus two Node sidecars, each started with `--max-old-space-size=1024` | One process |
 | Artifacts to ship | A sidecar image with Node 24 and 425 MB of `node_modules` | A 5.2 MB publish, no extra image |
 | Failure isolation | A renderer crash or out-of-memory stop takes down one sidecar, and StaticHost fails over to the other replica and keeps serving static pages | A JavaScript error or memory-limit hit discards one engine. A process-level memory shortage stops the static pages too, because they share the process. |
-| Memory budget on a 4 GiB plan | About 0.7 GB on plain and 0.9 GB as deployed for each sidecar at peak in the soaks, and the POC runs two | About 2.5 GB for one engine at peak in the soaks |
+| Memory budget on a 4 GiB plan | About 0.7 GB on plain and 1.0 GB as deployed for each sidecar at peak in the crawls, and the POC runs two | About 3.0 GB for one engine at peak in the one-hour crawl, of which 1.4 GB is live heap |
 | Profiling | V8 CPU profiles with function names and the DevTools tooling | The .NET tooling, which shows interpreter frames and no JavaScript function names |
 | Maintenance | `@astrojs/node` is a supported Astro adapter | astro-jint is a prototype, and the real site needs the patches in [Can the real pages run in Jint?](#can-the-real-pages-run-in-jint) |
 | Warm-up | Ready after 1.3 s on plain and 2.1 to 3.0 s as deployed, and the first page takes about 20 ms | Ready after 0.25 s, but the first page takes 4.3 to 7.9 s on one core while the engine loads the 45 MB data layer |
 
-The 4 GiB row assumes the Aspire default App Service plan, P0V3 with 1 vCPU and 4 GiB. The deployed plan was not verified. The failure isolation, profiling and maintenance rows are design observations and not measurements.
+The 4 GiB row assumes the Aspire default App Service plan, P0V3 with 1 vCPU and 4 GiB. The deployed plan was not verified. The Jint peak was measured with no memory limit on a machine with 31.7 GB of RAM. The .NET collector may keep a smaller heap inside a 4 GiB container at the cost of more collections, and this study did not test that. The 1.4 GB of live heap is a floor for the process in any case. The failure isolation, profiling and maintenance rows are design observations and not measurements.
 
 ## Recommendation
 
@@ -421,11 +463,12 @@ The 4 GiB row assumes the Aspire default App Service plan, P0V3 with 1 vCPU and 
 2. Do not take the Jint path further for these pages on performance grounds. At about 116 ms of CPU and 32 MB of allocation per page, one Jint core serves 8 to 11 pages per second. Node serves 144 pages per second on the same core.
 3. Treat the Jint results as a best case for the current page code. The real pages need their code blocks rendered some other way, for example before the request, and this study did not price that.
 4. The lever is the page itself. The Starlight layout and the Astro render path take about 65% of Node's CPU, and the site's own API code takes 2%. A lighter page narrows the gap: the Markdown endpoints skip the layout and load 18 chunks instead of 57 to 62, and they are 7.5 times faster on Node than on Jint, against 17 times for HTML pages. That is a larger change than swapping the engine.
+5. Run the as-deployed renderer through a long soak before relying on it. In the crawl its live heap rose by about 1.9 MB per 1,000 requests and did not level off within 55,815 requests, while the plain bundle stayed flat. The study did not look for the cause.
 
 Any of these would change the verdict:
 
 - A rule that forbids Node processes in the deployment.
-- An origin that sees well under about 5 uncached pages per second, for example behind a CDN with long cache lifetimes. One Jint core serves 8 to 11 pages per second, and a plan with room for a 2.5 GB engine would be enough.
+- An origin that sees well under about 5 uncached pages per second, for example behind a CDN with long cache lifetimes. One Jint core serves 8 to 11 pages per second, so the remaining requirement is a plan with room for an engine that peaked at 3.0 GB.
 - A Jint release that runs this JavaScript an order of magnitude faster.
 
 This study compares Node with Jint only. It says nothing about other engines that run inside .NET.
@@ -436,7 +479,7 @@ This was not implemented. It is the sketch that the measurements above would hav
 
 `HybridApiDocsRenderer.RenderAsync` selects the route through the `HybridApiDocsRequest` feature, computes a weak ETag from the build id and the renderer path, and answers 304 before rendering. It collapses concurrent requests for one path, then `FetchAsync` tries replica candidates with a 10 s timeout per attempt and 30 s overall. It requires a matching `X-Aspire-Build-Id`, buffers the body up to 64 MiB, copies headers without the hop-by-hop ones, removes `Vary: X-Aspire-Cache-Bypass`, and sets `Cache-Control: no-cache` plus the ETag on cacheable 2xx responses.
 
-An in-process Jint integration would replace `FetchAsync` with a call into the engine pool. It would have to supply what Jint does not send today: the build id header, the ETag and the cache-bypass handling. The engine pool replaces the replica failover. It also moves the 2.5 GB engine into the process that serves the static pages.
+An in-process Jint integration would replace `FetchAsync` with a call into the engine pool. It would have to supply what Jint does not send today: the build id header, the ETag and the cache-bypass handling. The engine pool replaces the replica failover. It also moves an engine that peaked at 3.0 GB in the one-hour crawl into the process that serves the static pages.
 
 ## Limits of this study
 
@@ -447,10 +490,12 @@ An in-process Jint integration would replace `FetchAsync` with a call into the e
 - The traffic is synthetic: a uniform mix and a zipf mix over the manifest. No production traffic was replayed.
 - On one core .NET uses the workstation collector. The harness raises `MemoryLimitBytes` to 6 GiB, sets the request timeout to 10 minutes and creates one engine per core before the measurement.
 - The tuning results are single 45 s runs, and the default row is a fourth run of the default configuration. The four-core regression is one run against three, and its cause is unknown.
+- The crawls are one run per engine and last 240 s, 360 s and 3,600 s. They bypass the renderer's LRU cache. The Node runs were too short to show whether the as-deployed heap rise levels off, and the Jint slope has a standard error of 0.34 MB per 1,000 requests.
+- No process or container memory limit was set. The .NET collector may keep a smaller heap inside a 4 GiB container at the cost of more collections, and this study did not test that.
 - The Node bundle comes from the Windows CI build and the Jint bundle from the Linux CI build of the same site sources. The differences that `parity.mjs` normalizes are build hashes and line endings.
 - The `dotnet-trace` profile is a wall-clock sample at about 100 Hz of the default configuration and cannot name JavaScript functions.
 - Each engine was built once on CI, so the build times are single samples and are not used to compare the engines.
 
 ## Data and tables
 
-The JSON files in [results/](results/) are the source of every table here. `node scripts/summarize-results.mjs` prints the tables, and [README.md](README.md) lists the commands that produced the results.
+The JSON files in [results/](results/) are the source of every table here. `node scripts/summarize-results.mjs` prints the tables, `--section growth` includes the full-site crawl table with the live heap slopes, and [README.md](README.md) lists the commands that produced the results.

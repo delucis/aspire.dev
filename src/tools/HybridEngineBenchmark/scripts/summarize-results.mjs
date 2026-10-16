@@ -30,6 +30,19 @@ const mean = (values) => values.reduce((sum, value) => sum + value, 0) / values.
 const ratio = (top, bottom) => (Number.isFinite(top / bottom) ? `${n(top / bottom, top / bottom < 10 ? 1 : 0)}x` : 'n/a');
 const lastThird = (timeline) => (timeline?.length ? mean(timeline.slice(-Math.floor(timeline.length / 3))) : undefined);
 
+// Least-squares slope of the live set in MB per 1,000 requests over the in-load readings with from <= requests < to,
+// and its standard error. Needs at least three readings.
+function liveSlope(timeline, from, to = Infinity) {
+  const points = (timeline ?? []).filter((point) => point.requests >= from && point.requests < to);
+  if (points.length < 3) return undefined;
+  const meanX = mean(points.map((point) => point.requests));
+  const meanY = mean(points.map((point) => point.liveMb));
+  const sxx = points.reduce((sum, point) => sum + (point.requests - meanX) ** 2, 0);
+  const slope = points.reduce((sum, point) => sum + (point.requests - meanX) * (point.liveMb - meanY), 0) / sxx;
+  const sse = points.reduce((sum, point) => sum + (point.liveMb - meanY - slope * (point.requests - meanX)) ** 2, 0);
+  return { perThousand: slope * 1000, standardError: Math.sqrt(sse / (points.length - 2) / sxx) * 1000, scatter: Math.sqrt(sse / (points.length - 2)), samples: points.length };
+}
+
 // Distinct pages that `count` random requests are expected to reach. A path listed m times in the mix file is m times as
 // likely, so a page is reached with probability 1 - exp(-count * m / lines).
 const mixCache = new Map();
@@ -161,6 +174,33 @@ const sections = {
       const distinct = !crawl && pathsDir && expectedDistinct(soak.mix, 1) !== undefined;
       table(['Requests so far', ...(crawl ? ['Passes over the site'] : []), ...(distinct ? ['Distinct pages (expected)'] : []), 'Live set MB', 'Committed MB', 'RSS MB'],
         rows.map((row) => [n(row.requests), ...(crawl ? [n(row.requests / crawlPass, 2)] : []), ...(distinct ? [n(expectedDistinct(soak.mix, row.requests))] : []), n(row.liveMb), n(row.committedMb), n(row.rssMb)]));
+    }
+
+    const crawls = labels.map((label) => ({ label, soak: read('soak', `soak-${label}.json`) })).filter(({ soak }) => soak.mix === 'crawl-all');
+    if (crawls.length) {
+      heading('Full-site crawl summary');
+      const slopeText = (timeline, from, to) => {
+        const slope = liveSlope(timeline, from, to);
+        return slope ? `${n(slope.perThousand, 2)}` : 'n/a';
+      };
+      const measures = ({ soak }) => {
+        const { load, liveBefore, liveAfter, liveTimeline = [] } = soak;
+        const onePass = liveTimeline.reduce((best, point) => (!best || Math.abs(point.requests - crawlPass) < Math.abs(best.requests - crawlPass) ? point : best), undefined);
+        const slope = liveSlope(liveTimeline, 6500);
+        return [
+          `${n(soak.durationSeconds)} s`, n(load.requests), n(load.requests / crawlPass, 2), n(load.rps, 1), n(load.serverCores, 2), n(load.cpuMsPerRequest, 2),
+          n(load.latencyMs.p99, 1), n(load.latencyMs.max, 1), n(load.errors),
+          n(liveBefore.liveMb), onePass ? n(onePass.liveMb) : 'n/a', n(liveAfter.liveMb), n(liveAfter.committedMb), n(liveAfter.rssMb), n(load.rssPeakMb),
+          slope ? `${n(slope.perThousand, 2)}, standard error ${n(slope.standardError, 2)}, scatter ${n(slope.scatter, 1)} MB, ${slope.samples} readings` : 'n/a',
+          `${slopeText(liveTimeline, 2000, 24000)} / ${slopeText(liveTimeline, 24000, 48000)} / ${slopeText(liveTimeline, 48000)}`,
+        ];
+      };
+      const names = ['Run length', 'Requests', 'Passes over the site', 'Requests per second', 'Server cores in use', 'CPU ms per request', 'Latency p99, ms', 'Latency max, ms', 'Errors',
+        'Live set before the load, MB', 'Live set after one pass, MB', 'Live set after the last request, MB', 'Committed after the last request, MB', 'RSS after the last forced collection, MB',
+        'Peak RSS sampled during the load, MB', 'Live set slope after request 6,500, MB per 1,000 requests',
+        'Live set slope, requests 2,000 to 24,000 / 24,000 to 48,000 / 48,000 on'];
+      const columns = crawls.map(measures);
+      table(['Measure', ...crawls.map(({ label }) => label)], names.map((name, index) => [name, ...columns.map((column) => column[index])]));
     }
   },
 
