@@ -5,6 +5,7 @@ description: Learn about package-based C# AppHosts, migrating from the obsolete 
 
 import { Tabs, TabItem } from '@astrojs/starlight/components';
 import LearnMore from '@components/LearnMore.astro';
+import ApiReference from '@components/ApiReference.astro';
 
 Starting in Aspire 17.0, the default C# [AppHost project](/get-started/app-host/) uses `Microsoft.NET.Sdk` with explicit `Aspire.Hosting.AppHost` and `Aspire.Hosting.Dotnet` package references. The AppHost package identifies the project as an AppHost and supplies build targets. Declare services with `builder.AddDotnetProject("myservice", "../MyService/")`; the Dotnet package provides this API.
 
@@ -60,7 +61,7 @@ The Aspire SDK provides several key features.
 
 ### Project references
 
-Each `ProjectReference` in the AppHost project isn't treated as standard project references. Instead, they enable the AppHost to execute these projects as part of its orchestration. Each project reference triggers a generator to create a `class` that represents the project as an `IProjectMetadata`. This metadata is used to populate the named projects in the generated `Projects` namespace. When you call the `AddProject` API, the `Projects` namespace is used to reference the project—passing the generated class as a generic-type parameter.
+Each `ProjectReference` in the AppHost project isn't treated as standard project references. Instead, they enable the AppHost to execute these projects as part of its orchestration. Each project reference triggers a generator to create a `class` that represents the project as an `IProjectMetadata`. This metadata is used to populate the named projects in the generated `Projects` namespace. When you call the <ApiReference name="Aspire.Hosting.ProjectResourceBuilderExtensions.AddProject" /> API, the `Projects` namespace is used to reference the project—passing the generated class as a generic-type parameter.
 
 :::tip
 To prevent a project from being treated as an Aspire resource in the AppHost, set the `IsAspireProjectResource` attribute on the `ProjectReference` element to `false`, as shown in the following example:
