@@ -60,6 +60,8 @@ internal sealed class HybridApiDocsJintEngine : IHybridApiDocsEngine
 
     public async Task<HybridApiDocsResponse> RenderAsync(string upstream)
     {
+        if (upstream.StartsWith("/_image", StringComparison.Ordinal))
+            return await HybridApiDocsLocalImages.ReadAsync(_artifact, upstream);
         if (_cache.TryGet(upstream, out var cached))
             return Tag(cached!, CacheHit);
 

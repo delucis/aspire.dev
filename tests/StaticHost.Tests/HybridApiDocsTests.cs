@@ -419,6 +419,29 @@ public sealed class HybridApiDocsTests
     }
 
     [Fact]
+    public async Task ReadsOnlyBundledImagesForInProcessEngines()
+    {
+        using var root = new TempWebRoot();
+        root.WriteFile("client/_astro/logo.svg", "<svg/>");
+        root.WriteFile("hybrid.json", JsonSerializer.Serialize(new HybridApiManifest(
+            1, "hybrid-api-docs", new string('a', 64), "client", "server/entry.mjs",
+            "https://aspire.dev", [], [], OperatingSystem.IsWindows() ? "win32" : "linux"), new JsonSerializerOptions(JsonSerializerDefaults.Web)));
+        var artifact = HybridApiDocsArtifact.Load(Path.Combine(root.Path, "hybrid.json"));
+
+        var image = await HybridApiDocsLocalImages.ReadAsync(artifact, "/_image/?href=%2F_astro%2Flogo.svg&w=48&h=48&f=svg");
+        Assert.Equal(200, image.Status);
+        Assert.Equal("<svg/>", Encoding.UTF8.GetString(image.Body));
+        Assert.Equal("image/svg+xml", Assert.Single(image.Headers, header => header.Key == "Content-Type").Value.Single());
+
+        foreach (var upstream in new[] { "/_image/", "/_image/?href=%2F_astro%2Fmissing.svg", "/_image/?href=%2Fetc%2Fpasswd" })
+        {
+            var rejected = await HybridApiDocsLocalImages.ReadAsync(artifact, upstream);
+            Assert.True(rejected.Unavailable);
+            Assert.Equal(404, rejected.Status);
+        }
+    }
+
+    [Fact]
     public async Task ServesPagesFromAnyEngine()
     {
         var engine = new TestApiEngine();
