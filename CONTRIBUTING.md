@@ -102,6 +102,54 @@ Unset the flag to return to the ordinary Vite/local workflow:
 Remove-Item Env:ASPIRE_HYBRID_API_DOCS
 ```
 
+### Render the API pages in process with Jint
+
+The default POC renders API pages in Node sidecars. Setting
+`ASPIRE_HYBRID_ENGINE=jint` at build time renders them inside StaticHost instead,
+with [astro-jint](https://github.com/IEvangelist/astro-jint). It runs the Astro
+server bundle in the [Jint](https://github.com/sebastienros/jint) JavaScript
+interpreter, so the deployment needs no Node runtime, no `node_modules` and no
+sidecar containers. The App Service runs one container.
+
+The **Hybrid API docs Jint feasibility** workflow builds the Jint artifact and
+uploads it as `hybrid-api-docs-jint-linux`. Start it from the Actions tab or with
+`gh workflow run hybrid-api-docs-jint.yml --repo microsoft/aspire.dev --ref YOUR_BRANCH`.
+The artifact targets Linux, like the Node artifact used for deployment. The
+workflow pins the astro-jint commit in `ASTRO_JINT_COMMIT`. Clone astro-jint at
+that commit, then point the AppHost at both folders. `AstroJintRoot` must end
+with a path separator:
+
+```powershell
+gh run download RUN_ID --repo microsoft/aspire.dev --name hybrid-api-docs-jint-linux --dir D:\hybrid-api-docs-jint
+git clone https://github.com/IEvangelist/astro-jint D:\astro-jint
+git -C D:\astro-jint checkout ASTRO_JINT_COMMIT
+$env:ASPIRE_HYBRID_API_DOCS = '1'
+$env:ASPIRE_HYBRID_ENGINE = 'jint'
+$env:HybridApiDocsArtifactDirectory = 'D:\hybrid-api-docs-jint'
+$env:AstroJintRoot = 'D:\astro-jint\'
+```
+
+With these variables set, `aspire deploy` or `aspire publish` builds the StaticHost
+image with the artifact under `/app/hybrid` and does not use the `api-docs-image`
+parameter. The AppHost refuses an artifact without `astro-jint.json` and
+`server/entry.mjs`. `ASPIRE_HYBRID_ENGINE` must be unset, `node` or `jint`.
+
+The Jint build differs from the Node build in a few ways:
+
+- Code blocks render as plain `<pre><code>`, because Expressive Code needs
+  WebAssembly, which Jint cannot load. The workflow patches a copy of the server
+  bundle for this.
+- StaticHost keeps rendered pages in a per-instance LRU cache instead of using
+  Astro's response cache. `HybridApiDocs:Jint:CacheEntries`, `CacheBytes` and
+  `CacheDuration` set it, and default to 256 entries, 128 MiB and 30 minutes.
+- `Astro__PoolSize` sets the number of Jint engines in the process. It defaults
+  to the processor count.
+- Images referenced by API pages are served from the artifact without resizing
+  or format conversion.
+
+`src/tools/HybridEngineBenchmark/REPORT.md` compares the two engines on speed,
+memory and footprint, on a workstation and on App Service.
+
 ## Environment badge
 
 Set `PUBLIC_ENVIRONMENT_BADGE` to display a small text badge beside the header logo

@@ -2,11 +2,15 @@
 
 The hybrid API reference in [#1874](https://github.com/microsoft/aspire.dev/pull/1874) renders about 24,000 C# and TypeScript API pages on demand instead of building them. The POC renders them in Node sidecar processes behind StaticHost. This report measures the same pages on a second engine, [astro-jint](https://github.com/IEvangelist/astro-jint), which runs the Astro server bundle in [Jint](https://github.com/sebastienros/jint) inside ASP.NET Core and needs no Node at run time.
 
+The first measurements run both engines on one workstation with the CPU budget pinned. The second set runs a complete deployment of each on Azure App Service, so StaticHost, the plan and the platform are included. It is described under [Production-like deployment on Azure](#production-like-deployment-on-azure).
+
 [README.md](README.md) describes the harness and how to reproduce every number. The raw results are in [results/](results/).
 
 ## Verdict
 
 Keep the Node sidecar. On the same pages, the same machine and the same CPU budget, Node renders 12 to 20 times as many HTML pages per second as Jint and, on one core, spends about 17 times less CPU on each page. It serves its first page after 1.3 s instead of 4.9 to 5.3 s, and its peak process memory is a quarter to a third of Jint's. The as-deployed Node renderer, which also runs Expressive Code, is still 7.6 to 12 times faster for HTML pages than the Jint build with code highlighting removed.
+
+The Azure runs point the same way with a smaller gap. On two P0v3 instances of each deployment, Node served 8 to 10 times as many requests per second as Jint whenever most requests missed the cache. In the sweep that was 77 to 82 uncached API pages per second against 8.1 to 9.7. In a ten-minute soak over all 48,447 pages of the site it was 145 requests per second against 17.7, at 14 and 112 ms of instance CPU per request, with both plans at 100% CPU. The Jint plan used 90% of its memory on average and peaked at 94%, against 74% and 75% for Node. No request failed on either site. Jint was faster only when a request never reached the engine. On 50 hot pages it served 1,199 requests per second against 488, because its response cache sits in StaticHost and the Node cache sits behind an HTTP hop in each renderer. In the first sweep the Jint plan, with the same scale limit as the Node plan, grew from 2 instances to 10 while the Node plan stayed at 2.
 
 Jint's advantages are operational. It needs no Node runtime and no `node_modules`, which is 425 MB less to ship. It runs inside the StaticHost process instead of in a sidecar, and it accepts connections after a quarter of a second. It rendered every sampled page identically to Node once build noise is normalized, and no run in this study produced an error. Those advantages do not offset a throughput gap of this size.
 
@@ -36,6 +40,25 @@ One finding goes against the Node sidecar as deployed. In the crawl its live hea
 
 Plain means the bundle is patched so that `<Code>` renders a plain `<pre><code>`. Both engines run the same patched page code, so the engine is the main variable. The Jint bundle also carries the two patches that let it load at all. Node also runs unpatched as the as-deployed reference, which Jint cannot do. The Node rows need the Node runtime on top of the 425 MB. Tuned adds three .NET runtime settings, described in [Jint runtime settings](#jint-runtime-settings). Figures are means of three runs where three exist. The three crawl rows come from one run per engine of 55,815 to 65,540 requests, described under [Full-site crawl](#full-site-crawl). Jint reports ready before its engines are warm, so the first-page row is the one to compare.
 
+### On Azure
+
+| Measure | Node sidecar | Jint in process |
+|---|---:|---:|
+| Median latency of an uncached API page | 26.6 ms | 102.3 ms |
+| 99th percentile of an uncached API page | 146.9 ms | 1,996.1 ms |
+| Median latency of a cached API page | 6.2 ms | 4.7 ms |
+| Uncached API pages per second on two instances, 2 to 64 connections | 77-82 | 8.1-9.7 |
+| Requests per second on 50 hot pages | 488 | 1,199 |
+| Requests per second in the ten-minute soak | 144.9 | 17.7 |
+| 99th percentile in the soak | 479 ms | 3,113 ms |
+| Plan CPU in the soak, peak | 100% | 100% |
+| Instance CPU time per request in the soak | 14 ms | 112 ms |
+| Plan memory in the soak, mean and peak | 74% and 75% | 90% and 94% |
+| Largest working set of one instance in the soak | 2,252 MB | 2,770 MB |
+| Failed requests in any run | 0 | 0 |
+
+Each site ran on two P0v3 instances and was loaded from inside the same region. The Jint site serves pages without syntax highlighting, so its figures are a lower bound on the cost of the real pages. The soak draws random pages from all 48,447 paths, half of them Markdown endpoints, so its CPU time per request is about half of the cost of an HTML page. The details are under [Production-like deployment on Azure](#production-like-deployment-on-azure).
+
 ## The two approaches
 
 ```mermaid
@@ -61,7 +84,7 @@ flowchart LR
 | Build switch | The default | `ASPIRE_HYBRID_ENGINE=jint` |
 | Runtime requirements | Node 24 and the production `node_modules` | The .NET host only |
 
-Both engines are driven at their own HTTP port by the same load generator. For Jint that port belongs to `JintHost`, a minimal ASP.NET Core host that calls `AddAstro()` and `UseAstro()`. It is not StaticHost. The proxy hop that the Node design adds, and that an in-process Jint design would remove, is part of neither measurement.
+In the workstation runs both engines are driven at their own HTTP port by the same load generator. For Jint that port belongs to `JintHost`, a minimal ASP.NET Core host that calls `AddAstro()` and `UseAstro()`. It is not StaticHost. The proxy hop that the Node design adds, and that an in-process Jint design would remove, is part of neither workstation measurement. The Azure runs drive StaticHost itself, with each engine behind it.
 
 ## How the numbers were produced
 
@@ -79,7 +102,7 @@ Both engines are driven at their own HTTP port by the same load generator. For J
 | Repeats | Three runs of `c1-uniform-x16` on every bundle and of `c4-uniform-x32` on Node plain and Jint. One run of every other configuration. |
 | Units | MB and GB are binary units, so 1 MB is 1,048,576 bytes. The CI build sizes are converted from byte counts. |
 
-Figures that are described as modeled are arithmetic on measured rates, not measurements. The load configurations are named `c<cores>-<mix>-x<connections>`: for example `c1-uniform-x16` is one core, uniform page selection and 16 connections.
+Figures that are described as modeled are arithmetic on measured rates, not measurements. The load configurations are named `c<cores>-<mix>-x<connections>`: for example `c1-uniform-x16` is one core, uniform page selection and 16 connections. This section describes the workstation runs. The Azure runs have their own setup under [Production-like deployment on Azure](#production-like-deployment-on-azure).
 
 ## Can the real pages run in Jint?
 
@@ -97,6 +120,8 @@ The Jint bundle also loads a 45 MB API data layer into every engine, lazily, on 
 ### Parity
 
 `parity.mjs` renders 25 pages of each of the six HTML route kinds and 25 of each of the two Markdown kinds on both engines, using the plain builds. All 150 HTML pages match after build noise is normalized: the scoped `astro-xxxxxxxx` and `data-astro-cid-*` hashes, the `/_astro/` asset hashes and CRLF line endings. The line endings differ because the Node bundle was built on Windows and the Jint bundle on Linux. All 50 Markdown endpoints are byte-identical, and no status code differs. The only header differences are that Node sends `x-aspire-build-id` and `Vary: X-Aspire-Cache-Bypass`, and Jint sends neither.
+
+The same script compared the two Azure deployments by URL, with 25 pages of each kind and 400 requests in all. Every request returned 200 on both sites. The 50 Markdown endpoints were byte-identical, and the content types, `cache-control`, `vary` and `link` headers had the same shape. Both sites sent `x-aspire-build-id`, with different values, and `x-astro-cache`. None of the 150 HTML pages matched, and that says nothing about the engines. The Node deployment was built from an older content commit than the Jint deployment, so the layout differs, and the Node pages carry Expressive Code markup where the Jint pages carry plain `<pre>` blocks. The workstation comparison above renders the same sources on both engines and is the valid HTML check.
 
 ## Build time and size
 
@@ -443,6 +468,151 @@ These figures are modeled from the measured one-core rates: 144 pages per second
 
 A cache in front of the origin, such as a CDN or the StaticHost response cache, changes how many new pages per second reach the engine. It changes both engines in the same way, so it does not change the ratio.
 
+## Production-like deployment on Azure
+
+The workstation runs isolate the engines on pinned cores and leave StaticHost, the plan and the platform out. These runs measure two complete deployments of the site, each on its own App Service plan in West US 2, with the load generated from inside the same region. The Node deployment is the existing hybrid test deployment. The Jint deployment was made for this study with `aspire deploy` into a new resource group of the same subscription, with `ASPIRE_HYBRID_ENGINE=jint`. [README.md](README.md#production-like-comparison-on-azure) has the steps to repeat it.
+
+```mermaid
+flowchart LR
+    subgraph loadSide["Azure Container Instances, same region"]
+        generator["LoadGen, 2 vCPU"]
+    end
+    subgraph nodeSite["Node deployment, two P0v3 instances"]
+        nodeHost["StaticHost"] -->|"HTTP, hash-routed with failover"| nodeOne["Node renderer 1"]
+        nodeHost -->|"HTTP"| nodeTwo["Node renderer 2"]
+    end
+    subgraph jintSite["Jint deployment, two P0v3 instances"]
+        jintHost["StaticHost with Jint in process"]
+    end
+    generator -->|"HTTP"| nodeHost
+    generator -->|"HTTP"| jintHost
+```
+
+| | Node deployment | Jint deployment |
+|---|---|---|
+| Plan | P0v3 on Linux with 1 vCPU and 4 GiB per instance | The same |
+| Instances in the reported runs | 2 | 2, set by hand, because a new deployment does not copy scale settings |
+| Containers per instance | StaticHost and two Node renderers | StaticHost with Jint in the same process |
+| Engines per instance | Two Node processes that share the instance's vCPU | One Jint engine, because the pool size defaults to the processor count |
+| Response cache | The Astro cache inside each renderer | An LRU in StaticHost that keeps up to 256 pages or 128 MiB for 30 minutes on each instance |
+| Reached through | The App Service host name over plain HTTP | The same |
+
+The Jint deployment serves pages without syntax highlighting, for the reason given under [Can the real pages run in Jint?](#can-the-real-pages-run-in-jint), so its figures are a lower bound on the cost of the real pages. The Node deployment was built from an older content commit than the Jint deployment, so the path lists contain only pages that both of them serve.
+
+The load comes from the same `LoadGen`, packaged as a container image and run in an Azure Container Instances group with 2 vCPU and 4 GB in the same region. A health probe from there takes 3 to 4 ms at the median. Each suite is one container group, and each suite alternates which site is measured first, so a slow minute on the platform does not always land on the same site. From the fixed-capacity sweep onward the instance count of both plans was logged every 30 seconds. Azure Monitor supplied CPU and memory for the plans, and request counts and working set for the sites, at one-minute grain. It labels each minute about 85 s after the traffic that the minute counts. That lag was fitted on the soak, where the load is steady, and the summaries shift their windows by it and keep only whole minutes.
+
+### Latency of one request at a time
+
+Three rounds per site, over one connection. A round asks for 20 static pages, 150 API pages and 100 Markdown endpoints, five times each, on pages that no earlier round used. The first request for a page is normally a cache miss and the next four are hits, so one run prices both a render and a cached answer.
+
+| Request | Requests, Node and Jint | Node p50 ms | Jint p50 ms | Node p95 ms | Jint p95 ms | Node p99 ms | Jint p99 ms | Node max ms | Jint max ms |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| Health probe | 300 and 300 | 2.8 | 4.2 | 4.8 | 14.6 | 17.6 | 25.2 | 20.3 | 34.1 |
+| Static page | 300 and 300 | 6.4 | 6.6 | 9.8 | 17.8 | 23.1 | 50.7 | 26.1 | 65.7 |
+| API page, cache miss | 449 and 450 | 26.6 | 102.3 | 75.4 | 694.9 | 146.9 | 1,996.1 | 344.2 | 8,767.4 |
+| API page, cache hit | 1,801 and 1,800 | 6.2 | 4.7 | 15.5 | 9.8 | 22.2 | 22.2 | 109.4 | 271.7 |
+| Markdown, cache miss | 300 and 300 | 5.3 | 6.7 | 11.3 | 19.2 | 20.3 | 50.7 | 47.9 | 68.4 |
+| Markdown, cache hit | 1,200 and 1,200 | 4.7 | 4.1 | 8.5 | 9.1 | 13.0 | 16.9 | 22.1 | 45.0 |
+
+- A cached answer costs the same on both sites. A cached API page took 4.7 ms at the median on Jint and 6.2 ms on Node, and a cached Markdown endpoint 4.1 and 4.7 ms. Jint answers a hit from the cache in StaticHost, and Node crosses to a renderer over HTTP.
+- An uncached API page is where the sites differ. The median was 102 ms on Jint and 27 ms on Node, which is 3.8 times. The tail is wider: 695 ms against 75 ms at the 95th percentile and 1,996 ms against 147 ms at the 99th, and the slowest Jint page took 8.8 s.
+- The three rounds agree. The median uncached API page took 124, 99 and 99 ms on Jint and 31, 26 and 24 ms on Node, so the first round was the slowest on both.
+- Markdown endpoints are cheap on both sites even on a miss, at 6.7 ms on Jint and 5.3 ms on Node, because they skip the layout.
+- Jint's 95th percentile is higher on the two requests that never reach the engine, 14.6 ms against 4.8 ms for the health probe and 17.8 ms against 9.8 ms for a static page. The cause was not investigated.
+- Nothing failed in any round.
+
+### Throughput as the load grows
+
+The sweep asks for random API pages from a list of 20,000 on 1 to 64 connections, for 30 measured seconds after 5 seconds of warm-up. Every step draws its own pages, and an unreported 20-second pass wakes both sites first, so nearly every request is a cache miss and the result is how many pages per second two instances can render.
+
+| Connections | Node requests/s | Jint requests/s | Node p50 ms | Jint p50 ms | Node p99 ms | Jint p99 ms |
+|---:|---:|---:|---:|---:|---:|---:|
+| 1 | 35.2 | 4.7 | 24 | 154 | 102 | 1,049 |
+| 2 | 77.9 | 8.1 | 22 | 150 | 85 | 1,245 |
+| 4 | 76.8 | 8.4 | 44 | 299 | 197 | 2,327 |
+| 8 | 82.2 | 9.7 | 85 | 680 | 356 | 2,654 |
+| 16 | 80.3 | 8.3 | 176 | 1,769 | 672 | 4,850 |
+| 32 | 77.0 | 8.8 | 356 | 3,473 | 1,655 | 6,947 |
+| 64 | 79.0 | 8.6 | 606 | 7,799 | 6,029 | 10,617 |
+
+- Node reaches its ceiling at 2 connections and holds it. From 2 to 64 connections it served 77 to 82 requests per second, which is about 40 pages per second for each 1 vCPU instance. More connections only add queueing, and the median grows from 22 to 606 ms.
+- Jint reaches its ceiling at the same point, at 8.1 to 9.7 requests per second, or about 4.3 pages per second for each instance. At 64 connections the median was 7.8 s and the 99th percentile 10.6 s.
+- From 2 connections on the gap is 8.5 to 9.7 times, against 12 to 20 times on the workstation. CPU time per uncached page was 29 ms on Node and 239 ms on Jint at the instance level, against 6.7 to 10.9 ms and 116 ms on a workstation core. Both engines are slower on a P0v3 vCPU than on a workstation core, and Node lost more of its speed. The Node figure also includes StaticHost and the hop to the renderer.
+- One connection appears to stay on one instance. A single connection got 35 requests per second from Node and 4.7 from Jint, and two connections gave 2.2 and 1.7 times as much. This is inferred from the throughput and the cache hits and was not checked against the platform's routing.
+- No request failed at any step.
+
+### Mixed traffic
+
+The mixed suite runs four shapes of traffic on each site, one after the other: API pages with skewed popularity over every page, on 32 connections for 60 s; 50 hot API pages on 32 connections for 30 s; Markdown endpoints on 16 connections for 30 s; and static documentation pages on 16 connections for 20 s.
+
+| Traffic | Node requests/s | Jint requests/s | Node p50 ms | Jint p50 ms | Node p99 ms | Jint p99 ms | Node hit ratio | Jint hit ratio |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| Skewed popularity, 32 connections | 128.2 | 15.1 | 204.8 | 2,424.8 | 950 | 6,881 | 46% | 39% |
+| 50 hot API pages, 32 connections | 488.2 | 1,199.2 | 43.0 | 17.4 | 340 | 73 | 100% | 100% |
+| Markdown, 16 connections | 1,096.3 | 584.4 | 9.9 | 21.8 | 62 | 74 | 1% | 1% |
+| Static pages, 16 connections | 822.6 | 714.9 | 17.7 | 17.4 | 46 | 59 | n/a | n/a |
+
+- With skewed popularity Node served 128 requests per second and Jint 15, a gap of 8.5 times. The hit ratios were 46% and 39%, so the sites differ mostly in what a miss costs.
+- The hot set is the one result that Jint wins, by 2.5 times: 1,199 requests per second against 488, with a median of 17 ms against 43 ms. Every request was a hit on both sites. The Jint cache sits in StaticHost, so a hit never leaves the process, and the Node cache sits in a renderer behind an HTTP hop. This is a difference in where the cache is and not in the engine. A response cache in StaticHost in front of the sidecars would show how much of it Node could keep, and this study did not build one.
+- Markdown endpoints missed the cache on 99% of requests on both sites. Node served 1,096 requests per second and Jint 584, with medians of 9.9 and 21.8 ms.
+- Static pages cost about the same, at 823 and 715 requests per second and medians of 17.7 and 17.4 ms.
+- No request failed in any of the eight runs.
+
+### Ten-minute soak
+
+The soak draws random pages with replacement from all 48,447 paths of the site, 24,205 HTML pages and 24,242 Markdown endpoints, on 16 connections for 600 s after 10 s of warm-up. Node ran first, and Jint started 30 s after Node finished.
+
+| | Node | Jint |
+|---|---:|---:|
+| Requests | 86,925 | 10,624 |
+| Requests per second | 144.9 | 17.7 |
+| Requests per second, first and last third | 143.7 and 143.4 | 17.4 and 17.2 |
+| Requests per second, slowest 10 s | 102.4 | 11.6 |
+| Mean latency, ms | 110.4 | 904.8 |
+| p50, ms | 92 | 754 |
+| p90, ms | 209 | 1,769 |
+| p95, ms | 270 | 2,294 |
+| p99, ms | 479 | 3,113 |
+| p99.9, ms | 705 | 4,129 |
+| Slowest request, ms | 1,072 | 5,042 |
+| Failed requests | 0 | 0 |
+| Responses that were cache hits | 442 | 50 |
+
+- Throughput held for the whole run. The first and last thirds differ by less than 2% on both sites. The 30 s windows stayed between 128.6 and 151.4 requests per second on Node and between 14.1 and 20.6 on Jint. Node had two dips, to 128.6 and 130.6, in the windows that start 120 s and 420 s into the run. The cause was not investigated.
+- The gap is 8.2 times, in line with the sweep. Half of the draws are Markdown endpoints, which both sites serve quickly, so the rate of HTML pages was about half of the request rate: about 72 per second on Node and 9 on Jint. Weighting the sweep plateaus and the Markdown run by the 50/50 mix predicts about 147 and 17 requests per second against the 144.9 and 17.7 measured. That prediction is modeled and not observed.
+- Nearly every request was a cache miss on both sites, because the cache of each instance holds far fewer pages than the draws cover. Cache hits were 442 of the 86,925 responses from Node and 50 of the 10,624 from Jint.
+- The platform agrees with the load generator. In the whole minutes of the two runs, Azure Monitor counted 145.1 requests per second on Node and 17.8 on Jint, against the 144.9 and 17.7 that the generator measured, and a mean response time of 110 and 885 ms against client means of 110 and 905 ms.
+- Both plans stayed at two instances, nothing restarted, and neither site returned a 4xx or 5xx response.
+
+### CPU and memory on the plans
+
+| Window | Site | CPU peak % | Memory mean % | Memory peak % | Working set peak MB | CPU ms per request | Requests | 5xx |
+|---|---|---:|---:|---:|---:|---:|---:|---:|
+| Sweep | Node | 93 | 69 | 72 | 1,860 | 29 | 18,034 | 0 |
+| Sweep | Jint | 95 | 89 | 96 | 2,800 | 239 | 2,062 | 0 |
+| Mixed | Node | 94 | 70 | 72 | 1,751 | n/a | n/a | 0 |
+| Mixed | Jint | 94 | 91 | 94 | 2,838 | n/a | n/a | 0 |
+| Soak | Node | 100 | 74 | 75 | 2,252 | 14 | 78,378 | 0 |
+| Soak | Jint | 100 | 90 | 94 | 2,770 | 112 | 9,621 | 0 |
+
+CPU peak is the highest one-minute average on any instance. Working set peak is the largest working set of any one instance. CPU per request divides the CPU time of every instance by the requests that the site counted in the whole minutes of the traffic, and on the Node site that CPU time includes StaticHost and both renderers. The sweep and mixed suites are made of short runs, and the platform counts include warm-up requests that the load generator leaves out and exclude the partial minutes at the edges, so those counts differ from the generator's by 10 to 22%. The CPU per request of the sweep is therefore approximate, and the table leaves it out for the mixed suite, which mostly serves cache hits and static files. The soak is the clean row. It has nine whole minutes of each run, and the platform's request rates are within 1% of the load generator's.
+
+- Both plans were CPU bound. They peaked at 93 and 95% in the sweep and stayed at 100% for the whole soak.
+- In the sweep an uncached page cost 29 ms of instance CPU on Node and 239 ms on Jint, a ratio of 8.2, close to the gap in throughput. In the soak, where half of the requests are Markdown endpoints, a request cost 14 and 112 ms, a ratio of 8.0.
+- Memory is where Jint comes closest to a limit. In the soak its plan averaged 90% memory and peaked at 94%, and one instance reached a working set of 2,770 MB on a 4 GiB plan. Across the three suites the plan peaked at 96% and one instance reached 2,838 MB. The working set did not grow during the soak. It was already between 2.6 and 2.7 GB while the site was idle before the run.
+- Node averaged 74% and peaked at 75% in the soak, with a largest working set of 2,252 MB for StaticHost and both renderers together. It rose by about 300 MB to about 2.0 GB in the first two or three minutes of the load and stayed there. It fell to about 1.5 GB in the minutes after the load ended.
+- Neither site returned a 5xx response in any window, and the instance counts stayed at two on both plans.
+
+### When the Jint plan scaled out on its own
+
+In the first sweep the Jint plan had the same limit of 10 instances as the Node plan. It grew from 2 to 4 and then 6 instances during the last steps and reached 10 after the load ended, and the Node plan stayed at 2. The cause of the scale-out was not investigated. The Node plan kept its limit of 10 and stayed at 2 instances in every reported run, including the soak, where it ran at 100% CPU for ten minutes. CPU saturation alone therefore did not trigger a scale-out there. The platform added up to eight instances to the Jint plan, five times the instances of the Node plan, for a site that rendered fewer pages per second.
+
+That sweep replayed the same page sequence in every step, so both sites answered more requests from their caches than they would for new pages. It is kept in `results/azure/first-sweep/` as the record of the scale-out, and every figure in this report comes from the fixed-capacity re-run, in which the Jint plan could not grow past two instances.
+
+### Problems that only the deployment showed
+
+The first Jint deployment answered every request to `/_image`, Astro's image endpoint, with the text `[object Object]`. The body of the endpoint's response was turned into that text inside Jint's `Response`. The cause was not pinned down and is a question for astro-jint. StaticHost now serves the bundled images itself when the engine runs in process. It passes the files in the bundle through and does not resize or convert them, and a test covers it. Every Azure figure here comes from a deployment with that fix.
+
 ## Operations
 
 | Concern | Node sidecar | Jint in process |
@@ -450,43 +620,57 @@ A cache in front of the origin, such as a CDN or the StaticHost response cache, 
 | Processes | StaticHost plus two Node sidecars, each started with `--max-old-space-size=1024` | One process |
 | Artifacts to ship | A sidecar image with Node 24 and 425 MB of `node_modules` | A 5.2 MB publish, no extra image |
 | Failure isolation | A renderer crash or out-of-memory stop takes down one sidecar, and StaticHost fails over to the other replica and keeps serving static pages | A JavaScript error or memory-limit hit discards one engine. A process-level memory shortage stops the static pages too, because they share the process. |
-| Memory budget on a 4 GiB plan | About 0.7 GB on plain and 1.0 GB as deployed for each sidecar at peak in the crawls, and the POC runs two | About 3.0 GB for one engine at peak in the one-hour crawl, of which 1.4 GB is live heap |
+| Memory budget on a 4 GiB plan | About 0.7 GB on plain and 1.0 GB as deployed for each sidecar at peak in the crawls, and the POC runs two. On Azure the largest working set of an instance was 2,252 MB, and the plan peaked at 75% memory in the soak. | About 3.0 GB for one engine at peak in the one-hour crawl, of which 1.4 GB is live heap. On Azure the largest working set of an instance was 2,838 MB, and the plan peaked at 96% memory. |
 | Profiling | V8 CPU profiles with function names and the DevTools tooling | The .NET tooling, which shows interpreter frames and no JavaScript function names |
 | Maintenance | `@astrojs/node` is a supported Astro adapter | astro-jint is a prototype, and the real site needs the patches in [Can the real pages run in Jint?](#can-the-real-pages-run-in-jint) |
 | Warm-up | Ready after 1.3 s on plain and 2.1 to 3.0 s as deployed, and the first page takes about 20 ms | Ready after 0.25 s, but the first page takes 4.3 to 7.9 s on one core while the engine loads the 45 MB data layer |
 
-The 4 GiB row assumes the Aspire default App Service plan, P0V3 with 1 vCPU and 4 GiB. The deployed plan was not verified. The Jint peak was measured with no memory limit on a machine with 31.7 GB of RAM. The .NET collector may keep a smaller heap inside a 4 GiB container at the cost of more collections, and this study did not test that. The 1.4 GB of live heap is a floor for the process in any case. The failure isolation, profiling and maintenance rows are design observations and not measurements.
+The 4 GiB row comes from the Aspire default App Service plan, P0V3 with 1 vCPU and 4 GiB, and the Azure runs confirmed that plan on both sites. The workstation Jint peak was measured with no memory limit on a machine with 31.7 GB of RAM. The .NET collector may keep a smaller heap inside a 4 GiB container at the cost of more collections, and this study did not test that. The 1.4 GB of live heap is a floor for the process in any case. On the plan itself the Jint site held a working set of 2.6 to 2.8 GB and did not restart, with the plan close to its memory limit. The failure isolation, profiling and maintenance rows are design observations and not measurements.
 
 ## Recommendation
 
-1. Keep the Node sidecars for the hybrid API reference. Nothing in the measurements favors replacing them.
-2. Do not take the Jint path further for these pages on performance grounds. At about 116 ms of CPU and 32 MB of allocation per page, one Jint core serves 8 to 11 pages per second. Node serves 144 pages per second on the same core.
+1. Keep the Node sidecars for the hybrid API reference. Nothing in the measurements favors replacing them, on a workstation or on Azure.
+2. Do not take the Jint path further for these pages on performance grounds. At about 116 ms of CPU and 32 MB of allocation per page, one Jint core serves 8 to 11 pages per second. Node serves 144 pages per second on the same core. On Azure, two P0v3 instances of Jint served 17.7 requests per second across the whole site in the soak, against 144.9 for Node.
 3. Treat the Jint results as a best case for the current page code. The real pages need their code blocks rendered some other way, for example before the request, and this study did not price that.
 4. The lever is the page itself. The Starlight layout and the Astro render path take about 65% of Node's CPU, and the site's own API code takes 2%. A lighter page narrows the gap: the Markdown endpoints skip the layout and load 18 chunks instead of 57 to 62, and they are 7.5 times faster on Node than on Jint, against 17 times for HTML pages. That is a larger change than swapping the engine.
-5. Run the as-deployed renderer through a long soak before relying on it. In the crawl its live heap rose by about 1.9 MB per 1,000 requests and did not level off within 55,815 requests, while the plain bundle stayed flat. The study did not look for the cause.
+5. Run the as-deployed renderer through a long soak before relying on it. In the crawl its live heap rose by about 1.9 MB per 1,000 requests and did not level off within 55,815 requests, while the plain bundle stayed flat. The study did not look for the cause. The Azure soak of 86,925 requests over two instances held a flat working set after its first three minutes, but a working set is not the live heap, and each renderer saw far fewer requests than the crawl, so that run does not settle it.
+6. Measure a response cache in StaticHost in front of the Node sidecars. The one case that Jint won on Azure was the hot set, and the position of its cache explains that and not its engine. This study did not build that cache for Node.
 
 Any of these would change the verdict:
 
 - A rule that forbids Node processes in the deployment.
-- An origin that sees well under about 5 uncached pages per second, for example behind a CDN with long cache lifetimes. One Jint core serves 8 to 11 pages per second, so the remaining requirement is a plan with room for an engine that peaked at 3.0 GB.
+- An origin that sees well under about 4 uncached pages per second, for example behind a CDN with long cache lifetimes. A P0v3 instance rendered about 4.3 pages per second with Jint on Azure and one workstation core 8 to 11, so the remaining requirement is a plan with room for an engine that held 2.8 GB on Azure and peaked at 3.0 GB in the workstation crawl.
 - A Jint release that runs this JavaScript an order of magnitude faster.
 
 This study compares Node with Jint only. It says nothing about other engines that run inside .NET.
 
 ## Integrating Jint into StaticHost
 
-This was not implemented. It is the sketch that the measurements above would have to justify.
+The Azure runs needed an in-process engine, so this branch adds one. The Node path behaves as before.
 
-`HybridApiDocsRenderer.RenderAsync` selects the route through the `HybridApiDocsRequest` feature, computes a weak ETag from the build id and the renderer path, and answers 304 before rendering. It collapses concurrent requests for one path, then `FetchAsync` tries replica candidates with a 10 s timeout per attempt and 30 s overall. It requires a matching `X-Aspire-Build-Id`, buffers the body up to 64 MiB, copies headers without the hop-by-hop ones, removes `Vary: X-Aspire-Cache-Bypass`, and sets `Cache-Control: no-cache` plus the ETag on cacheable 2xx responses.
+`HybridApiDocsRenderer` keeps everything that does not depend on where Astro runs: route selection through the `HybridApiDocsRequest` feature, a weak ETag from the build id and the renderer path with the 304 answer before any render, the collapsing of concurrent requests for one path, the removal of `Vary: X-Aspire-Cache-Bypass`, the `Cache-Control` and `X-Aspire-Build-Id` headers, and the 64 MiB body limit. It calls an `IHybridApiDocsEngine`, which has `RenderAsync` and `IsReadyAsync`, and two engines implement it.
 
-An in-process Jint integration would replace `FetchAsync` with a call into the engine pool. It would have to supply what Jint does not send today: the build id header, the ETag and the cache-bypass handling. The engine pool replaces the replica failover. It also moves an engine that peaked at 3.0 GB in the one-hour crawl into the process that serves the static pages.
+| Engine | What it does |
+|---|---|
+| `HybridApiDocsSidecarEngine` | The previous path. It hashes the path to pick one of the two Node renderers, tries the other when the first fails, requires a matching `X-Aspire-Build-Id`, and allows 10 s per attempt and 30 s in total. |
+| `HybridApiDocsJintEngine` | Calls the astro-jint endpoint delegate in the StaticHost process, with a 30 s limit for each render. |
+
+The Jint engine adds three things that the sidecars did not need:
+
+- A response cache. It keeps 200 responses that are not private in an LRU of up to 256 entries or 128 MiB, for 30 minutes, and tags each response with `X-Astro-Cache: HIT` or `MISS`. The settings are under `HybridApiDocs:Jint`. It stands in for the Astro cache that each Node renderer has.
+- Local image serving. `HybridApiDocsLocalImages` returns the bundled file for `/_image`, because astro-jint answered that route with `[object Object]`. It does not resize or convert images.
+- A readiness probe. It renders one real API page, which loads the 45 MB data layer, so StaticHost reports ready only after the engine can answer.
+
+The Jint engine is compiled in only when `ASPIRE_HYBRID_API_DOCS=1` and `ASPIRE_HYBRID_ENGINE=jint` are set. `StaticHost.csproj` then defines `HYBRID_API_DOCS_JINT`, and the build needs an astro-jint checkout through `AstroJintRoot` and `NuGet.jint.config` for the feed that carries the Jint preview package. A default build does not contain the engine. The AppHost accepts an unset value, `node` or `jint` for `ASPIRE_HYBRID_ENGINE`.
+
+The cost of this design is where the engine runs. It shares the process, and the memory, with the static pages. The [Azure runs](#production-like-deployment-on-azure) show what that looks like on a 4 GiB plan.
 
 ## Limits of this study
 
 - Jint cannot run the real site's code highlighting, and its bundle is patched to load at all. The patches guard a top-level WebAssembly reference, stub three Node built-ins and replace `<Code>` with plain `<pre><code>`. Its numbers are a best case for the current page code, and the as-deployed Node run shows what highlighting costs on the Node side.
-- The renderers were measured at their own HTTP ports. The StaticHost proxy hop, a CDN and the network are in neither measurement.
-- All numbers come from one Windows workstation. The deployment uses Linux containers, so absolute numbers will differ, and the ratio between the engines was not measured on Linux.
-- The App Service plan was not verified. One core is the most likely budget, and the report gives two and four cores as well.
+- In the workstation runs the renderers were measured at their own HTTP ports, so the StaticHost proxy hop, a CDN and the network are in neither measurement. The Azure runs include StaticHost and a path inside one region. They leave out Front Door, TLS and the public internet.
+- The workstation numbers come from one Windows workstation. The Azure runs use Linux containers on P0v3 plans, and there the gap for uncached pages is about 9 times instead of 12 to 20. Both engines are slower on a P0v3 vCPU than on a workstation core, and Node loses more. The reason for the change in the ratio was not isolated.
+- The Azure runs verified the plan: P0v3 with 1 vCPU and 4 GiB per instance on both sites. The workstation runs give one, two and four cores.
 - The traffic is synthetic: a uniform mix and a zipf mix over the manifest. No production traffic was replayed.
 - On one core .NET uses the workstation collector. The harness raises `MemoryLimitBytes` to 6 GiB, sets the request timeout to 10 minutes and creates one engine per core before the measurement.
 - The tuning results are single 45 s runs, and the default row is a fourth run of the default configuration. The four-core regression is one run against three, and its cause is unknown.
@@ -495,7 +679,16 @@ An in-process Jint integration would replace `FetchAsync` with a call into the e
 - The Node bundle comes from the Windows CI build and the Jint bundle from the Linux CI build of the same site sources. The differences that `parity.mjs` normalizes are build hashes and line endings.
 - The `dotnet-trace` profile is a wall-clock sample at about 100 Hz of the default configuration and cannot name JavaScript functions.
 - Each engine was built once on CI, so the build times are single samples and are not used to compare the engines.
+- The Azure runs used one region, one load generator with 2 vCPU and plain HTTP to the App Service host names. At about 1,000 requests per second on hot pages, Markdown and static pages, the generator or the platform front end may have set the limit. This was not checked.
+- Each Azure suite ran once, except the three latency rounds, and the soak is one ten-minute run per site. The sites alternate inside every suite, but the noise between suites was not measured. Nearly every request in the soak was a cache miss, so it says little about how the sites behave with a warm cache.
+- The reported Azure runs used a fixed plan of two instances. The Jint plan was limited to two by hand, and the Node plan kept its limit of 10 and stayed at two. As deployed, the Jint plan scaled out to 10 instances in the first sweep. The rule that did it was not investigated.
+- Azure Monitor reports each minute about 85 s after the traffic that it counts. The lag was fitted on the soak and applied to the sweep and mixed suites. In those two suites the platform request counts differ from the load generator's by 10 to 22%, so their CPU per request is approximate. Only the soak gives a clean figure.
+- The Jint deployment ran with the default .NET runtime settings and one engine per instance. The three settings that raised one workstation core by 41% were not applied. If the same gain held on Azure, the soak gap would still be about 6 times. That is modeled and was not tested.
+- Each instance keeps its own cache, and the platform decides which instance gets a connection. The hit ratios in the Azure runs depend on that spread, which was not observed directly.
+- The Node site was built from an older content commit than the Jint site, and the Jint site has no syntax highlighting. The path lists hold only pages that both of them serve. The HTML of the two sites differs in layout and code blocks, so the remote parity run could compare only status codes, headers and the Markdown bytes.
 
 ## Data and tables
 
 The JSON files in [results/](results/) are the source of every table here. `node scripts/summarize-results.mjs` prints the tables, `--section growth` includes the full-site crawl table with the live heap slopes, and [README.md](README.md) lists the commands that produced the results.
+
+The Azure tables come from [results/azure/](results/azure/). Each suite left a load generator report and log, and the sweep, mixed and soak suites also have a `metrics-` file with the platform metrics for their time window. `first-sweep/` holds the discarded first sweep, and `instances.log` lists how many instances each site had, and how many were ready, about every 33 seconds in local time, UTC-5. `node scripts/summarize-azure.mjs results/azure` prints the tables, and `--section` limits the output to `latency`, `sweep`, `mixed`, `soak` or `metrics`. The remote parity run is in [results/parity-azure/](results/parity-azure/). The committed files call the two sites `NODE_SITE` and `JINT_SITE` and the platform instances `instance-1`, `instance-2` and so on, in place of the real names.

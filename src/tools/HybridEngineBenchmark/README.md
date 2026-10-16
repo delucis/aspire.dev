@@ -5,12 +5,12 @@ This folder compares the two ways the hybrid API reference can render its on-dem
 - **Node sidecar**: the approach of the hybrid POC. Renderers built with `@astrojs/node` in middleware mode, started by `scripts/serve-api-docs.mjs`, run next to StaticHost, which proxies requests to them.
 - **Jint**: [astro-jint](https://github.com/IEvangelist/astro-jint). `astro-adapter-jint` builds the same Astro server bundle for a pool of [Jint](https://github.com/sebastienros/jint) engines hosted in ASP.NET Core, so no Node process runs at run time.
 
-[REPORT.md](REPORT.md) has the findings and the recommendation. This file explains what is here and how to reproduce the numbers.
+[REPORT.md](REPORT.md) has the findings and the recommendation. This file explains what is here and how to reproduce the numbers. The first part of the study runs both engines on a pinned workstation. The second part compares two complete deployments on Azure App Service from a load generator in the same region.
 
 ## Ground rules
 
 - The real site is built on CI only. A hybrid build takes 9 to 14 minutes and about 7.5 GB of peak memory on a CI runner, so nothing in this folder builds aspire.dev locally. The workflow `hybrid-api-docs-poc.yml` builds the Node bundle, and `hybrid-api-docs-jint.yml` builds the Jint bundle and a Node control. Both upload their server bundles, and the benchmark runs against those downloads.
-- Only the small tools are built locally: `LoadGen` and `JintHost`.
+- Only the small tools are built locally: `LoadGen` and `JintHost`. The Azure part also builds the StaticHost container image on the machine that runs `aspire deploy`.
 - `ASPIRE_HYBRID_ENGINE=jint` selects the Jint adapter at build time. The default is `node`. See `src/frontend/config/hybrid-api-docs.mjs`.
 - CI artifacts expire after 7 days. Re-run the workflow from the Actions tab to get a fresh bundle.
 
@@ -37,13 +37,15 @@ This folder compares the two ways the hybrid API reference can render its on-dem
 | `scripts/soak-report.mjs` | Prints one soak result as window rows and a live-set timeline. |
 | `scripts/jint-trace.mjs` | Runs the Jint host under `dotnet-trace` while it serves the c1-uniform-x16 load, then aggregates the samples with `analyze-nettrace.mjs`. |
 | `scripts/analyze-nettrace.mjs` | Aggregates a `dotnet-trace` speedscope file by namespace and by function. |
-| `scripts/parity.mjs` | Renders a sample of every route kind on both engines and compares the output. |
+| `scripts/parity.mjs` | Renders a sample of every route kind on both engines and compares the output. With `--node-url` and `--jint-url` it fetches the pages from two running sites instead. |
 | `scripts/analyze-cpuprofile.mjs` | Summarizes a V8 `.cpuprofile` by region: Astro, Starlight, libraries, site code, syntax highlighting, WebAssembly and GC. |
 | `scripts/patch-server-bundle.mjs` | Feasibility patches for a **copy** of a built bundle: `--no-wasm`, `--stub-node`, `--plain-code`. |
 | `scripts/make-paths.mjs` | Splits `hybrid-api-docs.json` into per-kind path files and writes the mixes: `uniform-html`, `zipf-html`, `replay-40` and `crawl-all`, which holds every HTML page and every Markdown endpoint once. |
 | `scripts/summarize-results.mjs` | Prints the tables of the report from `results/`. |
+| `scripts/summarize-azure.mjs` | Prints the tables of the Azure section of the report from `results/azure/`. |
 | `scripts/lib.mjs` | Shared helpers: start a server and time it to readiness, read process CPU and memory, run LoadGen. |
-| `results/` | The JSON the report is built from: one folder per measured bundle, repeat and tuning run with a `summary.json` and one `load-*.json` per configuration, plus `parity/`, `soak/` for the soaks, growth probes and full-site crawls, and `jint-trace/`. |
+| `azure/` | The in-region load runner. `Dockerfile` builds the `LoadGen` image. `suites/` holds the `latency`, `sweep`, `mixed` and `soak` scripts, and `paths/` the small path lists they read. `run-suite.ps1` runs one suite in Azure Container Instances and saves its reports, and `collect-metrics.ps1` saves Azure Monitor metrics for a time window. |
+| `results/` | The JSON the report is built from: one folder per measured bundle, repeat and tuning run with a `summary.json` and one `load-*.json` per configuration, plus `parity/`, `soak/` for the soaks, growth probes and full-site crawls, `jint-trace/`, and `azure/` for the suite logs, reports and metrics of the Azure runs. |
 
 ## Reproduce
 
@@ -199,11 +201,86 @@ Measure your own machine before trusting these masks:
 
 Pass other masks with `--server-masks <1 core>,<2 cores>,<4 cores>` to `bundle-bench.mjs`, `--server-mask <mask>` to `soak.mjs`, and `--generator-cores <mask>` to either.
 
+## Production-like comparison on Azure
+
+The workstation runs isolate the engines on pinned cores. The Azure runs compare two complete deployments of the same site, each on its own App Service plan, with the load generated in the same region.
+
+| | Node deployment | Jint deployment |
+| --- | --- | --- |
+| Containers per instance | StaticHost and two Node renderers | StaticHost with Jint in process |
+| Plan | P0v3 with 1 vCPU and 4 GiB, 2 instances, elastic scale-out up to 10 | The same, set by hand to match |
+| Origin | The existing hybrid test deployment | A new resource group in the same subscription, made with `aspire deploy` and `ASPIRE_HYBRID_ENGINE=jint` |
+| Reached through | The App Service host name over plain HTTP | The same |
+
+Requests come from an Azure Container Instances group with 2 vCPU and 4 GB in the region of the sites. A health probe takes 3 to 4 ms at the median from there. The generator uses plain HTTP against the App Service host names, so Front Door and TLS are outside the measurement. One suite is one container group, created and deleted by `run-suite.ps1`. Each suite alternates the order of the two sites between rounds, so a slow minute on the platform does not always land on the same site.
+
+| Suite | Load | Reports |
+| --- | --- | --- |
+| `latency` | One connection and one request at a time, in three rounds per site. A round requests 20 static pages, 150 API pages and 100 Markdown endpoints, five times each, and uses pages that no earlier round used. The first request of a page is normally a cache miss, so the five requests separate the cost of a render from the cost of a cached answer. | 24 |
+| `sweep` | 1, 2, 4, 8, 16, 32 and 64 connections over 20,000 random API pages, 30 seconds measured after 5 seconds of warm-up. Each step draws its pages with its own seed, and an unreported 20-second pass at 16 connections warms both sites first. Nearly every request is a cache miss, so the result is the rendering capacity of the site. | 14 |
+| `mixed` | API pages with skewed popularity on 32 connections for 60 seconds, 50 hot API pages on 32 connections for 30 seconds, Markdown endpoints on 16 connections for 30 seconds, and static documentation pages on 16 connections for 20 seconds. | 8 |
+| `soak` | 16 connections over every API page and Markdown endpoint, 10 minutes per site by default. The throughput per second shows whether a site stays steady, slows down or restarts. | 2 |
+
+The suites read the path lists in `azure/paths/` and the lists that `make-paths.mjs` writes. The small lists are the ones the reported runs used. They are random samples of the API routes and of the localized documentation pages that both deployments serve as plain files, with no page shared between the latency rounds. Pages must exist in both deployments, so draw new lists when the content of either one changes.
+
+1. Deploy the Jint build. Follow the Jint section of `CONTRIBUTING.md` to get the artifact and run `aspire deploy` into a new resource group. `aspire deploy` builds the StaticHost image on the machine that runs it and needs Docker. The site content comes from the CI artifact, so no part of aspire.dev is built locally.
+
+2. Give the new plan the same capacity as the Node plan. A new deployment does not copy the scale settings. Set the instance count, elastic scale, the maximum elastic worker count and the site's minimum and pre-warmed instance counts with the portal, the Azure CLI or the REST API. Then compare the properties of both plans and both sites before measuring, and wait until every instance reports ready.
+
+   An elastic plan adds instances when it answers slowly, up to the maximum elastic worker count. In the first sweep, with the maximum of 10 that the Node plan has, the Jint plan grew from 2 to 10 instances while the Node plan stayed at 2. For a fixed-capacity comparison, lower the maximum on the plan that you control to the instance count, and log the instance count of both sites during every suite.
+
+3. Build and push the load generator image to a registry that a managed identity can pull from.
+
+   ```powershell
+   dotnet publish LoadGen\LoadGen.csproj -c Release -o D:\bench\loadgen-image\app
+   New-Item -ItemType Directory D:\bench\loadgen-image\paths
+   Copy-Item azure\paths\*.txt, D:\bench\paths\uniform-html.txt, D:\bench\paths\zipf-html.txt, D:\bench\paths\crawl-all.txt, D:\bench\paths\all-md.txt D:\bench\loadgen-image\paths
+   Copy-Item azure\Dockerfile D:\bench\loadgen-image
+
+   docker build -t REGISTRY.azurecr.io/hybridbench-loadgen:v1 D:\bench\loadgen-image
+   az acr login --name REGISTRY
+   docker push REGISTRY.azurecr.io/hybridbench-loadgen:v1
+   ```
+
+4. Run a suite. The signed-in `az` account must be able to create container groups in the resource group, and the identity needs `AcrPull` on the registry. The script prints no tokens, and the suite log and reports are written to `results\azure`.
+
+   ```powershell
+   azure\run-suite.ps1 -SubscriptionId SUBSCRIPTION -TenantId TENANT -ResourceGroup RESOURCE_GROUP -Image REGISTRY.azurecr.io/hybridbench-loadgen:v1 -IdentityResourceId IDENTITY_RESOURCE_ID -Suite latency -Sites node=http://NODE_SITE.azurewebsites.net,jint=http://JINT_SITE.azurewebsites.net
+   ```
+
+   Use `-Suite sweep`, `mixed` or `soak` for the other suites, and `-Environment @{ SOAK_SECONDS = 1200 }` to change the length of a soak. Do not run anything else against the sites while a suite runs.
+
+5. Save the Azure Monitor metrics for the window of a suite, about five minutes after it ends, because the metrics arrive late. The suite log has a `#start` line and an `#end` line with the times in UTC.
+
+   ```powershell
+   azure\collect-metrics.ps1 -TenantId TENANT -Start START_UTC -End END_UTC -OutFile results\azure\metrics-sweep.json -Resources @{ node = NODE_SITE_ID; node_plan = NODE_PLAN_ID; jint = JINT_SITE_ID; jint_plan = JINT_PLAN_ID }
+   ```
+
+6. Compare the pages that the two deployments return.
+
+   ```powershell
+   node scripts\parity.mjs --node-url http://NODE_SITE.azurewebsites.net --jint-url http://JINT_SITE.azurewebsites.net --paths D:\bench\paths --out results\parity-azure --per-kind 25
+   ```
+
+7. Print the tables. `--section` limits the output to `latency`, `sweep`, `mixed`, `soak` or `metrics`, and `--instances` adds every metric series to the metrics tables.
+
+   ```powershell
+   node scripts\summarize-azure.mjs results\azure
+   ```
+
+The files committed in `results/azure/` and `results/parity-azure/` call the two sites `NODE_SITE` and `JINT_SITE` and name the platform instances in the metric series `instance-1`, `instance-2` and so on, in place of the real names. `results/azure/first-sweep/` is the first sweep, in which the Jint plan scaled out, and `results/azure/instances.log` records how many instances each site had, and how many were ready, about every 33 seconds in local time, UTC-5, from before the sweep to after the soak. A small polling loop over the Azure management API wrote it, and that loop is not included here. Azure Monitor labels each minute about 85 seconds after the traffic it counts, and the summarizer shifts the windows by that lag and keeps only whole minutes.
+
+The Jint deployment, its Redis Enterprise cache and its Front Door profile cost money while they exist. Delete the resource group when the measurements are done.
+
 ## What the numbers do and do not tell you
 
 - Jint runs the **patched** bundle. It cannot run Expressive Code, so its numbers are optimistic for the real site. The as-deployed Node run is the reference for what the hybrid POC runs.
 - `LoadGen` sends one probe request before the measured window starts. On a cold Jint host the probe takes several seconds, so the server burns CPU before `startedUtc` in the report. The soak aligns its samples to `startedUtc` for this reason.
 - `JintHost` gained more `/api/host` fields and `POST /api/gc` after the main matrix ran. The matrix only reads `/api/host` at the edges of a window. The soaks force a collection before and after the load, and with `--live-every` during it too, so read the growth probes and crawls as memory measurements and not as throughput measurements.
 - Each CI build ran once, so build times are single samples. The Node hybrid build took 9:07 as the second build in the POC job and 14:12 as the control in the Jint workflow, so build time is reported but is not a differentiator.
-- All numbers come from one Windows workstation, and the sidecars deploy as Linux containers. No production traffic data was available, and the hop from StaticHost to a sidecar was not measured.
-- The deployed App Service plan was not verified. The report treats one core as the most likely budget and says so where it matters.
+- The workstation numbers come from one Windows machine and measure the engines alone. They leave out the hop from StaticHost to a sidecar, which the Azure runs include. No production traffic data was available.
+- The Azure plans are P0v3 with 1 vCPU and 4 GiB per instance, 2 instances each. The runs send plain HTTP to the App Service host names, so Front Door, TLS and the CDN are outside the measurement.
+- Each instance has its own cache. A load generator connection appears to stay on one instance, because the repeats of a page on one connection were always cache hits. Cache hit ratios therefore depend on how the platform routes connections.
+- The Jint deployment serves pages without syntax highlighting, so its Azure numbers are a lower bound on the cost of rendering the real pages.
+- The scale of the new Jint plan was set by hand. For the fixed-capacity runs its maximum elastic worker count was lowered to 2, while the Node plan kept the maximum of 10 it was deployed with.
+- The two deployments were built from different content commits. The path lists hold only pages that both of them serve.
