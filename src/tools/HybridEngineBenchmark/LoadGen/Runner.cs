@@ -46,9 +46,12 @@ internal static class Runner
 {
     public static async Task<LoadReport> RunLoadAsync(Options options)
     {
-        var endPoint = await ResolveAsync(options.Url).ConfigureAwait(false);
+        var endPoints = await Task.WhenAll(options.Urls.Select(ResolveAsync)).ConfigureAwait(false);
         var (requests, uniquePaths) = BuildRequests(options);
-        await ProbeAsync(endPoint, requests[0]).ConfigureAwait(false);
+        foreach (var endPoint in endPoints)
+        {
+            await ProbeAsync(endPoint, requests[0]).ConfigureAwait(false);
+        }
 
         var started = DateTime.UtcNow.ToString("O", CultureInfo.InvariantCulture);
         var measureStart = Stopwatch.GetTimestamp() + (long)(options.Warmup.TotalSeconds * Stopwatch.Frequency);
@@ -61,7 +64,7 @@ internal static class Runner
         {
             var worker = workers[i] = new Worker(buckets);
             var index = i;
-            tasks[i] = Task.Run(() => worker.RunAsync(endPoint, requests, options.RandomSelection, options.Seed + index, index, measureStart, end));
+            tasks[i] = Task.Run(() => worker.RunAsync(endPoints[index % endPoints.Length], requests, options.RandomSelection, options.Seed + index, index, measureStart, end));
         }
 
         var usage = MeasureUsageAsync(options.Pids, measureStart, end);
@@ -90,7 +93,7 @@ internal static class Runner
         var seconds = options.Duration.TotalSeconds;
         return new LoadReport(
             options.Label,
-            options.Url.ToString(),
+            string.Join(',', options.Urls),
             started,
             options.Connections,
             uniquePaths,

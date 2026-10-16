@@ -1,0 +1,85 @@
+{
+  "startedUtc": "2026-10-16T00:42:40.302Z",
+  "engine": "jint",
+  "label": "rep3-jint-plain",
+  "node": "v24.13.1",
+  "machine": {
+    "platform": "win32",
+    "cpus": 28
+  },
+  "cold": [],
+  "sequence": [],
+  "load": [
+    {
+      "name": "c1-uniform-x16",
+      "cores": 1,
+      "mix": "uniform-html",
+      "connections": 16,
+      "engine": "jint",
+      "rps": 8.4,
+      "requests": 376,
+      "errors": 0,
+      "statuses": {
+        "200": 376
+      },
+      "avgKb": 206.4,
+      "latencyMs": {
+        "mean": 1871.54,
+        "p50": 1654.78,
+        "p90": 2883.58,
+        "p95": 3309.57,
+        "p99": 3670.01,
+        "p999": 3758.23,
+        "max": 3758.23
+      },
+      "serverCores": 0.96,
+      "cpuMsPerRequest": 115.53,
+      "rssStartMb": 1464.7,
+      "rssEndMb": 1959.3,
+      "rssPeakMb": 2150.3,
+      "gc": {
+        "pausePercent": 22.075742141076823,
+        "gen0": 679,
+        "gen1": 302,
+        "gen2": 3,
+        "allocatedBytes": 12721324192
+      }
+    },
+    {
+      "name": "c4-uniform-x32",
+      "cores": 4,
+      "mix": "uniform-html",
+      "connections": 32,
+      "engine": "jint",
+      "rps": 32.3,
+      "requests": 1454,
+      "errors": 0,
+      "statuses": {
+        "200": 1454
+      },
+      "avgKb": 214.2,
+      "latencyMs": {
+        "mean": 1003.57,
+        "p50": 933.89,
+        "p90": 1376.26,
+        "p95": 1703.93,
+        "p99": 2359.3,
+        "p999": 2818.05,
+        "max": 3110.48
+      },
+      "serverCores": 3.79,
+      "cpuMsPerRequest": 117.13,
+      "rssStartMb": 4757,
+      "rssEndMb": 4882.9,
+      "rssPeakMb": 4949.9,
+      "gc": {
+        "pausePercent": 20.345934371363068,
+        "gen0": 153,
+        "gen1": 67,
+        "gen2": 12,
+        "allocatedBytes": 52534445344
+      }
+    }
+  ],
+  "profile": null
+}

@@ -1,0 +1,150 @@
+{
+  "startedUtc": "2026-10-15T23:16:03.780Z",
+  "perKind": 25,
+  "kinds": {
+    "csharp-package": {
+      "compared": 25,
+      "identical": 0,
+      "identicalAfterBuildNoise": 25,
+      "differing": 0,
+      "statusMismatches": 0,
+      "nodeStatuses": {
+        "200": 25
+      },
+      "jintStatuses": {
+        "200": 25
+      },
+      "examples": [],
+      "matchingPercent": 100
+    },
+    "csharp-type": {
+      "compared": 25,
+      "identical": 0,
+      "identicalAfterBuildNoise": 25,
+      "differing": 0,
+      "statusMismatches": 0,
+      "nodeStatuses": {
+        "200": 25
+      },
+      "jintStatuses": {
+        "200": 25
+      },
+      "examples": [],
+      "matchingPercent": 100
+    },
+    "csharp-memberkind": {
+      "compared": 25,
+      "identical": 0,
+      "identicalAfterBuildNoise": 25,
+      "differing": 0,
+      "statusMismatches": 0,
+      "nodeStatuses": {
+        "200": 25
+      },
+      "jintStatuses": {
+        "200": 25
+      },
+      "examples": [],
+      "matchingPercent": 100
+    },
+    "ts-module": {
+      "compared": 25,
+      "identical": 0,
+      "identicalAfterBuildNoise": 25,
+      "differing": 0,
+      "statusMismatches": 0,
+      "nodeStatuses": {
+        "200": 25
+      },
+      "jintStatuses": {
+        "200": 25
+      },
+      "examples": [],
+      "matchingPercent": 100
+    },
+    "ts-item": {
+      "compared": 25,
+      "identical": 0,
+      "identicalAfterBuildNoise": 25,
+      "differing": 0,
+      "statusMismatches": 0,
+      "nodeStatuses": {
+        "200": 25
+      },
+      "jintStatuses": {
+        "200": 25
+      },
+      "examples": [],
+      "matchingPercent": 100
+    },
+    "ts-member": {
+      "compared": 25,
+      "identical": 0,
+      "identicalAfterBuildNoise": 25,
+      "differing": 0,
+      "statusMismatches": 0,
+      "nodeStatuses": {
+        "200": 25
+      },
+      "jintStatuses": {
+        "200": 25
+      },
+      "examples": [],
+      "matchingPercent": 100
+    },
+    "csharp-md": {
+      "compared": 25,
+      "identical": 25,
+      "identicalAfterBuildNoise": 0,
+      "differing": 0,
+      "statusMismatches": 0,
+      "nodeStatuses": {
+        "200": 25
+      },
+      "jintStatuses": {
+        "200": 25
+      },
+      "examples": [],
+      "matchingPercent": 100
+    },
+    "ts-md": {
+      "compared": 25,
+      "identical": 25,
+      "identicalAfterBuildNoise": 0,
+      "differing": 0,
+      "statusMismatches": 0,
+      "nodeStatuses": {
+        "200": 25
+      },
+      "jintStatuses": {
+        "200": 25
+      },
+      "examples": [],
+      "matchingPercent": 100
+    }
+  },
+  "headers": {
+    "x-aspire-build-id": {
+      "node": [
+        "b6452016f20cf966a60f7afdc0514dff2a2967db01f33c42b405ff5f07041160"
+      ],
+      "jint": []
+    },
+    "content-type": {
+      "node": [
+        "text/html",
+        "text/markdown; charset=utf-8"
+      ],
+      "jint": [
+        "text/html",
+        "text/markdown; charset=utf-8"
+      ]
+    },
+    "vary": {
+      "node": [
+        "X-Aspire-Cache-Bypass"
+      ],
+      "jint": []
+    }
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "startedUtc": "2026-10-16T00:51:12.339Z",
+  "engine": "jint",
+  "label": "tune-gc-nonconcurrent",
+  "node": "v24.13.1",
+  "machine": {
+    "platform": "win32",
+    "cpus": 28
+  },
+  "cold": [],
+  "sequence": [],
+  "load": [
+    {
+      "name": "c1-uniform-x16",
+      "cores": 1,
+      "mix": "uniform-html",
+      "connections": 16,
+      "engine": "jint",
+      "rps": 9.6,
+      "requests": 433,
+      "errors": 0,
+      "statuses": {
+        "200": 433
+      },
+      "avgKb": 203.3,
+      "latencyMs": {
+        "mean": 1630.28,
+        "p50": 1523.71,
+        "p90": 2260.99,
+        "p95": 2588.67,
+        "p99": 3538.94,
+        "p999": 3774.31,
+        "max": 3774.31
+      },
+      "serverCores": 0.97,
+      "cpuMsPerRequest": 100.61,
+      "rssStartMb": 1635.5,
+      "rssEndMb": 1982.3,
+      "rssPeakMb": 2155.9,
+      "gc": {
+        "pausePercent": 12.902417460520136,
+        "gen0": 141,
+        "gen1": 31,
+        "gen2": 2,
+        "allocatedBytes": 14196337144
+      }
+    }
+  ],
+  "profile": null
+}

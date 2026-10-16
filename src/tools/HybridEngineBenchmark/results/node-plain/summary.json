@@ -1,0 +1,1134 @@
+{
+  "startedUtc": "2026-10-15T23:26:36.873Z",
+  "engine": "node",
+  "label": "node-plain-code",
+  "node": "v24.13.1",
+  "machine": {
+    "platform": "win32",
+    "cpus": 28
+  },
+  "cold": [
+    {
+      "run": 1,
+      "readyMs": 1264,
+      "atReady": {
+        "cpuSeconds": 1.47,
+        "rssMb": 465.7,
+        "privateMb": 490.2
+      },
+      "timeToFirstPageMs": 1284,
+      "allFirstHitsMs": 499,
+      "afterFirstHits": {
+        "cpuSeconds": 1.67,
+        "rssMb": 492.5
+      },
+      "firstHits": {
+        "csharp-type": {
+          "ms": 20.4,
+          "status": 200,
+          "kb": 280.8
+        },
+        "ts-module": {
+          "ms": 102.8,
+          "status": 200,
+          "kb": 241.2
+        },
+        "ts-item": {
+          "ms": 11.6,
+          "status": 200,
+          "kb": 184.3
+        },
+        "ts-member": {
+          "ms": 9.5,
+          "status": 200,
+          "kb": 176
+        },
+        "csharp-package": {
+          "ms": 13,
+          "status": 200,
+          "kb": 187.8
+        },
+        "csharp-memberkind": {
+          "ms": 13.9,
+          "status": 200,
+          "kb": 258.9
+        },
+        "csharp-md": {
+          "ms": 5.2,
+          "status": 200,
+          "kb": 1.5
+        },
+        "ts-md": {
+          "ms": 4.6,
+          "status": 200,
+          "kb": 0.5
+        }
+      }
+    },
+    {
+      "run": 2,
+      "readyMs": 1329,
+      "atReady": {
+        "cpuSeconds": 1.45,
+        "rssMb": 466.6,
+        "privateMb": 490.3
+      },
+      "timeToFirstPageMs": 1347,
+      "allFirstHitsMs": 475,
+      "afterFirstHits": {
+        "cpuSeconds": 1.75,
+        "rssMb": 492.3
+      },
+      "firstHits": {
+        "csharp-type": {
+          "ms": 17.6,
+          "status": 200,
+          "kb": 280.8
+        },
+        "ts-module": {
+          "ms": 106.8,
+          "status": 200,
+          "kb": 241.2
+        },
+        "ts-item": {
+          "ms": 12.3,
+          "status": 200,
+          "kb": 184.3
+        },
+        "ts-member": {
+          "ms": 10.1,
+          "status": 200,
+          "kb": 176
+        },
+        "csharp-package": {
+          "ms": 11.5,
+          "status": 200,
+          "kb": 187.8
+        },
+        "csharp-memberkind": {
+          "ms": 13.2,
+          "status": 200,
+          "kb": 258.9
+        },
+        "csharp-md": {
+          "ms": 5.8,
+          "status": 200,
+          "kb": 1.5
+        },
+        "ts-md": {
+          "ms": 5.7,
+          "status": 200,
+          "kb": 0.5
+        }
+      }
+    },
+    {
+      "run": 3,
+      "readyMs": 1291,
+      "atReady": {
+        "cpuSeconds": 1.39,
+        "rssMb": 465.5,
+        "privateMb": 490
+      },
+      "timeToFirstPageMs": 1311,
+      "allFirstHitsMs": 470,
+      "afterFirstHits": {
+        "cpuSeconds": 1.59,
+        "rssMb": 491
+      },
+      "firstHits": {
+        "csharp-type": {
+          "ms": 20.1,
+          "status": 200,
+          "kb": 280.8
+        },
+        "ts-module": {
+          "ms": 102.9,
+          "status": 200,
+          "kb": 241.2
+        },
+        "ts-item": {
+          "ms": 12.1,
+          "status": 200,
+          "kb": 184.3
+        },
+        "ts-member": {
+          "ms": 10.1,
+          "status": 200,
+          "kb": 176
+        },
+        "csharp-package": {
+          "ms": 11.1,
+          "status": 200,
+          "kb": 187.8
+        },
+        "csharp-memberkind": {
+          "ms": 14.5,
+          "status": 200,
+          "kb": 258.9
+        },
+        "csharp-md": {
+          "ms": 5.1,
+          "status": 200,
+          "kb": 1.5
+        },
+        "ts-md": {
+          "ms": 5.4,
+          "status": 200,
+          "kb": 0.5
+        }
+      }
+    }
+  ],
+  "sequence": [
+    {
+      "kind": "csharp-package",
+      "samples": 25,
+      "bypass": {
+        "firstMedianMs": 6.28,
+        "firstMaxMs": 17.3,
+        "repeatMedianMs": 6.05,
+        "kb": 189.7,
+        "statuses": [
+          200
+        ]
+      },
+      "cached": {
+        "firstMedianMs": 5.46,
+        "firstMaxMs": 17.6,
+        "repeatMedianMs": 0.56,
+        "kb": 189.6,
+        "statuses": [
+          200
+        ]
+      }
+    },
+    {
+      "kind": "csharp-type",
+      "samples": 25,
+      "bypass": {
+        "firstMedianMs": 7.57,
+        "firstMaxMs": 20.7,
+        "repeatMedianMs": 7.59,
+        "kb": 228.6,
+        "statuses": [
+          200
+        ]
+      },
+      "cached": {
+        "firstMedianMs": 8.99,
+        "firstMaxMs": 20.6,
+        "repeatMedianMs": 0.61,
+        "kb": 228.6,
+        "statuses": [
+          200
+        ]
+      }
+    },
+    {
+      "kind": "csharp-memberkind",
+      "samples": 25,
+      "bypass": {
+        "firstMedianMs": 9.68,
+        "firstMaxMs": 28,
+        "repeatMedianMs": 9.38,
+        "kb": 259.5,
+        "statuses": [
+          200
+        ]
+      },
+      "cached": {
+        "firstMedianMs": 8.31,
+        "firstMaxMs": 22,
+        "repeatMedianMs": 0.55,
+        "kb": 259.4,
+        "statuses": [
+          200
+        ]
+      }
+    },
+    {
+      "kind": "ts-module",
+      "samples": 25,
+      "bypass": {
+        "firstMedianMs": 5.35,
+        "firstMaxMs": 17.4,
+        "repeatMedianMs": 5.04,
+        "kb": 178.1,
+        "statuses": [
+          200
+        ]
+      },
+      "cached": {
+        "firstMedianMs": 4.7,
+        "firstMaxMs": 27.5,
+        "repeatMedianMs": 0.45,
+        "kb": 178.1,
+        "statuses": [
+          200
+        ]
+      }
+    },
+    {
+      "kind": "ts-item",
+      "samples": 25,
+      "bypass": {
+        "firstMedianMs": 4.69,
+        "firstMaxMs": 16.2,
+        "repeatMedianMs": 4.71,
+        "kb": 174.5,
+        "statuses": [
+          200
+        ]
+      },
+      "cached": {
+        "firstMedianMs": 4.64,
+        "firstMaxMs": 20.3,
+        "repeatMedianMs": 0.41,
+        "kb": 174.4,
+        "statuses": [
+          200
+        ]
+      }
+    },
+    {
+      "kind": "ts-member",
+      "samples": 25,
+      "bypass": {
+        "firstMedianMs": 4.57,
+        "firstMaxMs": 16,
+        "repeatMedianMs": 4.58,
+        "kb": 177.9,
+        "statuses": [
+          200
+        ]
+      },
+      "cached": {
+        "firstMedianMs": 4.49,
+        "firstMaxMs": 15.5,
+        "repeatMedianMs": 0.37,
+        "kb": 177.8,
+        "statuses": [
+          200
+        ]
+      }
+    },
+    {
+      "kind": "csharp-md",
+      "samples": 25,
+      "bypass": {
+        "firstMedianMs": 0.47,
+        "firstMaxMs": 11.1,
+        "repeatMedianMs": 0.41,
+        "kb": 1.8,
+        "statuses": [
+          200
+        ]
+      },
+      "cached": {
+        "firstMedianMs": 0.44,
+        "firstMaxMs": 11,
+        "repeatMedianMs": 0.22,
+        "kb": 1.8,
+        "statuses": [
+          200
+        ]
+      }
+    },
+    {
+      "kind": "ts-md",
+      "samples": 25,
+      "bypass": {
+        "firstMedianMs": 0.34,
+        "firstMaxMs": 12.2,
+        "repeatMedianMs": 0.33,
+        "kb": 1.1,
+        "statuses": [
+          200
+        ]
+      },
+      "cached": {
+        "firstMedianMs": 0.38,
+        "firstMaxMs": 11.2,
+        "repeatMedianMs": 0.2,
+        "kb": 1.1,
+        "statuses": [
+          200
+        ]
+      }
+    }
+  ],
+  "load": [
+    {
+      "name": "c1-uniform-x1",
+      "cores": 1,
+      "mix": "uniform-html",
+      "connections": 1,
+      "engine": "node",
+      "rps": 142.5,
+      "requests": 4276,
+      "errors": 0,
+      "statuses": {
+        "200": 4276
+      },
+      "avgKb": 210.3,
+      "latencyMs": {
+        "mean": 7.02,
+        "p50": 4.42,
+        "p90": 16,
+        "p95": 18.69,
+        "p99": 38.4,
+        "p999": 101.38,
+        "max": 108.66
+      },
+      "serverCores": 0.95,
+      "cpuMsPerRequest": 6.66,
+      "rssStartMb": 654,
+      "rssEndMb": 688.4,
+      "rssPeakMb": 692.9
+    },
+    {
+      "name": "c1-uniform-x4",
+      "cores": 1,
+      "mix": "uniform-html",
+      "connections": 4,
+      "engine": "node",
+      "rps": 144.6,
+      "requests": 4338,
+      "errors": 0,
+      "statuses": {
+        "200": 4338
+      },
+      "avgKb": 209.7,
+      "latencyMs": {
+        "mean": 27.66,
+        "p50": 22.27,
+        "p90": 48.64,
+        "p95": 60.93,
+        "p99": 119.81,
+        "p999": 165.89,
+        "max": 188.64
+      },
+      "serverCores": 0.96,
+      "cpuMsPerRequest": 6.64,
+      "rssStartMb": 671.6,
+      "rssEndMb": 674.7,
+      "rssPeakMb": 680.1
+    },
+    {
+      "name": "c1-uniform-x16",
+      "cores": 1,
+      "mix": "uniform-html",
+      "connections": 16,
+      "engine": "node",
+      "rps": 144,
+      "requests": 4320,
+      "errors": 0,
+      "statuses": {
+        "200": 4320
+      },
+      "avgKb": 209.8,
+      "latencyMs": {
+        "mean": 110.97,
+        "p50": 106.5,
+        "p90": 184.32,
+        "p95": 210.94,
+        "p99": 282.62,
+        "p999": 385.02,
+        "max": 436.23
+      },
+      "serverCores": 0.96,
+      "cpuMsPerRequest": 6.67,
+      "rssStartMb": 710.5,
+      "rssEndMb": 722.8,
+      "rssPeakMb": 723.1
+    },
+    {
+      "name": "c1-zipf-x16",
+      "cores": 1,
+      "mix": "zipf-html",
+      "connections": 16,
+      "engine": "node",
+      "rps": 142.3,
+      "requests": 4270,
+      "errors": 0,
+      "statuses": {
+        "200": 4270
+      },
+      "avgKb": 210.3,
+      "latencyMs": {
+        "mean": 112.28,
+        "p50": 107.52,
+        "p90": 188.41,
+        "p95": 219.13,
+        "p99": 266.24,
+        "p999": 327.68,
+        "max": 383.51
+      },
+      "serverCores": 0.97,
+      "cpuMsPerRequest": 6.8,
+      "rssStartMb": 687.9,
+      "rssEndMb": 686.4,
+      "rssPeakMb": 694.9
+    },
+    {
+      "name": "c1-md-x16",
+      "cores": 1,
+      "mix": "all-md",
+      "connections": 16,
+      "engine": "node",
+      "rps": 3020.5,
+      "requests": 90615,
+      "errors": 0,
+      "statuses": {
+        "200": 90615
+      },
+      "avgKb": 1.8,
+      "latencyMs": {
+        "mean": 5.29,
+        "p50": 3.65,
+        "p90": 11.13,
+        "p95": 17.41,
+        "p99": 29.18,
+        "p999": 94.21,
+        "max": 121.26
+      },
+      "serverCores": 0.95,
+      "cpuMsPerRequest": 0.31,
+      "rssStartMb": 666.8,
+      "rssEndMb": 672.7,
+      "rssPeakMb": 678.3
+    },
+    {
+      "name": "c2-uniform-x16",
+      "cores": 2,
+      "mix": "uniform-html",
+      "connections": 16,
+      "engine": "node",
+      "rps": 265.2,
+      "requests": 7956,
+      "errors": 0,
+      "statuses": {
+        "200": 7956
+      },
+      "avgKb": 210.4,
+      "latencyMs": {
+        "mean": 60.26,
+        "p50": 54.27,
+        "p90": 107.52,
+        "p95": 128,
+        "p99": 180.22,
+        "p999": 282.62,
+        "max": 394.44
+      },
+      "serverCores": 1.94,
+      "cpuMsPerRequest": 7.31,
+      "rssStartMb": 1633.4,
+      "rssEndMb": 1638.4,
+      "rssPeakMb": 1660.1
+    },
+    {
+      "name": "c4-uniform-x32",
+      "cores": 4,
+      "mix": "uniform-html",
+      "connections": 32,
+      "engine": "node",
+      "rps": 451.3,
+      "requests": 13540,
+      "errors": 0,
+      "statuses": {
+        "200": 13540
+      },
+      "avgKb": 211,
+      "latencyMs": {
+        "mean": 70.9,
+        "p50": 48.13,
+        "p90": 165.89,
+        "p95": 231.42,
+        "p99": 344.06,
+        "p999": 462.85,
+        "max": 548.06
+      },
+      "serverCores": 3.86,
+      "cpuMsPerRequest": 8.58,
+      "rssStartMb": 2932.1,
+      "rssEndMb": 3008,
+      "rssPeakMb": 3029.3
+    },
+    {
+      "name": "c1-zipf-x16-cached",
+      "cores": 1,
+      "mix": "zipf-html",
+      "connections": 16,
+      "bypass": false,
+      "engine": "node",
+      "rps": 219.6,
+      "requests": 6587,
+      "errors": 0,
+      "statuses": {
+        "200": 6587
+      },
+      "avgKb": 209.5,
+      "latencyMs": {
+        "mean": 72.85,
+        "p50": 67.58,
+        "p90": 139.26,
+        "p95": 167.94,
+        "p99": 215.04,
+        "p999": 307.2,
+        "max": 401.51
+      },
+      "serverCores": 0.96,
+      "cpuMsPerRequest": 4.41,
+      "rssStartMb": 692.1,
+      "rssEndMb": 719.3,
+      "rssPeakMb": 738.6
+    }
+  ],
+  "profile": {
+    "requests": 3332,
+    "rps": 166.6,
+    "seconds": 20,
+    "eventLoop": {
+      "utilization": 0.986,
+      "intervalMs": {
+        "mean": 69.65,
+        "p50": 1.63,
+        "p99": 283.12,
+        "max": 339.48
+      },
+      "gc": {
+        "minor": {
+          "count": 247,
+          "totalMs": 1285.87,
+          "maxMs": 8
+        },
+        "incremental": {
+          "count": 17,
+          "totalMs": 7.36,
+          "maxMs": 0.7
+        },
+        "major": {
+          "count": 17,
+          "totalMs": 120.52,
+          "maxMs": 11.29
+        }
+      }
+    },
+    "heap": {
+      "rssMb": 741,
+      "heapUsedMb": 256,
+      "heapTotalMb": 509,
+      "externalMb": 96,
+      "arrayBuffersMb": 3,
+      "heapLimitMb": 1216
+    },
+    "gcPausePercentOfWall": 7.07,
+    "cpu": {
+      "sampledMs": 20526,
+      "busyMs": 20183,
+      "areas": [
+        {
+          "name": "Astro render pipeline",
+          "ms": 7774,
+          "percent": 37.9
+        },
+        {
+          "name": "Libraries (zod, hast, devalue, ...)",
+          "ms": 3175,
+          "percent": 15.5
+        },
+        {
+          "name": "Starlight (page chrome, routes, i18n)",
+          "ms": 2487,
+          "percent": 12.1
+        },
+        {
+          "name": "V8 builtins and native",
+          "ms": 2008,
+          "percent": 9.8
+        },
+        {
+          "name": "Node internals (http, streams, fs, url)",
+          "ms": 1729,
+          "percent": 8.4
+        },
+        {
+          "name": "V8 garbage collection",
+          "ms": 1539,
+          "percent": 7.5
+        },
+        {
+          "name": "Site: Starlight overrides and shared components",
+          "ms": 821,
+          "percent": 4
+        },
+        {
+          "name": "Site: API reference pages, components, data helpers",
+          "ms": 401,
+          "percent": 2
+        },
+        {
+          "name": "idle",
+          "ms": 343,
+          "percent": 1.7
+        },
+        {
+          "name": "native / program",
+          "ms": 203,
+          "percent": 1
+        },
+        {
+          "name": "site code (pages, components, utils)",
+          "ms": 21,
+          "percent": 0.1
+        },
+        {
+          "name": "other",
+          "ms": 16,
+          "percent": 0.1
+        },
+        {
+          "name": "Syntax highlighting (Expressive Code, Shiki, PostCSS)",
+          "ms": 11,
+          "percent": 0.1
+        }
+      ],
+      "packages": [
+        {
+          "name": "astro",
+          "ms": 7722,
+          "percent": 37.6
+        },
+        {
+          "name": "@astrojs/starlight",
+          "ms": 2353,
+          "percent": 11.5
+        },
+        {
+          "name": "zod",
+          "ms": 2007,
+          "percent": 9.8
+        },
+        {
+          "name": "i18next",
+          "ms": 789,
+          "percent": 3.8
+        },
+        {
+          "name": "src/components",
+          "ms": 654,
+          "percent": 3.2
+        },
+        {
+          "name": "src/utils",
+          "ms": 215,
+          "percent": 1
+        },
+        {
+          "name": "picomatch",
+          "ms": 137,
+          "percent": 0.7
+        },
+        {
+          "name": "src/pages/reference",
+          "ms": 133,
+          "percent": 0.6
+        },
+        {
+          "name": "src/components/starlight",
+          "ms": 106,
+          "percent": 0.5
+        },
+        {
+          "name": "klona",
+          "ms": 105,
+          "percent": 0.5
+        },
+        {
+          "name": "html-escaper",
+          "ms": 98,
+          "percent": 0.5
+        },
+        {
+          "name": "starlight-page-actions",
+          "ms": 81,
+          "percent": 0.4
+        },
+        {
+          "name": "src",
+          "ms": 61,
+          "percent": 0.3
+        },
+        {
+          "name": "src/components/api-reference",
+          "ms": 53,
+          "percent": 0.3
+        },
+        {
+          "name": "starlight-sidebar-topics",
+          "ms": 44,
+          "percent": 0.2
+        },
+        {
+          "name": "@astrojs/internal-helpers",
+          "ms": 28,
+          "percent": 0.1
+        },
+        {
+          "name": "@astrojs/node",
+          "ms": 24,
+          "percent": 0.1
+        },
+        {
+          "name": "\\0virtual:astro:pages",
+          "ms": 18,
+          "percent": 0.1
+        },
+        {
+          "name": "clsx",
+          "ms": 16,
+          "percent": 0.1
+        },
+        {
+          "name": "astro-expressive-code",
+          "ms": 11,
+          "percent": 0.1
+        },
+        {
+          "name": "starlight-image-zoom",
+          "ms": 6,
+          "percent": 0
+        },
+        {
+          "name": "config",
+          "ms": 3,
+          "percent": 0
+        },
+        {
+          "name": "starlight-links-validator",
+          "ms": 2,
+          "percent": 0
+        },
+        {
+          "name": "\\0astro:assets",
+          "ms": 2,
+          "percent": 0
+        },
+        {
+          "name": "starlight-kbd",
+          "ms": 1,
+          "percent": 0
+        }
+      ],
+      "files": [
+        {
+          "name": "chunks/jsx-runtime_h__ZKjJY.mjs",
+          "ms": 8589,
+          "percent": 41.8
+        },
+        {
+          "name": "chunks/StarlightPage_DIRo9ENk.mjs",
+          "ms": 3145,
+          "percent": 15.3
+        },
+        {
+          "name": "(garbage collector)",
+          "ms": 1539,
+          "percent": 7.5
+        },
+        {
+          "name": "chunks/translations_C3HiMGJW.mjs",
+          "ms": 801,
+          "percent": 3.9
+        },
+        {
+          "name": "encodeUtf8String",
+          "ms": 765,
+          "percent": 3.7
+        },
+        {
+          "name": "node:internal/encoding",
+          "ms": 630,
+          "percent": 3.1
+        },
+        {
+          "name": "chunks/app_DFCLj9ei.mjs",
+          "ms": 613,
+          "percent": 3
+        },
+        {
+          "name": "runMicrotasks",
+          "ms": 493,
+          "percent": 2.4
+        },
+        {
+          "name": "writev",
+          "ms": 437,
+          "percent": 2.1
+        },
+        {
+          "name": "(idle)",
+          "ms": 343,
+          "percent": 1.7
+        },
+        {
+          "name": "undici/undici",
+          "ms": 324,
+          "percent": 1.6
+        },
+        {
+          "name": "chunks/sequence_D_938gde.mjs",
+          "ms": 216,
+          "percent": 1.1
+        },
+        {
+          "name": "(program)",
+          "ms": 203,
+          "percent": 1
+        },
+        {
+          "name": "parse",
+          "ms": 184,
+          "percent": 0.9
+        },
+        {
+          "name": "chunks/astro-component_EVpzZ-Qa.mjs",
+          "ms": 177,
+          "percent": 0.9
+        },
+        {
+          "name": "chunks/topics_S2rLgbgu.mjs",
+          "ms": 149,
+          "percent": 0.7
+        },
+        {
+          "name": "chunks/Icon_CVekZyBs.mjs",
+          "ms": 130,
+          "percent": 0.6
+        },
+        {
+          "name": "server/entry.mjs",
+          "ms": 118,
+          "percent": 0.6
+        },
+        {
+          "name": "esm/loader",
+          "ms": 96,
+          "percent": 0.5
+        },
+        {
+          "name": "webstreams/readablestream",
+          "ms": 87,
+          "percent": 0.4
+        },
+        {
+          "name": "chunks/path_CVPqZfzP.mjs",
+          "ms": 74,
+          "percent": 0.4
+        },
+        {
+          "name": "node:internal/url",
+          "ms": 68,
+          "percent": 0.3
+        },
+        {
+          "name": "node:_http_outgoing",
+          "ms": 65,
+          "percent": 0.3
+        },
+        {
+          "name": "chunks/assets_DzEsUFeB.mjs",
+          "ms": 55,
+          "percent": 0.3
+        },
+        {
+          "name": "chunks/ReadableText_BcpQZDs7.mjs",
+          "ms": 53,
+          "percent": 0.3
+        },
+        {
+          "name": "node:internal/buffer",
+          "ms": 51,
+          "percent": 0.2
+        },
+        {
+          "name": "update",
+          "ms": 49,
+          "percent": 0.2
+        },
+        {
+          "name": "chunks/index_eOk9CRrx.mjs",
+          "ms": 48,
+          "percent": 0.2
+        },
+        {
+          "name": "chunks/ts-modules_p19d6Ikl.mjs",
+          "ms": 48,
+          "percent": 0.2
+        },
+        {
+          "name": "chunks/service_BCKU_HL6.mjs",
+          "ms": 47,
+          "percent": 0.2
+        }
+      ],
+      "functions": [
+        {
+          "name": "(garbage collector) @ (garbage collector):0",
+          "ms": 1539,
+          "percent": 7.5
+        },
+        {
+          "name": "write @ chunks/jsx-runtime_h__ZKjJY.mjs:7463",
+          "ms": 1087,
+          "percent": 5.3
+        },
+        {
+          "name": "encodeUtf8String @ encodeUtf8String:0",
+          "ms": 765,
+          "percent": 3.7
+        },
+        {
+          "name": "(anonymous) @ chunks/StarlightPage_DIRo9ENk.mjs:10731",
+          "ms": 686,
+          "percent": 3.3
+        },
+        {
+          "name": "isHTMLString @ chunks/jsx-runtime_h__ZKjJY.mjs:5968",
+          "ms": 676,
+          "percent": 3.3
+        },
+        {
+          "name": "encode @ node:internal/encoding:351",
+          "ms": 630,
+          "percent": 3.1
+        },
+        {
+          "name": "runMicrotasks @ runMicrotasks:0",
+          "ms": 493,
+          "percent": 2.4
+        },
+        {
+          "name": "toAttributeString @ chunks/jsx-runtime_h__ZKjJY.mjs:6488",
+          "ms": 483,
+          "percent": 2.4
+        },
+        {
+          "name": "(anonymous) @ chunks/StarlightPage_DIRo9ENk.mjs:13177",
+          "ms": 442,
+          "percent": 2.2
+        },
+        {
+          "name": "writev @ writev:0",
+          "ms": 437,
+          "percent": 2.1
+        },
+        {
+          "name": "init @ chunks/jsx-runtime_h__ZKjJY.mjs:724",
+          "ms": 417,
+          "percent": 2
+        },
+        {
+          "name": "isPromise @ chunks/jsx-runtime_h__ZKjJY.mjs:5931",
+          "ms": 365,
+          "percent": 1.8
+        },
+        {
+          "name": "(idle) @ (idle):0",
+          "ms": 343,
+          "percent": 1.7
+        },
+        {
+          "name": "render @ chunks/jsx-runtime_h__ZKjJY.mjs:6678",
+          "ms": 342,
+          "percent": 1.7
+        },
+        {
+          "name": "filterByLocale @ chunks/StarlightPage_DIRo9ENk.mjs:10724",
+          "ms": 326,
+          "percent": 1.6
+        },
+        {
+          "name": "createAstro @ chunks/app_DFCLj9ei.mjs:3197",
+          "ms": 313,
+          "percent": 1.5
+        },
+        {
+          "name": "stringifyChunk @ chunks/jsx-runtime_h__ZKjJY.mjs:6949",
+          "ms": 307,
+          "percent": 1.5
+        },
+        {
+          "name": "addAttribute @ chunks/jsx-runtime_h__ZKjJY.mjs:6512",
+          "ms": 281,
+          "percent": 1.4
+        },
+        {
+          "name": "isRecursive @ chunks/jsx-runtime_h__ZKjJY.mjs:2919",
+          "ms": 278,
+          "percent": 1.4
+        },
+        {
+          "name": "write @ chunks/jsx-runtime_h__ZKjJY.mjs:6573",
+          "ms": 205,
+          "percent": 1
+        },
+        {
+          "name": "(program) @ (program):0",
+          "ms": 203,
+          "percent": 1
+        },
+        {
+          "name": "parse @ parse:0",
+          "ms": 184,
+          "percent": 0.9
+        },
+        {
+          "name": "fn @ chunks/astro-component_EVpzZ-Qa.mjs:10",
+          "ms": 177,
+          "percent": 0.9
+        },
+        {
+          "name": "render @ chunks/jsx-runtime_h__ZKjJY.mjs:7713",
+          "ms": 160,
+          "percent": 0.8
+        },
+        {
+          "name": "getResource @ chunks/translations_C3HiMGJW.mjs:7080",
+          "ms": 155,
+          "percent": 0.8
+        },
+        {
+          "name": "renderChild @ chunks/jsx-runtime_h__ZKjJY.mjs:7029",
+          "ms": 152,
+          "percent": 0.7
+        },
+        {
+          "name": "next @ chunks/jsx-runtime_h__ZKjJY.mjs:7414",
+          "ms": 134,
+          "percent": 0.7
+        },
+        {
+          "name": "flush @ chunks/jsx-runtime_h__ZKjJY.mjs:6577",
+          "ms": 131,
+          "percent": 0.6
+        },
+        {
+          "name": "(anonymous) @ chunks/Icon_CVekZyBs.mjs:7",
+          "ms": 130,
+          "percent": 0.6
+        },
+        {
+          "name": "(anonymous) @ chunks/jsx-runtime_h__ZKjJY.mjs:2645",
+          "ms": 126,
+          "percent": 0.6
+        }
+      ]
+    }
+  },
+  "sequenceMemory": {
+    "rssMb": 708.4,
+    "cpuSeconds": 8.1
+  }
+}

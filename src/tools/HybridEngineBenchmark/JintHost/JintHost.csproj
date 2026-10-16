@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <!--
+    A minimal ASP.NET Core host for a site built with astro-adapter-jint: it serves the static files and renders the
+    on-demand routes in a pool of Jint engines inside this process. It mirrors the HybridHost sample of astro-jint, with
+    per-request logging off, so that a benchmark measures rendering and not the console.
+
+    Build it against a checkout of https://github.com/IEvangelist/astro-jint:
+      dotnet publish -c Release -p:AstroJintRoot=<checkout>/
+  -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>JintHost</RootNamespace>
+    <AssemblyName>JintHost</AssemblyName>
+    <!-- One engine per core scales best with the server garbage collector, as the astro-jint documentation recommends. -->
+    <ServerGarbageCollection>true</ServerGarbageCollection>
+    <!-- Starlight asks Intl.DisplayNames for the label of a language at module scope ("en" -> "English"). Under invariant globalization
+         there is no culture data, the label is the tag itself, and Starlight throws "Failed to get locale information". -->
+    <InvariantGlobalization>false</InvariantGlobalization>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <AstroJintRoot Condition="'$(AstroJintRoot)' == ''">$(MSBuildThisFileDirectory)astro-jint/</AstroJintRoot>
+    <NoWarn>$(NoWarn);NU1901;NU1902;NU1903;NU1904</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="$(AstroJintRoot)src/AstroJint.AspNetCore/AstroJint.AspNetCore.csproj" />
+  </ItemGroup>
+
+</Project>

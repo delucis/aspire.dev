@@ -1,4 +1,6 @@
+using System.Diagnostics;
 using System.Globalization;
+using System.Runtime.Versioning;
 using System.Text.Json;
 
 namespace LoadGen;
@@ -27,6 +29,18 @@ internal static class Program
 
         try
         {
+            if (options.Affinity is not null || options.ServerAffinity is not null)
+            {
+                if (OperatingSystem.IsWindows() || OperatingSystem.IsLinux())
+                {
+                    ApplyAffinity(options);
+                }
+                else
+                {
+                    throw new InvalidOperationException("Processor affinity is supported on Windows and Linux only.");
+                }
+            }
+
             object report;
             if (options.Mode == "sequence")
             {
@@ -57,6 +71,26 @@ internal static class Program
     }
 
     private static string Mb(long bytes) => (bytes / 1048576d).ToString("N0", CultureInfo.InvariantCulture) + " MB";
+
+    [SupportedOSPlatform("windows")]
+    [SupportedOSPlatform("linux")]
+    private static void ApplyAffinity(Options options)
+    {
+        if (options.Affinity is { } own)
+        {
+            using var self = Process.GetCurrentProcess();
+            self.ProcessorAffinity = (nint)own;
+        }
+
+        if (options.ServerAffinity is { } mask)
+        {
+            foreach (var pid in options.Pids)
+            {
+                using var server = Process.GetProcessById(pid);
+                server.ProcessorAffinity = (nint)mask;
+            }
+        }
+    }
 
     private static string Ms(double ms) => ms >= 100 ? ms.ToString("N0", CultureInfo.InvariantCulture) : ms.ToString("N2", CultureInfo.InvariantCulture);
 

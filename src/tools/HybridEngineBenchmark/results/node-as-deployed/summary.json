@@ -1,0 +1,1174 @@
+{
+  "startedUtc": "2026-10-15T23:45:07.501Z",
+  "engine": "node",
+  "label": "node-as-deployed",
+  "node": "v24.13.1",
+  "machine": {
+    "platform": "win32",
+    "cpus": 28
+  },
+  "cold": [
+    {
+      "run": 1,
+      "readyMs": 2959,
+      "atReady": {
+        "cpuSeconds": 3.02,
+        "rssMb": 567.6,
+        "privateMb": 594.2
+      },
+      "timeToFirstPageMs": 2988,
+      "allFirstHitsMs": 612,
+      "afterFirstHits": {
+        "cpuSeconds": 3.42,
+        "rssMb": 594.9
+      },
+      "firstHits": {
+        "csharp-type": {
+          "ms": 29.4,
+          "status": 200,
+          "kb": 291.5
+        },
+        "ts-module": {
+          "ms": 117.8,
+          "status": 200,
+          "kb": 249.8
+        },
+        "ts-item": {
+          "ms": 67.3,
+          "status": 200,
+          "kb": 200
+        },
+        "ts-member": {
+          "ms": 24.1,
+          "status": 200,
+          "kb": 186.4
+        },
+        "csharp-package": {
+          "ms": 15.6,
+          "status": 200,
+          "kb": 196.4
+        },
+        "csharp-memberkind": {
+          "ms": 26.7,
+          "status": 200,
+          "kb": 275.4
+        },
+        "csharp-md": {
+          "ms": 6.8,
+          "status": 200,
+          "kb": 1.5
+        },
+        "ts-md": {
+          "ms": 4.4,
+          "status": 200,
+          "kb": 0.5
+        }
+      }
+    },
+    {
+      "run": 2,
+      "readyMs": 2172,
+      "atReady": {
+        "cpuSeconds": 2.69,
+        "rssMb": 567.8,
+        "privateMb": 594.6
+      },
+      "timeToFirstPageMs": 2198,
+      "allFirstHitsMs": 544,
+      "afterFirstHits": {
+        "cpuSeconds": 3.13,
+        "rssMb": 595.6
+      },
+      "firstHits": {
+        "csharp-type": {
+          "ms": 25.8,
+          "status": 200,
+          "kb": 291.5
+        },
+        "ts-module": {
+          "ms": 112.8,
+          "status": 200,
+          "kb": 249.8
+        },
+        "ts-item": {
+          "ms": 69.2,
+          "status": 200,
+          "kb": 200
+        },
+        "ts-member": {
+          "ms": 14.8,
+          "status": 200,
+          "kb": 186.4
+        },
+        "csharp-package": {
+          "ms": 14.4,
+          "status": 200,
+          "kb": 196.4
+        },
+        "csharp-memberkind": {
+          "ms": 21.5,
+          "status": 200,
+          "kb": 275.4
+        },
+        "csharp-md": {
+          "ms": 5.5,
+          "status": 200,
+          "kb": 1.5
+        },
+        "ts-md": {
+          "ms": 4.6,
+          "status": 200,
+          "kb": 0.5
+        }
+      }
+    },
+    {
+      "run": 3,
+      "readyMs": 2140,
+      "atReady": {
+        "cpuSeconds": 2.78,
+        "rssMb": 567.8,
+        "privateMb": 594.4
+      },
+      "timeToFirstPageMs": 2164,
+      "allFirstHitsMs": 580,
+      "afterFirstHits": {
+        "cpuSeconds": 3.09,
+        "rssMb": 595
+      },
+      "firstHits": {
+        "csharp-type": {
+          "ms": 24.4,
+          "status": 200,
+          "kb": 291.5
+        },
+        "ts-module": {
+          "ms": 108.4,
+          "status": 200,
+          "kb": 249.8
+        },
+        "ts-item": {
+          "ms": 62.7,
+          "status": 200,
+          "kb": 200
+        },
+        "ts-member": {
+          "ms": 14.7,
+          "status": 200,
+          "kb": 186.4
+        },
+        "csharp-package": {
+          "ms": 14.4,
+          "status": 200,
+          "kb": 196.4
+        },
+        "csharp-memberkind": {
+          "ms": 22.2,
+          "status": 200,
+          "kb": 275.4
+        },
+        "csharp-md": {
+          "ms": 5.1,
+          "status": 200,
+          "kb": 1.5
+        },
+        "ts-md": {
+          "ms": 4.1,
+          "status": 200,
+          "kb": 0.5
+        }
+      }
+    }
+  ],
+  "sequence": [
+    {
+      "kind": "csharp-package",
+      "samples": 25,
+      "bypass": {
+        "firstMedianMs": 8.6,
+        "firstMaxMs": 21.8,
+        "repeatMedianMs": 8.55,
+        "kb": 198.4,
+        "statuses": [
+          200
+        ]
+      },
+      "cached": {
+        "firstMedianMs": 8.3,
+        "firstMaxMs": 20.4,
+        "repeatMedianMs": 0.6,
+        "kb": 198.2,
+        "statuses": [
+          200
+        ]
+      }
+    },
+    {
+      "kind": "csharp-type",
+      "samples": 25,
+      "bypass": {
+        "firstMedianMs": 11.67,
+        "firstMaxMs": 23.7,
+        "repeatMedianMs": 12.11,
+        "kb": 238.7,
+        "statuses": [
+          200
+        ]
+      },
+      "cached": {
+        "firstMedianMs": 10.8,
+        "firstMaxMs": 26.7,
+        "repeatMedianMs": 0.67,
+        "kb": 238.6,
+        "statuses": [
+          200
+        ]
+      }
+    },
+    {
+      "kind": "csharp-memberkind",
+      "samples": 25,
+      "bypass": {
+        "firstMedianMs": 13.53,
+        "firstMaxMs": 32.5,
+        "repeatMedianMs": 13.29,
+        "kb": 288,
+        "statuses": [
+          200
+        ]
+      },
+      "cached": {
+        "firstMedianMs": 15.72,
+        "firstMaxMs": 30.6,
+        "repeatMedianMs": 0.69,
+        "kb": 287.9,
+        "statuses": [
+          200
+        ]
+      }
+    },
+    {
+      "kind": "ts-module",
+      "samples": 25,
+      "bypass": {
+        "firstMedianMs": 7.27,
+        "firstMaxMs": 19.6,
+        "repeatMedianMs": 7.17,
+        "kb": 186.8,
+        "statuses": [
+          200
+        ]
+      },
+      "cached": {
+        "firstMedianMs": 7.64,
+        "firstMaxMs": 18.8,
+        "repeatMedianMs": 0.48,
+        "kb": 186.7,
+        "statuses": [
+          200
+        ]
+      }
+    },
+    {
+      "kind": "ts-item",
+      "samples": 25,
+      "bypass": {
+        "firstMedianMs": 8.5,
+        "firstMaxMs": 25.7,
+        "repeatMedianMs": 8.28,
+        "kb": 186.2,
+        "statuses": [
+          200
+        ]
+      },
+      "cached": {
+        "firstMedianMs": 9.09,
+        "firstMaxMs": 21.1,
+        "repeatMedianMs": 0.47,
+        "kb": 186.1,
+        "statuses": [
+          200
+        ]
+      }
+    },
+    {
+      "kind": "ts-member",
+      "samples": 25,
+      "bypass": {
+        "firstMedianMs": 8.68,
+        "firstMaxMs": 20.5,
+        "repeatMedianMs": 8.35,
+        "kb": 188.3,
+        "statuses": [
+          200
+        ]
+      },
+      "cached": {
+        "firstMedianMs": 7.97,
+        "firstMaxMs": 18.3,
+        "repeatMedianMs": 0.4,
+        "kb": 188.2,
+        "statuses": [
+          200
+        ]
+      }
+    },
+    {
+      "kind": "csharp-md",
+      "samples": 25,
+      "bypass": {
+        "firstMedianMs": 0.43,
+        "firstMaxMs": 11.4,
+        "repeatMedianMs": 0.4,
+        "kb": 1.8,
+        "statuses": [
+          200
+        ]
+      },
+      "cached": {
+        "firstMedianMs": 0.42,
+        "firstMaxMs": 11,
+        "repeatMedianMs": 0.22,
+        "kb": 1.8,
+        "statuses": [
+          200
+        ]
+      }
+    },
+    {
+      "kind": "ts-md",
+      "samples": 25,
+      "bypass": {
+        "firstMedianMs": 0.31,
+        "firstMaxMs": 11.4,
+        "repeatMedianMs": 0.31,
+        "kb": 1.1,
+        "statuses": [
+          200
+        ]
+      },
+      "cached": {
+        "firstMedianMs": 0.35,
+        "firstMaxMs": 11.5,
+        "repeatMedianMs": 0.22,
+        "kb": 1.1,
+        "statuses": [
+          200
+        ]
+      }
+    }
+  ],
+  "load": [
+    {
+      "name": "c1-uniform-x1",
+      "cores": 1,
+      "mix": "uniform-html",
+      "connections": 1,
+      "engine": "node",
+      "rps": 86.9,
+      "requests": 2608,
+      "errors": 0,
+      "statuses": {
+        "200": 2608
+      },
+      "avgKb": 224.2,
+      "latencyMs": {
+        "mean": 11.5,
+        "p50": 8.45,
+        "p90": 17.92,
+        "p95": 22.78,
+        "p99": 35.33,
+        "p999": 143.36,
+        "max": 155.24
+      },
+      "serverCores": 0.94,
+      "cpuMsPerRequest": 10.84,
+      "rssStartMb": 800,
+      "rssEndMb": 818,
+      "rssPeakMb": 826.9
+    },
+    {
+      "name": "c1-uniform-x4",
+      "cores": 1,
+      "mix": "uniform-html",
+      "connections": 4,
+      "engine": "node",
+      "rps": 88.9,
+      "requests": 2666,
+      "errors": 0,
+      "statuses": {
+        "200": 2666
+      },
+      "avgKb": 220.9,
+      "latencyMs": {
+        "mean": 44.99,
+        "p50": 40.96,
+        "p90": 70.66,
+        "p95": 90.11,
+        "p99": 182.27,
+        "p999": 274.43,
+        "max": 300.18
+      },
+      "serverCores": 0.96,
+      "cpuMsPerRequest": 10.87,
+      "rssStartMb": 789.4,
+      "rssEndMb": 813.9,
+      "rssPeakMb": 819.2
+    },
+    {
+      "name": "c1-uniform-x16",
+      "cores": 1,
+      "mix": "uniform-html",
+      "connections": 16,
+      "engine": "node",
+      "rps": 88.2,
+      "requests": 2647,
+      "errors": 0,
+      "statuses": {
+        "200": 2647
+      },
+      "avgKb": 223.1,
+      "latencyMs": {
+        "mean": 181.32,
+        "p50": 184.32,
+        "p90": 290.81,
+        "p95": 327.68,
+        "p99": 397.31,
+        "p999": 442.37,
+        "max": 443.28
+      },
+      "serverCores": 0.94,
+      "cpuMsPerRequest": 10.7,
+      "rssStartMb": 791.5,
+      "rssEndMb": 834.5,
+      "rssPeakMb": 838.1
+    },
+    {
+      "name": "c1-zipf-x16",
+      "cores": 1,
+      "mix": "zipf-html",
+      "connections": 16,
+      "engine": "node",
+      "rps": 86.7,
+      "requests": 2600,
+      "errors": 0,
+      "statuses": {
+        "200": 2600
+      },
+      "avgKb": 221.8,
+      "latencyMs": {
+        "mean": 184.69,
+        "p50": 186.37,
+        "p90": 294.91,
+        "p95": 327.68,
+        "p99": 405.5,
+        "p999": 532.48,
+        "max": 534.75
+      },
+      "serverCores": 0.96,
+      "cpuMsPerRequest": 11.1,
+      "rssStartMb": 813.4,
+      "rssEndMb": 826.3,
+      "rssPeakMb": 833.7
+    },
+    {
+      "name": "c1-md-x16",
+      "cores": 1,
+      "mix": "all-md",
+      "connections": 16,
+      "engine": "node",
+      "rps": 2993.3,
+      "requests": 89799,
+      "errors": 0,
+      "statuses": {
+        "200": 89799
+      },
+      "avgKb": 1.8,
+      "latencyMs": {
+        "mean": 5.34,
+        "p50": 3.77,
+        "p90": 10.88,
+        "p95": 17.66,
+        "p99": 30.21,
+        "p999": 111.61,
+        "max": 170.64
+      },
+      "serverCores": 0.96,
+      "cpuMsPerRequest": 0.32,
+      "rssStartMb": 764.7,
+      "rssEndMb": 789.9,
+      "rssPeakMb": 794.2
+    },
+    {
+      "name": "c2-uniform-x16",
+      "cores": 2,
+      "mix": "uniform-html",
+      "connections": 16,
+      "engine": "node",
+      "rps": 162.4,
+      "requests": 4873,
+      "errors": 0,
+      "statuses": {
+        "200": 4873
+      },
+      "avgKb": 221.8,
+      "latencyMs": {
+        "mean": 98.45,
+        "p50": 90.11,
+        "p90": 176.13,
+        "p95": 219.13,
+        "p99": 307.2,
+        "p999": 532.48,
+        "max": 704.76
+      },
+      "serverCores": 1.92,
+      "cpuMsPerRequest": 11.9,
+      "rssStartMb": 1658.2,
+      "rssEndMb": 1710,
+      "rssPeakMb": 1716.1
+    },
+    {
+      "name": "c4-uniform-x32",
+      "cores": 4,
+      "mix": "uniform-html",
+      "connections": 32,
+      "engine": "node",
+      "rps": 287.1,
+      "requests": 8614,
+      "errors": 0,
+      "statuses": {
+        "200": 8614
+      },
+      "avgKb": 223,
+      "latencyMs": {
+        "mean": 111.39,
+        "p50": 76.8,
+        "p90": 270.33,
+        "p95": 352.25,
+        "p99": 520.19,
+        "p999": 663.55,
+        "max": 882.26
+      },
+      "serverCores": 3.87,
+      "cpuMsPerRequest": 13.48,
+      "rssStartMb": 3377.6,
+      "rssEndMb": 3548.1,
+      "rssPeakMb": 3550.2
+    },
+    {
+      "name": "c1-zipf-x16-cached",
+      "cores": 1,
+      "mix": "zipf-html",
+      "connections": 16,
+      "bypass": false,
+      "engine": "node",
+      "rps": 137.3,
+      "requests": 4118,
+      "errors": 0,
+      "statuses": {
+        "200": 4118
+      },
+      "avgKb": 223.1,
+      "latencyMs": {
+        "mean": 116.5,
+        "p50": 115.71,
+        "p90": 182.27,
+        "p95": 229.38,
+        "p99": 290.81,
+        "p999": 376.83,
+        "max": 410.97
+      },
+      "serverCores": 0.96,
+      "cpuMsPerRequest": 7.05,
+      "rssStartMb": 820.9,
+      "rssEndMb": 846.8,
+      "rssPeakMb": 860.8
+    }
+  ],
+  "profile": {
+    "requests": 2008,
+    "rps": 100.4,
+    "seconds": 20,
+    "eventLoop": {
+      "utilization": 0.992,
+      "intervalMs": {
+        "mean": 134.7,
+        "p50": 1.61,
+        "p99": 696.25,
+        "max": 747.11
+      },
+      "gc": {
+        "minor": {
+          "count": 275,
+          "totalMs": 851,
+          "maxMs": 5.44
+        },
+        "incremental": {
+          "count": 8,
+          "totalMs": 3.92,
+          "maxMs": 0.52
+        },
+        "major": {
+          "count": 8,
+          "totalMs": 67.03,
+          "maxMs": 11.09
+        }
+      }
+    },
+    "heap": {
+      "rssMb": 868,
+      "heapUsedMb": 443,
+      "heapTotalMb": 642,
+      "externalMb": 148,
+      "arrayBuffersMb": 4,
+      "heapLimitMb": 1216
+    },
+    "gcPausePercentOfWall": 4.61,
+    "cpu": {
+      "sampledMs": 20579,
+      "busyMs": 20370,
+      "areas": [
+        {
+          "name": "Astro render pipeline",
+          "ms": 4774,
+          "percent": 23.2
+        },
+        {
+          "name": "Syntax highlighting (Expressive Code, Shiki, PostCSS)",
+          "ms": 3218,
+          "percent": 15.6
+        },
+        {
+          "name": "WebAssembly (Shiki Oniguruma regex engine)",
+          "ms": 2979,
+          "percent": 14.5
+        },
+        {
+          "name": "Libraries (zod, hast, devalue, ...)",
+          "ms": 2182,
+          "percent": 10.6
+        },
+        {
+          "name": "Starlight (page chrome, routes, i18n)",
+          "ms": 1828,
+          "percent": 8.9
+        },
+        {
+          "name": "V8 builtins and native",
+          "ms": 1465,
+          "percent": 7.1
+        },
+        {
+          "name": "Node internals (http, streams, fs, url)",
+          "ms": 1116,
+          "percent": 5.4
+        },
+        {
+          "name": "V8 garbage collection",
+          "ms": 1044,
+          "percent": 5.1
+        },
+        {
+          "name": "Site: Starlight overrides and shared components",
+          "ms": 508,
+          "percent": 2.5
+        },
+        {
+          "name": "libraries (hast, zod, devalue, ...)",
+          "ms": 399,
+          "percent": 1.9
+        },
+        {
+          "name": "other packages",
+          "ms": 269,
+          "percent": 1.3
+        },
+        {
+          "name": "native / program",
+          "ms": 253,
+          "percent": 1.2
+        },
+        {
+          "name": "Site: API reference pages, components, data helpers",
+          "ms": 249,
+          "percent": 1.2
+        },
+        {
+          "name": "idle",
+          "ms": 209,
+          "percent": 1
+        },
+        {
+          "name": "Expressive Code / highlighting",
+          "ms": 75,
+          "percent": 0.4
+        },
+        {
+          "name": "other",
+          "ms": 11,
+          "percent": 0.1
+        }
+      ],
+      "packages": [
+        {
+          "name": "astro",
+          "ms": 4730,
+          "percent": 23
+        },
+        {
+          "name": "@astrojs/starlight",
+          "ms": 1735,
+          "percent": 8.4
+        },
+        {
+          "name": "@expressive-code/core",
+          "ms": 1581,
+          "percent": 7.7
+        },
+        {
+          "name": "zod",
+          "ms": 1240,
+          "percent": 6
+        },
+        {
+          "name": "@shikijs/vscode-textmate",
+          "ms": 583,
+          "percent": 2.8
+        },
+        {
+          "name": "i18next",
+          "ms": 450,
+          "percent": 2.2
+        },
+        {
+          "name": "src/components",
+          "ms": 396,
+          "percent": 1.9
+        },
+        {
+          "name": "@shikijs/engine-oniguruma",
+          "ms": 268,
+          "percent": 1.3
+        },
+        {
+          "name": "hastscript",
+          "ms": 227,
+          "percent": 1.1
+        },
+        {
+          "name": "@ctrl/tinycolor",
+          "ms": 199,
+          "percent": 1
+        },
+        {
+          "name": "@expressive-code/plugin-shiki",
+          "ms": 175,
+          "percent": 0.9
+        },
+        {
+          "name": "@shikijs/primitive",
+          "ms": 151,
+          "percent": 0.7
+        },
+        {
+          "name": "src/utils",
+          "ms": 145,
+          "percent": 0.7
+        },
+        {
+          "name": "@expressive-code/plugin-text-markers",
+          "ms": 135,
+          "percent": 0.7
+        },
+        {
+          "name": "astro-expressive-code",
+          "ms": 87,
+          "percent": 0.4
+        },
+        {
+          "name": "src/components/starlight",
+          "ms": 66,
+          "percent": 0.3
+        },
+        {
+          "name": "starlight-page-actions",
+          "ms": 65,
+          "percent": 0.3
+        },
+        {
+          "name": "picomatch",
+          "ms": 61,
+          "percent": 0.3
+        },
+        {
+          "name": "html-escaper",
+          "ms": 60,
+          "percent": 0.3
+        },
+        {
+          "name": "src/pages/reference",
+          "ms": 57,
+          "percent": 0.3
+        },
+        {
+          "name": "klona",
+          "ms": 52,
+          "percent": 0.3
+        },
+        {
+          "name": "src/components/api-reference",
+          "ms": 47,
+          "percent": 0.2
+        },
+        {
+          "name": "src",
+          "ms": 44,
+          "percent": 0.2
+        },
+        {
+          "name": "@expressive-code/plugin-frames",
+          "ms": 40,
+          "percent": 0.2
+        },
+        {
+          "name": "property-information",
+          "ms": 37,
+          "percent": 0.2
+        },
+        {
+          "name": "@astrojs/internal-helpers",
+          "ms": 26,
+          "percent": 0.1
+        },
+        {
+          "name": "starlight-sidebar-topics",
+          "ms": 26,
+          "percent": 0.1
+        },
+        {
+          "name": "clsx",
+          "ms": 15,
+          "percent": 0.1
+        },
+        {
+          "name": "@astrojs/node",
+          "ms": 15,
+          "percent": 0.1
+        },
+        {
+          "name": "hast-util-parse-selector",
+          "ms": 13,
+          "percent": 0.1
+        }
+      ],
+      "files": [
+        {
+          "name": "chunks/jsx-runtime_h__ZKjJY.mjs",
+          "ms": 5212,
+          "percent": 25.3
+        },
+        {
+          "name": "wasm/001c7aca",
+          "ms": 2979,
+          "percent": 14.5
+        },
+        {
+          "name": "chunks/dist_sCEMUNAW.mjs",
+          "ms": 2874,
+          "percent": 14
+        },
+        {
+          "name": "chunks/StarlightPage_DIRo9ENk.mjs",
+          "ms": 2270,
+          "percent": 11
+        },
+        {
+          "name": "(garbage collector)",
+          "ms": 1044,
+          "percent": 5.1
+        },
+        {
+          "name": "runMicrotasks",
+          "ms": 464,
+          "percent": 2.3
+        },
+        {
+          "name": "chunks/app_DFCLj9ei.mjs",
+          "ms": 457,
+          "percent": 2.2
+        },
+        {
+          "name": "chunks/translations_C3HiMGJW.mjs",
+          "ms": 452,
+          "percent": 2.2
+        },
+        {
+          "name": "encodeUtf8String",
+          "ms": 451,
+          "percent": 2.2
+        },
+        {
+          "name": "node:internal/encoding",
+          "ms": 370,
+          "percent": 1.8
+        },
+        {
+          "name": "handle/element.js",
+          "ms": 358,
+          "percent": 1.7
+        },
+        {
+          "name": "writev",
+          "ms": 349,
+          "percent": 1.7
+        },
+        {
+          "name": "chunks/lib_B6l0Rj7N.mjs",
+          "ms": 280,
+          "percent": 1.4
+        },
+        {
+          "name": "chunks/engine-oniguruma_B6Ou0AcQ.mjs",
+          "ms": 268,
+          "percent": 1.3
+        },
+        {
+          "name": "(program)",
+          "ms": 253,
+          "percent": 1.2
+        },
+        {
+          "name": "(idle)",
+          "ms": 209,
+          "percent": 1
+        },
+        {
+          "name": "undici/undici",
+          "ms": 168,
+          "percent": 0.8
+        },
+        {
+          "name": "lib/core.js",
+          "ms": 131,
+          "percent": 0.6
+        },
+        {
+          "name": "chunks/sequence_D_938gde.mjs",
+          "ms": 104,
+          "percent": 0.5
+        },
+        {
+          "name": "parse",
+          "ms": 100,
+          "percent": 0.5
+        },
+        {
+          "name": "chunks/astro-component_EVpzZ-Qa.mjs",
+          "ms": 89,
+          "percent": 0.4
+        },
+        {
+          "name": "server/entry.mjs",
+          "ms": 77,
+          "percent": 0.4
+        },
+        {
+          "name": "chunks/topics_S2rLgbgu.mjs",
+          "ms": 76,
+          "percent": 0.4
+        },
+        {
+          "name": "chunks/components_C6MWP9jd.mjs",
+          "ms": 75,
+          "percent": 0.4
+        },
+        {
+          "name": "dist/index.js",
+          "ms": 72,
+          "percent": 0.4
+        },
+        {
+          "name": "chunks/Icon_CVekZyBs.mjs",
+          "ms": 63,
+          "percent": 0.3
+        },
+        {
+          "name": "esm/loader",
+          "ms": 63,
+          "percent": 0.3
+        },
+        {
+          "name": "lib/index.js",
+          "ms": 61,
+          "percent": 0.3
+        },
+        {
+          "name": "chunks/service_BCKU_HL6.mjs",
+          "ms": 58,
+          "percent": 0.3
+        },
+        {
+          "name": "webstreams/readablestream",
+          "ms": 54,
+          "percent": 0.3
+        }
+      ],
+      "functions": [
+        {
+          "name": "wasm-function[107] @ wasm/001c7aca:1",
+          "ms": 1219,
+          "percent": 5.9
+        },
+        {
+          "name": "(garbage collector) @ (garbage collector):0",
+          "ms": 1044,
+          "percent": 5.1
+        },
+        {
+          "name": "wasm-function[198] @ wasm/001c7aca:1",
+          "ms": 854,
+          "percent": 4.1
+        },
+        {
+          "name": "(anonymous) @ chunks/StarlightPage_DIRo9ENk.mjs:10731",
+          "ms": 659,
+          "percent": 3.2
+        },
+        {
+          "name": "write @ chunks/jsx-runtime_h__ZKjJY.mjs:7463",
+          "ms": 592,
+          "percent": 2.9
+        },
+        {
+          "name": "wasm-function[104] @ wasm/001c7aca:1",
+          "ms": 551,
+          "percent": 2.7
+        },
+        {
+          "name": "runMicrotasks @ runMicrotasks:0",
+          "ms": 464,
+          "percent": 2.3
+        },
+        {
+          "name": "encodeUtf8String @ encodeUtf8String:0",
+          "ms": 451,
+          "percent": 2.2
+        },
+        {
+          "name": "encode @ node:internal/encoding:351",
+          "ms": 370,
+          "percent": 1.8
+        },
+        {
+          "name": "isHTMLString @ chunks/jsx-runtime_h__ZKjJY.mjs:5968",
+          "ms": 349,
+          "percent": 1.7
+        },
+        {
+          "name": "writev @ writev:0",
+          "ms": 349,
+          "percent": 1.7
+        },
+        {
+          "name": "filterByLocale @ chunks/StarlightPage_DIRo9ENk.mjs:10724",
+          "ms": 346,
+          "percent": 1.7
+        },
+        {
+          "name": "toAttributeString @ chunks/jsx-runtime_h__ZKjJY.mjs:6488",
+          "ms": 325,
+          "percent": 1.6
+        },
+        {
+          "name": "(anonymous) @ chunks/StarlightPage_DIRo9ENk.mjs:13177",
+          "ms": 285,
+          "percent": 1.4
+        },
+        {
+          "name": "(program) @ (program):0",
+          "ms": 253,
+          "percent": 1.2
+        },
+        {
+          "name": "init @ chunks/jsx-runtime_h__ZKjJY.mjs:724",
+          "ms": 248,
+          "percent": 1.2
+        },
+        {
+          "name": "render @ chunks/jsx-runtime_h__ZKjJY.mjs:6678",
+          "ms": 217,
+          "percent": 1.1
+        },
+        {
+          "name": "(idle) @ (idle):0",
+          "ms": 209,
+          "percent": 1
+        },
+        {
+          "name": "isPromise @ chunks/jsx-runtime_h__ZKjJY.mjs:5931",
+          "ms": 205,
+          "percent": 1
+        },
+        {
+          "name": "element @ handle/element.js:60",
+          "ms": 199,
+          "percent": 1
+        },
+        {
+          "name": "addAttribute @ chunks/jsx-runtime_h__ZKjJY.mjs:6512",
+          "ms": 198,
+          "percent": 1
+        },
+        {
+          "name": "createAstro @ chunks/app_DFCLj9ei.mjs:3197",
+          "ms": 194,
+          "percent": 0.9
+        },
+        {
+          "name": "stringifyChunk @ chunks/jsx-runtime_h__ZKjJY.mjs:6949",
+          "ms": 179,
+          "percent": 0.9
+        },
+        {
+          "name": "h @ chunks/lib_B6l0Rj7N.mjs:1535",
+          "ms": 165,
+          "percent": 0.8
+        },
+        {
+          "name": "isRecursive @ chunks/jsx-runtime_h__ZKjJY.mjs:2919",
+          "ms": 154,
+          "percent": 0.7
+        },
+        {
+          "name": "write @ chunks/jsx-runtime_h__ZKjJY.mjs:6573",
+          "ms": 142,
+          "percent": 0.7
+        },
+        {
+          "name": "wasm-function[157] @ wasm/001c7aca:1",
+          "ms": 142,
+          "percent": 0.7
+        },
+        {
+          "name": "(anonymous) @ chunks/dist_sCEMUNAW.mjs:5072",
+          "ms": 132,
+          "percent": 0.6
+        },
+        {
+          "name": "core @ lib/core.js:33",
+          "ms": 121,
+          "percent": 0.6
+        },
+        {
+          "name": "renderFrameworkComponent @ chunks/jsx-runtime_h__ZKjJY.mjs:7594",
+          "ms": 119,
+          "percent": 0.6
+        }
+      ]
+    }
+  },
+  "sequenceMemory": {
+    "rssMb": 842.2,
+    "cpuSeconds": 12.6
+  }
+}

@@ -1,0 +1,645 @@
+{
+  "startedUtc": "2026-10-16T01:12:54.194Z",
+  "profile": "dotnet-sampled-thread-time",
+  "lead": 75,
+  "seconds": 40,
+  "connections": 16,
+  "unit": "milliseconds",
+  "threads": 12,
+  "windowMs": 39955,
+  "engine": {
+    "ms": 39915,
+    "percentOfWindow": 99.9,
+    "states": {
+      "CPU_TIME": 99.16,
+      "UNKNOWN": 0,
+      "UNMANAGED_CODE_TIME": 0.84
+    },
+    "namespaces": [
+      {
+        "name": "Jint.Runtime.Interpreter.Expressions",
+        "ms": 10825,
+        "percent": 27.12
+      },
+      {
+        "name": "System.Threading",
+        "ms": 7983,
+        "percent": 20
+      },
+      {
+        "name": "Jint.Runtime.Interpreter",
+        "ms": 3283,
+        "percent": 8.22
+      },
+      {
+        "name": "Jint.Runtime.Interpreter.Statements",
+        "ms": 2883,
+        "percent": 7.22
+      },
+      {
+        "name": "Jint.Native.Object",
+        "ms": 2432,
+        "percent": 6.09
+      },
+      {
+        "name": "Jint",
+        "ms": 2037,
+        "percent": 5.1
+      },
+      {
+        "name": "Jint.Native.Function",
+        "ms": 1711,
+        "percent": 4.29
+      },
+      {
+        "name": "Jint.Collections",
+        "ms": 1358,
+        "percent": 3.4
+      },
+      {
+        "name": "System.Runtime.CompilerServices",
+        "ms": 1334,
+        "percent": 3.34
+      },
+      {
+        "name": "Jint.Runtime.Environments",
+        "ms": 1319,
+        "percent": 3.31
+      },
+      {
+        "name": "System",
+        "ms": 1012,
+        "percent": 2.54
+      },
+      {
+        "name": "Jint.Native.Array",
+        "ms": 954,
+        "percent": 2.39
+      },
+      {
+        "name": "Jint.Native.RegExp",
+        "ms": 549,
+        "percent": 1.38
+      },
+      {
+        "name": "Jint.Native.String",
+        "ms": 310,
+        "percent": 0.78
+      },
+      {
+        "name": "Jint.Constraints",
+        "ms": 285,
+        "percent": 0.71
+      },
+      {
+        "name": "Jint.Native",
+        "ms": 252,
+        "percent": 0.63
+      },
+      {
+        "name": "Jint.Pooling",
+        "ms": 218,
+        "percent": 0.55
+      },
+      {
+        "name": "Jint.Native.Set",
+        "ms": 145,
+        "percent": 0.36
+      },
+      {
+        "name": "System.Collections.Generic",
+        "ms": 109,
+        "percent": 0.27
+      },
+      {
+        "name": "Jint.Native.Promise",
+        "ms": 108,
+        "percent": 0.27
+      },
+      {
+        "name": "System.Text.RegularExpressions",
+        "ms": 90,
+        "percent": 0.22
+      },
+      {
+        "name": "dynamicClass.Regex148_TryMatchAtCurrentPosition",
+        "ms": 87,
+        "percent": 0.22
+      },
+      {
+        "name": "System.Text",
+        "ms": 77,
+        "percent": 0.19
+      },
+      {
+        "name": "Acornima",
+        "ms": 55,
+        "percent": 0.14
+      },
+      {
+        "name": "Jint.WebApi.Url.Parsing",
+        "ms": 54,
+        "percent": 0.14
+      },
+      {
+        "name": "dynamicClass.Regex147_TryMatchAtCurrentPosition",
+        "ms": 54,
+        "percent": 0.14
+      },
+      {
+        "name": "System.Text.Unicode",
+        "ms": 54,
+        "percent": 0.13
+      },
+      {
+        "name": "Jint.Native.Reflect",
+        "ms": 53,
+        "percent": 0.13
+      },
+      {
+        "name": "Jint.Native.Map",
+        "ms": 53,
+        "percent": 0.13
+      },
+      {
+        "name": "Jint.Native.Iterator",
+        "ms": 45,
+        "percent": 0.11
+      },
+      {
+        "name": "System.RuntimeType+ActivatorCache",
+        "ms": 39,
+        "percent": 0.1
+      },
+      {
+        "name": "Jint.Runtime.Modules",
+        "ms": 38,
+        "percent": 0.1
+      },
+      {
+        "name": "Jint.Runtime.Descriptors",
+        "ms": 37,
+        "percent": 0.09
+      },
+      {
+        "name": "Jint.Runtime.Environments.FunctionEnvironment",
+        "ms": 35,
+        "percent": 0.09
+      },
+      {
+        "name": "Jint.Runtime",
+        "ms": 35,
+        "percent": 0.09
+      }
+    ],
+    "self": [
+      {
+        "name": "System.Private.CoreLib!System.Threading.Thread.<PollGC>g__PollGCWorker|70_0",
+        "ms": 7947,
+        "percent": 19.91
+      },
+      {
+        "name": "Jint!Jint.Runtime.Interpreter.JintStatementList.Execute",
+        "ms": 3155,
+        "percent": 7.9
+      },
+      {
+        "name": "Jint!Jint.Runtime.Interpreter.Expressions.JintIdentifierExpression.GetValue",
+        "ms": 1950,
+        "percent": 4.89
+      },
+      {
+        "name": "Jint!Jint.Runtime.Interpreter.Expressions.JintCallExpression.RegisterLaneCall",
+        "ms": 1711,
+        "percent": 4.29
+      },
+      {
+        "name": "Jint!Jint.Runtime.Interpreter.Expressions.JintCallExpression.EvaluateInternal",
+        "ms": 1234,
+        "percent": 3.09
+      },
+      {
+        "name": "Jint!Jint.Engine.RunPerStatementChecks",
+        "ms": 919,
+        "percent": 2.3
+      },
+      {
+        "name": "Jint!Jint.Collections.StringDictionarySlim`1[Jint.Runtime.Environments.Binding].GetValueRefOrNullRef",
+        "ms": 836,
+        "percent": 2.1
+      },
+      {
+        "name": "Jint!Jint.Engine.GetValue",
+        "ms": 764,
+        "percent": 1.91
+      },
+      {
+        "name": "Jint!Jint.Runtime.Interpreter.Statements.JintIfStatement.ExecuteInternal",
+        "ms": 699,
+        "percent": 1.75
+      },
+      {
+        "name": "Jint!Jint.Native.Function.ScriptFunction.CallOnce",
+        "ms": 643,
+        "percent": 1.61
+      },
+      {
+        "name": "Jint!Jint.Native.Object.ObjectInstance.Get",
+        "ms": 637,
+        "percent": 1.6
+      },
+      {
+        "name": "Jint!Jint.Runtime.Interpreter.Expressions.JintExpression.GetValue",
+        "ms": 630,
+        "percent": 1.58
+      },
+      {
+        "name": "Jint!Jint.Runtime.Interpreter.Expressions.JintMemberExpression.GetValue",
+        "ms": 629,
+        "percent": 1.58
+      },
+      {
+        "name": "Jint!Jint.Runtime.Interpreter.Expressions.JintIdentifierExpression.EvaluateInternal",
+        "ms": 629,
+        "percent": 1.58
+      },
+      {
+        "name": "Jint!Jint.Native.RegExp.RegExpPrototype.Test",
+        "ms": 515,
+        "percent": 1.29
+      },
+      {
+        "name": "Jint!Jint.Runtime.Interpreter.Statements.JintForInForOfStatement.BodyEvaluation",
+        "ms": 510,
+        "percent": 1.28
+      },
+      {
+        "name": "Jint!Jint.Native.Object.ObjectInstance.GetOwnProperty",
+        "ms": 506,
+        "percent": 1.27
+      },
+      {
+        "name": "Jint!Jint.Native.Function.ScriptFunction.CallCore",
+        "ms": 498,
+        "percent": 1.25
+      },
+      {
+        "name": "System.Private.CoreLib!System.Runtime.CompilerServices.CastHelpers.IsInstanceOfClass",
+        "ms": 485,
+        "percent": 1.22
+      },
+      {
+        "name": "Jint!Jint.Runtime.Interpreter.Statements.JintVariableDeclaration.InitializeLexicalBindingSlow",
+        "ms": 398,
+        "percent": 1
+      },
+      {
+        "name": "Jint!Jint.Runtime.Environments.SlotLocationCache.WalkAndMemoize",
+        "ms": 377,
+        "percent": 0.94
+      },
+      {
+        "name": "System.Private.CoreLib!System.Runtime.CompilerServices.CastHelpers.ChkCastClass",
+        "ms": 309,
+        "percent": 0.77
+      },
+      {
+        "name": "Jint!Jint.Native.Array.ArrayInstance.GetOwnProperty",
+        "ms": 306,
+        "percent": 0.77
+      },
+      {
+        "name": "Jint!Jint.Runtime.Environments.DeclarativeEnvironment.SlotIndexOf",
+        "ms": 304,
+        "percent": 0.76
+      },
+      {
+        "name": "Jint!Jint.Runtime.Interpreter.Expressions.JintBinaryExpression+TypeofStrictEqualityExpression.EvaluateInternal",
+        "ms": 303,
+        "percent": 0.76
+      },
+      {
+        "name": "Jint!Jint.Runtime.Interpreter.Expressions.JintMemberExpression.EvaluateInternal",
+        "ms": 301,
+        "percent": 0.75
+      },
+      {
+        "name": "Jint!Jint.Constraints.MemoryLimitConstraint.Check",
+        "ms": 285,
+        "percent": 0.71
+      },
+      {
+        "name": "Jint!Jint.Native.Object.ObjectInstance.UnwrapFromGetter",
+        "ms": 280,
+        "percent": 0.7
+      },
+      {
+        "name": "Jint!Jint.Runtime.Interpreter.Statements.JintVariableDeclaration.ExecuteInternal",
+        "ms": 275,
+        "percent": 0.69
+      },
+      {
+        "name": "Jint!Jint.Collections.DictionaryBase`1[Jint.Runtime.Environments.ModuleEnvironment+IndirectBinding].TryGetValue",
+        "ms": 255,
+        "percent": 0.64
+      },
+      {
+        "name": "Jint!Jint.Runtime.Interpreter.Statements.JintForStatement.ForBodyEvaluation",
+        "ms": 254,
+        "percent": 0.64
+      },
+      {
+        "name": "System.Private.CoreLib!System.Runtime.CompilerServices.CastHelpers.IsInstanceOfInterface",
+        "ms": 251,
+        "percent": 0.63
+      },
+      {
+        "name": "Jint!Jint.Runtime.Interpreter.Expressions.JintBinaryExpression+TypeofStrictEqualityExpression.GetBooleanValue",
+        "ms": 247,
+        "percent": 0.62
+      },
+      {
+        "name": "Jint!Jint.Runtime.Interpreter.Expressions.JintUnaryExpression.EvaluateJsValue",
+        "ms": 239,
+        "percent": 0.6
+      },
+      {
+        "name": "Jint!Jint.Native.Function.ScriptFunction.ContinueTailCalls",
+        "ms": 235,
+        "percent": 0.59
+      },
+      {
+        "name": "Jint!Jint.Collections.DictionaryBase`1[Jint.Runtime.Environments.Binding].TryGetValue",
+        "ms": 228,
+        "percent": 0.57
+      },
+      {
+        "name": "Jint!Jint.Native.String.StringInstance.GetOwnProperty",
+        "ms": 211,
+        "percent": 0.53
+      },
+      {
+        "name": "Jint!Jint.Runtime.Interpreter.Expressions.JintArrowFunctionExpression.EvaluateInternal",
+        "ms": 205,
+        "percent": 0.51
+      },
+      {
+        "name": "Jint!Jint.Runtime.Interpreter.Expressions.JintIdentifierExpression.TryGetValidatedGlobalDescriptorNested",
+        "ms": 204,
+        "percent": 0.51
+      },
+      {
+        "name": "Jint!Jint.Native.Object.ObjectInstance.GetFromPrototypeChain",
+        "ms": 204,
+        "percent": 0.51
+      }
+    ],
+    "inclusive": [
+      {
+        "name": "(Non-Activities)",
+        "ms": 39915,
+        "percent": 100
+      },
+      {
+        "name": "Threads",
+        "ms": 39915,
+        "percent": 100
+      },
+      {
+        "name": "Jint!Jint.Runtime.Interpreter.JintStatementList.Execute",
+        "ms": 39274,
+        "percent": 98.39
+      },
+      {
+        "name": "Jint!Jint.Runtime.Interpreter.Expressions.JintCallExpression.EvaluateInternal",
+        "ms": 38078,
+        "percent": 95.4
+      },
+      {
+        "name": "Jint!Jint.Runtime.Interpreter.Expressions.JintExpression.GetValue",
+        "ms": 37892,
+        "percent": 94.93
+      },
+      {
+        "name": "Jint!Jint.Native.Function.ScriptFunction.CallOnce",
+        "ms": 37199,
+        "percent": 93.2
+      },
+      {
+        "name": "Jint!Jint.Native.Function.ScriptFunction.CallCore",
+        "ms": 35868,
+        "percent": 89.86
+      },
+      {
+        "name": "Jint!Jint.Runtime.Interpreter.Statements.JintBlockStatement.ExecuteBlock",
+        "ms": 35781,
+        "percent": 89.64
+      },
+      {
+        "name": "Jint!Jint.Runtime.Interpreter.Statements.JintExpressionStatement.ExecuteInternal",
+        "ms": 34607,
+        "percent": 86.7
+      },
+      {
+        "name": "Jint!Jint.Runtime.Interpreter.Statements.JintVariableDeclaration.ExecuteInternal",
+        "ms": 34425,
+        "percent": 86.25
+      },
+      {
+        "name": "Jint!Jint.Runtime.Interpreter.Expressions.JintCallExpression.RegisterLaneCall",
+        "ms": 34280,
+        "percent": 85.88
+      },
+      {
+        "name": "Jint!Jint.Native.Function.ScriptFunction.ContinueTailCalls",
+        "ms": 33590,
+        "percent": 84.15
+      },
+      {
+        "name": "Jint!Jint.Runtime.Interpreter.Statements.JintIfStatement.ExecuteInternal",
+        "ms": 30607,
+        "percent": 76.68
+      },
+      {
+        "name": "Jint!Jint.Runtime.Interpreter.Statements.JintReturnStatement.ExecuteInternal",
+        "ms": 27612,
+        "percent": 69.18
+      },
+      {
+        "name": "Jint!Jint.Runtime.Interpreter.Statements.JintVariableDeclaration.InitializeLexicalBindingSlow",
+        "ms": 24857,
+        "percent": 62.28
+      },
+      {
+        "name": "Jint!Jint.Runtime.Interpreter.Statements.JintForStatement.ForBodyEvaluation",
+        "ms": 23385,
+        "percent": 58.59
+      },
+      {
+        "name": "Jint!Jint.Runtime.Interpreter.Statements.JintForStatement.ExecuteInternal",
+        "ms": 23349,
+        "percent": 58.5
+      },
+      {
+        "name": "Jint!Jint.Runtime.Interpreter.Expressions.JintAssignmentExpression+SimpleAssignmentExpression.SetValue",
+        "ms": 22134,
+        "percent": 55.45
+      },
+      {
+        "name": "Jint!Jint.Runtime.Interpreter.Expressions.JintMemberExpression.TryAssignFast",
+        "ms": 21220,
+        "percent": 53.16
+      },
+      {
+        "name": "Jint!Jint.Runtime.Interpreter.Expressions.JintNewExpression.EvaluateInternal",
+        "ms": 19889,
+        "percent": 49.83
+      },
+      {
+        "name": "Jint!Jint.Native.Function.ScriptFunction.Construct",
+        "ms": 19591,
+        "percent": 49.08
+      },
+      {
+        "name": "Jint!Jint.Engine+<RunOnReservationAsync>d__27`1[System.ValueTuple`5[System.__Canon,Jint.Engine+WebApiOperations+FetchRoute,System.__Canon,System.__Canon,System.__Canon]].MoveNext",
+        "ms": 18161,
+        "percent": 45.5
+      },
+      {
+        "name": "Jint!Jint.Engine+WebApiOperations+<InvokeFetchHandlerAsync>d__17.MoveNext",
+        "ms": 18123,
+        "percent": 45.4
+      },
+      {
+        "name": "Jint!Jint.Native.Promise.PromiseOperations.RunReactionJob",
+        "ms": 18113,
+        "percent": 45.38
+      },
+      {
+        "name": "AstroJint.AspNetCore!AstroJint.AspNetCore.AstroApp+<RenderCoreAsync>d__25.MoveNext",
+        "ms": 18088,
+        "percent": 45.32
+      },
+      {
+        "name": "Jint!Jint.Engine.RunEventLoopJobCore",
+        "ms": 18087,
+        "percent": 45.31
+      },
+      {
+        "name": "System.Private.CoreLib!System.Threading.ExecutionContext.RunInternal",
+        "ms": 18014,
+        "percent": 45.13
+      },
+      {
+        "name": "System.Private.CoreLib!System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1+AsyncStateMachineBox`1[System.__Canon,AstroJint.AspNetCore.AstroApp+<RenderCoreAsync>d__25].MoveNext",
+        "ms": 18014,
+        "percent": 45.13
+      },
+      {
+        "name": "System.Private.CoreLib!System.Threading.Tasks.AwaitTaskContinuation.RunOrScheduleAction",
+        "ms": 17776,
+        "percent": 44.54
+      },
+      {
+        "name": "System.Private.CoreLib!System.Threading.Tasks.Task.RunContinuations",
+        "ms": 17685,
+        "percent": 44.31
+      },
+      {
+        "name": "System.Private.CoreLib!System.Threading.Tasks.Task`1[System.__Canon].TrySetResult",
+        "ms": 17612,
+        "percent": 44.12
+      },
+      {
+        "name": "AstroJint.AspNetCore!AstroJint.AspNetCore.EnginePool`1+<RentAsync>d__15[System.__Canon].MoveNext",
+        "ms": 17500,
+        "percent": 43.84
+      },
+      {
+        "name": "System.Private.CoreLib!System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1+AsyncStateMachineBox`1[System.__Canon,AstroJint.AspNetCore.EnginePool`1+<RentAsync>d__15[System.__Canon]].MoveNext",
+        "ms": 17212,
+        "percent": 43.12
+      },
+      {
+        "name": "System.Private.CoreLib!System.Threading.PortableThreadPool+WorkerThread.WorkerThreadStart",
+        "ms": 17151,
+        "percent": 42.97
+      },
+      {
+        "name": "System.Private.CoreLib!System.Threading.ThreadPoolWorkQueue.Dispatch",
+        "ms": 17151,
+        "percent": 42.97
+      },
+      {
+        "name": "System.Private.CoreLib!System.Threading.Thread.StartCallback",
+        "ms": 17114,
+        "percent": 42.88
+      },
+      {
+        "name": "Jint!Jint.Runtime.Interpreter.Statements.JintForInForOfStatement.ExecuteInternal",
+        "ms": 13688,
+        "percent": 34.29
+      },
+      {
+        "name": "Jint!Jint.Runtime.Interpreter.Statements.JintForInForOfStatement.BodyEvaluation",
+        "ms": 13007,
+        "percent": 32.59
+      },
+      {
+        "name": "Jint!Jint.Runtime.Interpreter.Expressions.JintTaggedTemplateExpression.EvaluateInternal",
+        "ms": 12007,
+        "percent": 30.08
+      },
+      {
+        "name": "Jint!Jint.Runtime.Interpreter.Expressions.JintAwaitExpression.AsyncFunctionResume",
+        "ms": 10709,
+        "percent": 26.83
+      }
+    ]
+  },
+  "other": {
+    "ms": 394152,
+    "self": [
+      {
+        "name": "CPU_TIME System.Private.CoreLib!System.Threading.LowLevelLifoSemaphore.Wait",
+        "ms": 93093,
+        "percent": 23.62
+      },
+      {
+        "name": "UNMANAGED_CODE_TIME System.Private.CoreLib!System.Threading.Monitor.Wait",
+        "ms": 79910,
+        "percent": 20.27
+      },
+      {
+        "name": "UNMANAGED_CODE_TIME System.Private.CoreLib!System.Threading.WaitHandle.WaitOneNoCheck",
+        "ms": 78092,
+        "percent": 19.81
+      },
+      {
+        "name": "UNMANAGED_CODE_TIME System.Private.CoreLib!System.Threading.LowLevelLifoSemaphore.WaitForSignal",
+        "ms": 47150,
+        "percent": 11.96
+      },
+      {
+        "name": "UNMANAGED_CODE_TIME System.Private.CoreLib!System.Threading.ManualResetEventSlim.Wait",
+        "ms": 38365,
+        "percent": 9.73
+      },
+      {
+        "name": "UNMANAGED_CODE_TIME System.Private.CoreLib!System.Threading.PortableThreadPool+IOCompletionPoller.Poll",
+        "ms": 36962,
+        "percent": 9.38
+      },
+      {
+        "name": "CPU_TIME System.Private.CoreLib!System.Threading.PortableThreadPool+WorkerThread.WorkerThreadStart",
+        "ms": 7831,
+        "percent": 1.99
+      },
+      {
+        "name": "CPU_TIME Microsoft.AspNetCore.Server.Kestrel.Core!Microsoft.AspNetCore.Server.Kestrel.Core.Internal.Http.Http1Connection.ParseTarget",
+        "ms": 3497,
+        "percent": 0.89
+      }
+    ]
+  }
+}

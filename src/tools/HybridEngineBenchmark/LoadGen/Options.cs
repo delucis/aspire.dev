@@ -3,7 +3,7 @@ using System.Globalization;
 namespace LoadGen;
 
 internal sealed record Options(
-    Uri Url,
+    IReadOnlyList<Uri> Urls,
     IReadOnlyList<string> Paths,
     IReadOnlyList<string> Headers,
     string Mode,
@@ -16,10 +16,18 @@ internal sealed record Options(
     int[] Pids,
     string Label,
     string? OutPath,
-    string? GcStatsPath)
+    string? GcStatsPath,
+    long? Affinity,
+    long? ServerAffinity)
 {
+    /// <summary>The first address: it names the run, takes the Host header by default and serves the GC statistics.</summary>
+    public Uri Url => Urls[0];
+
     public const string Usage = """
-        Usage: LoadGen --url <http://host:port> (--paths-file <file> | --path <p>...) [options]
+        Usage: LoadGen --url <http://host:port>[,<http://host:port>...] (--paths-file <file> | --path <p>...) [options]
+
+          --url <addresses>        one address, or several separated by commas: connection i talks to address i mod count,
+                                   which models a balancer that spreads the connections evenly over several servers
 
           --mode load|sequence     load: closed-loop connections for --duration (default). sequence: one connection, every
                                    path --repeat times in order, to read cold and warm latencies one request at a time.
@@ -34,11 +42,15 @@ internal sealed record Options(
           --gc-stats <path>        a JSON endpoint with a "gc" object (gen0, gen1, gen2, pauseMs, allocatedBytes)
           --label <text>           names the run in the report
           --out <file.json>        writes the full result as JSON
+          --affinity <hex mask>    logical processors the generator itself may use (for example 0xFF00)
+          --server-affinity <hex mask>   logical processors the --pid servers may use, to model a smaller machine
         """;
 
     public static Options Parse(string[] args)
     {
-        var url = new Uri("http://127.0.0.1:4323");
+        IReadOnlyList<Uri> urls = [new Uri("http://127.0.0.1:4323")];
+        long? affinity = null;
+        long? serverAffinity = null;
         List<string> paths = [];
         List<string> headers = [];
         var mode = "load";
@@ -60,9 +72,17 @@ internal sealed record Options(
             switch (name)
             {
                 case "--url":
-                    url = Uri.TryCreate(value, UriKind.Absolute, out var parsed) && parsed.Scheme == Uri.UriSchemeHttp
-                        ? parsed
-                        : throw new ArgumentException($"--url must be an absolute http address, not '{value}'.");
+                    urls = value.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                        .Select(static v => Uri.TryCreate(v, UriKind.Absolute, out var parsed) && parsed.Scheme == Uri.UriSchemeHttp
+                            ? parsed
+                            : throw new ArgumentException($"--url must be absolute http addresses, not '{v}'."))
+                        .ToArray();
+                    break;
+                case "--affinity":
+                    affinity = Mask(name, value);
+                    break;
+                case "--server-affinity":
+                    serverAffinity = Mask(name, value);
                     break;
                 case "--paths-file":
                     paths.AddRange(File.ReadLines(value).Select(static l => l.Trim()).Where(static l => l.Length > 0 && l[0] != '#'));
@@ -114,8 +134,15 @@ internal sealed record Options(
 
         return paths.Count == 0
             ? throw new ArgumentException("Give --paths-file or at least one --path.")
-            : new Options(url, paths, headers, mode, connections, TimeSpan.FromSeconds(warmup), TimeSpan.FromSeconds(duration), repeat, random, seed, pids, label, outPath, gcStats);
+            : urls.Count == 0
+                ? throw new ArgumentException("Give at least one --url.")
+                : new Options(urls, paths, headers, mode, connections, TimeSpan.FromSeconds(warmup), TimeSpan.FromSeconds(duration), repeat, random, seed, pids, label, outPath, gcStats, affinity, serverAffinity);
     }
+
+    private static long Mask(string name, string value) =>
+        long.TryParse(value.StartsWith("0x", StringComparison.OrdinalIgnoreCase) ? value[2..] : value, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out var mask) && mask > 0
+            ? mask
+            : throw new ArgumentException($"{name} must be a hexadecimal processor mask such as 0xFF, not '{value}'.");
 
     private static int PositiveInt(string name, string value) =>
         int.TryParse(value, NumberStyles.None, CultureInfo.InvariantCulture, out var count) && count > 0

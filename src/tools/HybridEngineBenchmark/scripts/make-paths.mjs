@@ -69,6 +69,16 @@ const pick = () => {
   return ranked[lo];
 };
 write('zipf-html', Array.from({ length: 20000 }, pick));
-write('uniform-html', Array.from({ length: 20000 }, () => html[Math.floor(random() * html.length)]));
+const uniform = Array.from({ length: 20000 }, () => html[Math.floor(random() * html.length)]);
+write('uniform-html', uniform);
 
-console.log(JSON.stringify({ routes: manifest.routes.length, kinds: summary, html: html.length }, null, 2));
+// The first 40 distinct pages of uniform-html, requested over and over by the replay probe. A fixed small set separates
+// growth per request from growth per new page.
+write('replay-40', [...new Set(uniform)].slice(0, 40));
+
+// Every HTML page and every Markdown endpoint exactly once, shuffled together, for the full-crawl memory probe. It is written
+// last so that adding it does not change the random draws behind the files above.
+const markdown = [...(kinds['csharp-md'] ?? []), ...(kinds['ts-md'] ?? [])];
+write('crawl-all', shuffle([...html, ...markdown]));
+
+console.log(JSON.stringify({ routes: manifest.routes.length, kinds: summary, html: html.length, markdown: markdown.length, crawl: html.length + markdown.length }, null, 2));

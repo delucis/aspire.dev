@@ -1,0 +1,71 @@
+{
+  "startedUtc": "2026-10-16T00:36:22.186Z",
+  "engine": "node",
+  "label": "rep2-node-plain",
+  "node": "v24.13.1",
+  "machine": {
+    "platform": "win32",
+    "cpus": 28
+  },
+  "cold": [],
+  "sequence": [],
+  "load": [
+    {
+      "name": "c1-uniform-x16",
+      "cores": 1,
+      "mix": "uniform-html",
+      "connections": 16,
+      "engine": "node",
+      "rps": 143.3,
+      "requests": 4299,
+      "errors": 0,
+      "statuses": {
+        "200": 4299
+      },
+      "avgKb": 209.8,
+      "latencyMs": {
+        "mean": 111.53,
+        "p50": 104.45,
+        "p90": 196.61,
+        "p95": 231.42,
+        "p99": 290.81,
+        "p999": 360.45,
+        "max": 370.9
+      },
+      "serverCores": 0.97,
+      "cpuMsPerRequest": 6.79,
+      "rssStartMb": 686.2,
+      "rssEndMb": 696.7,
+      "rssPeakMb": 705.9
+    },
+    {
+      "name": "c4-uniform-x32",
+      "cores": 4,
+      "mix": "uniform-html",
+      "connections": 32,
+      "engine": "node",
+      "rps": 450.6,
+      "requests": 13517,
+      "errors": 0,
+      "statuses": {
+        "200": 13517
+      },
+      "avgKb": 211,
+      "latencyMs": {
+        "mean": 70.97,
+        "p50": 48.13,
+        "p90": 167.94,
+        "p95": 233.47,
+        "p99": 352.25,
+        "p999": 466.94,
+        "max": 549.05
+      },
+      "serverCores": 3.91,
+      "cpuMsPerRequest": 8.73,
+      "rssStartMb": 3026.3,
+      "rssEndMb": 3061.8,
+      "rssPeakMb": 3088.2
+    }
+  ],
+  "profile": null
+}

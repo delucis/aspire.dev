@@ -1,0 +1,577 @@
+{
+  "startedUtc": "2026-10-15T23:32:57.285Z",
+  "engine": "jint",
+  "label": "jint-plain-code",
+  "node": "v24.13.1",
+  "machine": {
+    "platform": "win32",
+    "cpus": 28
+  },
+  "cold": [
+    {
+      "run": 1,
+      "readyMs": 249,
+      "atReady": {
+        "cpuSeconds": 0.53,
+        "rssMb": 93.8,
+        "privateMb": 53.8
+      },
+      "timeToFirstPageMs": 5324,
+      "allFirstHitsMs": 7732,
+      "afterFirstHits": {
+        "cpuSeconds": 9.5,
+        "rssMb": 1033.9
+      },
+      "firstHits": {
+        "csharp-type": {
+          "ms": 5074.5,
+          "status": 200,
+          "kb": 280.7
+        },
+        "ts-module": {
+          "ms": 1807.7,
+          "status": 200,
+          "kb": 241.2
+        },
+        "ts-item": {
+          "ms": 148.4,
+          "status": 200,
+          "kb": 184.3
+        },
+        "ts-member": {
+          "ms": 87.2,
+          "status": 200,
+          "kb": 176
+        },
+        "csharp-package": {
+          "ms": 107.1,
+          "status": 200,
+          "kb": 187.8
+        },
+        "csharp-memberkind": {
+          "ms": 190.5,
+          "status": 200,
+          "kb": 258.9
+        },
+        "csharp-md": {
+          "ms": 17.9,
+          "status": 200,
+          "kb": 1.5
+        },
+        "ts-md": {
+          "ms": 6.9,
+          "status": 200,
+          "kb": 0.5
+        }
+      }
+    },
+    {
+      "run": 2,
+      "readyMs": 226,
+      "atReady": {
+        "cpuSeconds": 0.58,
+        "rssMb": 95.2,
+        "privateMb": 55.1
+      },
+      "timeToFirstPageMs": 4880,
+      "allFirstHitsMs": 7335,
+      "afterFirstHits": {
+        "cpuSeconds": 8.91,
+        "rssMb": 1031.9
+      },
+      "firstHits": {
+        "csharp-type": {
+          "ms": 4653.7,
+          "status": 200,
+          "kb": 280.7
+        },
+        "ts-module": {
+          "ms": 1803.8,
+          "status": 200,
+          "kb": 241.2
+        },
+        "ts-item": {
+          "ms": 134.4,
+          "status": 200,
+          "kb": 184.3
+        },
+        "ts-member": {
+          "ms": 87.9,
+          "status": 200,
+          "kb": 176
+        },
+        "csharp-package": {
+          "ms": 115.8,
+          "status": 200,
+          "kb": 187.8
+        },
+        "csharp-memberkind": {
+          "ms": 211.4,
+          "status": 200,
+          "kb": 258.9
+        },
+        "csharp-md": {
+          "ms": 19.6,
+          "status": 200,
+          "kb": 1.5
+        },
+        "ts-md": {
+          "ms": 6.5,
+          "status": 200,
+          "kb": 0.5
+        }
+      }
+    },
+    {
+      "run": 3,
+      "readyMs": 246,
+      "atReady": {
+        "cpuSeconds": 0.56,
+        "rssMb": 94.2,
+        "privateMb": 54
+      },
+      "timeToFirstPageMs": 5107,
+      "allFirstHitsMs": 7448,
+      "afterFirstHits": {
+        "cpuSeconds": 9.09,
+        "rssMb": 1033.5
+      },
+      "firstHits": {
+        "csharp-type": {
+          "ms": 4860.6,
+          "status": 200,
+          "kb": 280.7
+        },
+        "ts-module": {
+          "ms": 1746.1,
+          "status": 200,
+          "kb": 241.2
+        },
+        "ts-item": {
+          "ms": 141.4,
+          "status": 200,
+          "kb": 184.3
+        },
+        "ts-member": {
+          "ms": 88.5,
+          "status": 200,
+          "kb": 176
+        },
+        "csharp-package": {
+          "ms": 102.3,
+          "status": 200,
+          "kb": 187.8
+        },
+        "csharp-memberkind": {
+          "ms": 207,
+          "status": 200,
+          "kb": 258.9
+        },
+        "csharp-md": {
+          "ms": 18.5,
+          "status": 200,
+          "kb": 1.5
+        },
+        "ts-md": {
+          "ms": 7.2,
+          "status": 200,
+          "kb": 0.5
+        }
+      }
+    }
+  ],
+  "sequence": [
+    {
+      "kind": "csharp-package",
+      "samples": 25,
+      "bypass": {
+        "firstMedianMs": 91.11,
+        "firstMaxMs": 226.6,
+        "repeatMedianMs": 110.63,
+        "kb": 189.4,
+        "statuses": [
+          200
+        ]
+      }
+    },
+    {
+      "kind": "csharp-type",
+      "samples": 25,
+      "bypass": {
+        "firstMedianMs": 139.57,
+        "firstMaxMs": 514.1,
+        "repeatMedianMs": 146.89,
+        "kb": 228.4,
+        "statuses": [
+          200
+        ]
+      }
+    },
+    {
+      "kind": "csharp-memberkind",
+      "samples": 25,
+      "bypass": {
+        "firstMedianMs": 160.92,
+        "firstMaxMs": 571.3,
+        "repeatMedianMs": 153.04,
+        "kb": 259.2,
+        "statuses": [
+          200
+        ]
+      }
+    },
+    {
+      "kind": "ts-module",
+      "samples": 25,
+      "bypass": {
+        "firstMedianMs": 69.17,
+        "firstMaxMs": 102.8,
+        "repeatMedianMs": 67.89,
+        "kb": 177.9,
+        "statuses": [
+          200
+        ]
+      }
+    },
+    {
+      "kind": "ts-item",
+      "samples": 25,
+      "bypass": {
+        "firstMedianMs": 68.12,
+        "firstMaxMs": 90.8,
+        "repeatMedianMs": 69.13,
+        "kb": 174.2,
+        "statuses": [
+          200
+        ]
+      }
+    },
+    {
+      "kind": "ts-member",
+      "samples": 25,
+      "bypass": {
+        "firstMedianMs": 69.61,
+        "firstMaxMs": 90.1,
+        "repeatMedianMs": 66.98,
+        "kb": 177.6,
+        "statuses": [
+          200
+        ]
+      }
+    },
+    {
+      "kind": "csharp-md",
+      "samples": 25,
+      "bypass": {
+        "firstMedianMs": 1.42,
+        "firstMaxMs": 12.4,
+        "repeatMedianMs": 1.32,
+        "kb": 1.7,
+        "statuses": [
+          200
+        ]
+      }
+    },
+    {
+      "kind": "ts-md",
+      "samples": 25,
+      "bypass": {
+        "firstMedianMs": 0.99,
+        "firstMaxMs": 13,
+        "repeatMedianMs": 0.97,
+        "kb": 1,
+        "statuses": [
+          200
+        ]
+      }
+    }
+  ],
+  "load": [
+    {
+      "name": "c1-uniform-x1",
+      "cores": 1,
+      "mix": "uniform-html",
+      "connections": 1,
+      "engine": "jint",
+      "rps": 7.9,
+      "requests": 354,
+      "errors": 0,
+      "statuses": {
+        "200": 354
+      },
+      "avgKb": 207.6,
+      "latencyMs": {
+        "mean": 126.57,
+        "p50": 89.09,
+        "p90": 196.61,
+        "p95": 315.39,
+        "p99": 720.89,
+        "p999": 1540.78,
+        "max": 1540.78
+      },
+      "serverCores": 0.95,
+      "cpuMsPerRequest": 121.82,
+      "rssStartMb": 1487,
+      "rssEndMb": 1991.8,
+      "rssPeakMb": 2056.9,
+      "gc": {
+        "pausePercent": 21.250667905885994,
+        "gen0": 642,
+        "gen1": 290,
+        "gen2": 3,
+        "allocatedBytes": 12022264008
+      }
+    },
+    {
+      "name": "c1-uniform-x4",
+      "cores": 1,
+      "mix": "uniform-html",
+      "connections": 4,
+      "engine": "jint",
+      "rps": 7.2,
+      "requests": 324,
+      "errors": 0,
+      "statuses": {
+        "200": 324
+      },
+      "avgKb": 217.8,
+      "latencyMs": {
+        "mean": 552.19,
+        "p50": 454.65,
+        "p90": 925.7,
+        "p95": 1196.03,
+        "p99": 1818.62,
+        "p999": 2035.19,
+        "max": 2035.19
+      },
+      "serverCores": 0.95,
+      "cpuMsPerRequest": 132.62,
+      "rssStartMb": 1472.2,
+      "rssEndMb": 1975.4,
+      "rssPeakMb": 2091.7,
+      "gc": {
+        "pausePercent": 21.029793931740016,
+        "gen0": 644,
+        "gen1": 285,
+        "gen2": 3,
+        "allocatedBytes": 12053255792
+      }
+    },
+    {
+      "name": "c1-uniform-x16",
+      "cores": 1,
+      "mix": "uniform-html",
+      "connections": 16,
+      "engine": "jint",
+      "rps": 8.3,
+      "requests": 375,
+      "errors": 0,
+      "statuses": {
+        "200": 375
+      },
+      "avgKb": 205.4,
+      "latencyMs": {
+        "mean": 1870.43,
+        "p50": 1638.4,
+        "p90": 2850.82,
+        "p95": 3604.48,
+        "p99": 3735.55,
+        "p999": 3742.19,
+        "max": 3742.19
+      },
+      "serverCores": 0.96,
+      "cpuMsPerRequest": 114.88,
+      "rssStartMb": 1458.4,
+      "rssEndMb": 1926.4,
+      "rssPeakMb": 2136.3,
+      "gc": {
+        "pausePercent": 22.022778060469495,
+        "gen0": 678,
+        "gen1": 298,
+        "gen2": 3,
+        "allocatedBytes": 12709209200
+      }
+    },
+    {
+      "name": "c1-zipf-x16",
+      "cores": 1,
+      "mix": "zipf-html",
+      "connections": 16,
+      "engine": "jint",
+      "rps": 7.9,
+      "requests": 354,
+      "errors": 0,
+      "statuses": {
+        "200": 354
+      },
+      "avgKb": 211.1,
+      "latencyMs": {
+        "mean": 1972.47,
+        "p50": 1769.47,
+        "p90": 2949.12,
+        "p95": 3637.25,
+        "p99": 4516.47,
+        "p999": 4516.47,
+        "max": 4516.47
+      },
+      "serverCores": 0.96,
+      "cpuMsPerRequest": 122.04,
+      "rssStartMb": 1451.7,
+      "rssEndMb": 1770.4,
+      "rssPeakMb": 2003.7,
+      "gc": {
+        "pausePercent": 20.7017167458218,
+        "gen0": 672,
+        "gen1": 299,
+        "gen2": 3,
+        "allocatedBytes": 12594596176
+      }
+    },
+    {
+      "name": "c1-md-x16",
+      "cores": 1,
+      "mix": "all-md",
+      "connections": 16,
+      "engine": "jint",
+      "rps": 404.2,
+      "requests": 18189,
+      "errors": 0,
+      "statuses": {
+        "200": 18189
+      },
+      "avgKb": 1.7,
+      "latencyMs": {
+        "mean": 39.58,
+        "p50": 28.93,
+        "p90": 73.73,
+        "p95": 81.92,
+        "p99": 101.38,
+        "p999": 397.31,
+        "max": 418.06
+      },
+      "serverCores": 0.96,
+      "cpuMsPerRequest": 2.37,
+      "rssStartMb": 961.5,
+      "rssEndMb": 1000.7,
+      "rssPeakMb": 1000.7,
+      "gc": {
+        "pausePercent": 40.17007949110075,
+        "gen0": 451,
+        "gen1": 6,
+        "gen2": 0,
+        "allocatedBytes": 7810576224
+      }
+    },
+    {
+      "name": "c2-uniform-x16",
+      "cores": 2,
+      "mix": "uniform-html",
+      "connections": 16,
+      "engine": "jint",
+      "rps": 21.4,
+      "requests": 964,
+      "errors": 0,
+      "statuses": {
+        "200": 964
+      },
+      "avgKb": 213.5,
+      "latencyMs": {
+        "mean": 748.98,
+        "p50": 729.09,
+        "p90": 991.23,
+        "p95": 1064.96,
+        "p99": 1359.87,
+        "p999": 1747.8,
+        "max": 1747.8
+      },
+      "serverCores": 1.91,
+      "cpuMsPerRequest": 89.1,
+      "rssStartMb": 2967.4,
+      "rssEndMb": 3624.2,
+      "rssPeakMb": 3710.4,
+      "gc": {
+        "pausePercent": 10.30435945393319,
+        "gen0": 97,
+        "gen1": 41,
+        "gen2": 3,
+        "allocatedBytes": 34342837832
+      }
+    },
+    {
+      "name": "c4-uniform-x32",
+      "cores": 4,
+      "mix": "uniform-html",
+      "connections": 32,
+      "engine": "jint",
+      "rps": 32.3,
+      "requests": 1455,
+      "errors": 0,
+      "statuses": {
+        "200": 1455
+      },
+      "avgKb": 214,
+      "latencyMs": {
+        "mean": 993.01,
+        "p50": 925.7,
+        "p90": 1376.26,
+        "p95": 1572.86,
+        "p99": 1966.08,
+        "p999": 2228.22,
+        "max": 2256.01
+      },
+      "serverCores": 3.66,
+      "cpuMsPerRequest": 113.35,
+      "rssStartMb": 4765.9,
+      "rssEndMb": 4967.4,
+      "rssPeakMb": 5213,
+      "gc": {
+        "pausePercent": 19.95830400809738,
+        "gen0": 151,
+        "gen1": 65,
+        "gen2": 9,
+        "allocatedBytes": 52675156608
+      }
+    },
+    {
+      "name": "c4-uniform-x32-wks",
+      "cores": 4,
+      "mix": "uniform-html",
+      "connections": 32,
+      "serverGc": false,
+      "engine": "jint",
+      "rps": 7.9,
+      "requests": 355,
+      "errors": 0,
+      "statuses": {
+        "200": 355
+      },
+      "avgKb": 204.3,
+      "latencyMs": {
+        "mean": 3880.81,
+        "p50": 4390.91,
+        "p90": 6094.85,
+        "p95": 6750.21,
+        "p99": 7929.85,
+        "p999": 8346.16,
+        "max": 8346.16
+      },
+      "serverCores": 1.43,
+      "cpuMsPerRequest": 180.72,
+      "rssStartMb": 3880,
+      "rssEndMb": 4242.8,
+      "rssPeakMb": 4864.1,
+      "gc": {
+        "pausePercent": 81.71828563533758,
+        "gen0": 652,
+        "gen1": 311,
+        "gen2": 2,
+        "allocatedBytes": 11916800984
+      }
+    }
+  ],
+  "profile": null,
+  "sequenceMemory": {
+    "rssMb": 1893.5,
+    "cpuSeconds": 65.2
+  }
+}

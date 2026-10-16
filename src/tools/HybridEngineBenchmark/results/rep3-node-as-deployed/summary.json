@@ -1,0 +1,43 @@
+{
+  "startedUtc": "2026-10-16T00:45:23.461Z",
+  "engine": "node",
+  "label": "rep3-node-as-deployed",
+  "node": "v24.13.1",
+  "machine": {
+    "platform": "win32",
+    "cpus": 28
+  },
+  "cold": [],
+  "sequence": [],
+  "load": [
+    {
+      "name": "c1-uniform-x16",
+      "cores": 1,
+      "mix": "uniform-html",
+      "connections": 16,
+      "engine": "node",
+      "rps": 88.1,
+      "requests": 2644,
+      "errors": 0,
+      "statuses": {
+        "200": 2644
+      },
+      "avgKb": 222.4,
+      "latencyMs": {
+        "mean": 182.1,
+        "p50": 180.22,
+        "p90": 299.01,
+        "p95": 331.77,
+        "p99": 446.46,
+        "p999": 540.67,
+        "max": 575.18
+      },
+      "serverCores": 0.97,
+      "cpuMsPerRequest": 11.03,
+      "rssStartMb": 795.6,
+      "rssEndMb": 845.4,
+      "rssPeakMb": 845.9
+    }
+  ],
+  "profile": null
+}
