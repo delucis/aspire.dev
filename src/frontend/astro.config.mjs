@@ -93,7 +93,10 @@ export default defineConfig({
     },
     ...(incremental
       ? {
-          plugins: [incremental.privateIdentityPlugin],
+          plugins: [
+            incremental.privateIdentityPlugin,
+            ...(incremental.dependencyDiagnostics ? [incremental.dependencyDiagnostics] : []),
+          ],
         }
       : {}),
     ...(staticHostUrl
