@@ -1,0 +1,98 @@
+#start 2026-10-16T16:51:21Z sites: node=http://NODE_SITE jint=http://JINT_SITE
+ready: node=http://NODE_SITE
+ready: jint=http://JINT_SITE
+=== warm-up node
+[warm-up] 16 connections, 20s, 13,682 distinct paths -> http://NODE_SITE/
+  requests 1,408  rps 70.4  errors 0  avg 50.5 KB  status 200:1408
+  latency ms  mean 228  p50 193  p90 442  p95 549  p99 762  p99.9 1,065  max 1,476
+  x-astro-cache  HIT 29  MISS 1,379  hit ratio 2.1%
+=== warm-up jint
+[warm-up] 16 connections, 20s, 13,682 distinct paths -> http://JINT_SITE/
+  requests 87  rps 4.3  errors 0  avg 50.8 KB  status 200:87
+  latency ms  mean 4,057  p50 3,310  p90 8,192  p95 8,782  p99 23,028  p99.9 23,028  max 23,028
+  x-astro-cache  HIT 0  MISS 87  hit ratio 0.0%
+=== sweep-node-c1
+[sweep-node-c1] 1 connections, 30s, 13,682 distinct paths -> http://NODE_SITE/
+  requests 1,055  rps 35.2  errors 0  avg 50.3 KB  status 200:1055
+  latency ms  mean 28.45  p50 24.32  p90 42.49  p95 53.76  p99 102  p99.9 164  max 176
+  x-astro-cache  HIT 26  MISS 1,029  hit ratio 2.5%
+#json {"label":"sweep-node-c1","url":"http://NODE_SITE/","startedUtc":"2026-10-16T16:52:26.6079421Z","connections":1,"uniquePaths":13682,"seconds":30,"requests":1055,"requestsPerSecond":35.166666666666664,"errors":0,"statuses":{"200":1055},"failures":{},"averageBytes":51542.18767772512,"latency":{"mean":28.44687488151659,"p50":24.319,"p90":42.495,"p95":53.759,"p99":102.399,"p999":163.839,"max":175.985},"requestsPerSecondTimeline":[35,32,30,40,38,31,36,30,41,38,33,31,30,45,38,33,33,32,39,40,41,30,33,37,38,37,30,29,40,35],"server":null,"gc":null,"cacheHits":26,"cacheMisses":1029}
+=== sweep-jint-c1
+[sweep-jint-c1] 1 connections, 30s, 13,682 distinct paths -> http://JINT_SITE/
+  requests 140  rps 4.7  errors 0  avg 50.7 KB  status 200:140
+  latency ms  mean 216  p50 154  p90 344  p95 623  p99 1,049  p99.9 1,338  max 1,338
+  x-astro-cache  HIT 2  MISS 138  hit ratio 1.4%
+#json {"label":"sweep-jint-c1","url":"http://JINT_SITE/","startedUtc":"2026-10-16T16:53:07.1604657Z","connections":1,"uniquePaths":13682,"seconds":30,"requests":140,"requestsPerSecond":4.666666666666667,"errors":0,"statuses":{"200":140},"failures":{},"averageBytes":51940.34285714286,"latency":{"mean":216.31937857142856,"p50":153.599,"p90":344.063,"p95":622.591,"p99":1048.575,"p999":1337.574,"max":1337.574},"requestsPerSecondTimeline":[6,7,5,6,4,3,7,6,6,6,6,5,7,3,4,7,3,4,4,3,4,2,0,7,4,6,7,3,2,3],"server":null,"gc":null,"cacheHits":2,"cacheMisses":138}
+=== sweep-jint-c2
+[sweep-jint-c2] 2 connections, 30s, 13,682 distinct paths -> http://JINT_SITE/
+  requests 244  rps 8.1  errors 0  avg 51.4 KB  status 200:244
+  latency ms  mean 245  p50 150  p90 487  p95 852  p99 1,245  p99.9 1,524  max 1,524
+  x-astro-cache  HIT 3  MISS 241  hit ratio 1.2%
+#json {"label":"sweep-jint-c2","url":"http://JINT_SITE/","startedUtc":"2026-10-16T16:53:47.8286567Z","connections":2,"uniquePaths":13682,"seconds":30,"requests":244,"requestsPerSecond":8.133333333333333,"errors":0,"statuses":{"200":244},"failures":{},"averageBytes":52602.02868852459,"latency":{"mean":244.68289344262294,"p50":149.503,"p90":487.423,"p95":851.967,"p99":1245.183,"p999":1524.097,"max":1524.097},"requestsPerSecondTimeline":[9,12,8,10,3,3,6,11,8,4,8,6,9,11,8,9,11,12,9,6,8,9,8,11,6,1,5,9,11,13],"server":null,"gc":null,"cacheHits":3,"cacheMisses":241}
+=== sweep-node-c2
+[sweep-node-c2] 2 connections, 30s, 13,682 distinct paths -> http://NODE_SITE/
+  requests 2,337  rps 77.9  errors 0  avg 50.2 KB  status 200:2337
+  latency ms  mean 25.70  p50 22.02  p90 35.84  p95 46.59  p99 84.99  p99.9 186  max 297
+  x-astro-cache  HIT 48  MISS 2,289  hit ratio 2.1%
+#json {"label":"sweep-node-c2","url":"http://NODE_SITE/","startedUtc":"2026-10-16T16:54:28.3443537Z","connections":2,"uniquePaths":13682,"seconds":30,"requests":2337,"requestsPerSecond":77.9,"errors":0,"statuses":{"200":2337},"failures":{},"averageBytes":51427.34830979889,"latency":{"mean":25.69713692768507,"p50":22.015,"p90":35.839,"p95":46.591,"p99":84.991,"p999":186.367,"max":296.67},"requestsPerSecondTimeline":[82,90,83,59,75,84,81,84,57,82,82,77,77,64,78,78,80,82,87,68,85,78,64,79,74,90,86,80,69,82],"server":null,"gc":null,"cacheHits":48,"cacheMisses":2289}
+=== sweep-node-c4
+[sweep-node-c4] 4 connections, 30s, 13,682 distinct paths -> http://NODE_SITE/
+  requests 2,305  rps 76.8  errors 0  avg 50.3 KB  status 200:2305
+  latency ms  mean 52.10  p50 44.03  p90 81.92  p95 100  p99 197  p99.9 377  max 380
+  x-astro-cache  HIT 51  MISS 2,254  hit ratio 2.2%
+#json {"label":"sweep-node-c4","url":"http://NODE_SITE/","startedUtc":"2026-10-16T16:55:08.7587825Z","connections":4,"uniquePaths":13682,"seconds":30,"requests":2305,"requestsPerSecond":76.83333333333333,"errors":0,"statuses":{"200":2305},"failures":{},"averageBytes":51543.70412147506,"latency":{"mean":52.09775140997831,"p50":44.031,"p90":81.919,"p95":100.351,"p99":196.607,"p999":376.831,"max":379.747},"requestsPerSecondTimeline":[96,87,96,72,69,101,88,89,75,94,95,69,42,72,71,76,76,71,79,71,73,65,81,61,83,64,63,79,77,70],"server":null,"gc":null,"cacheHits":51,"cacheMisses":2254}
+=== sweep-jint-c4
+[sweep-jint-c4] 4 connections, 30s, 13,682 distinct paths -> http://JINT_SITE/
+  requests 252  rps 8.4  errors 0  avg 51.2 KB  status 200:252
+  latency ms  mean 473  p50 299  p90 1,196  p95 1,884  p99 2,327  p99.9 3,996  max 3,996
+  x-astro-cache  HIT 4  MISS 248  hit ratio 1.6%
+#json {"label":"sweep-jint-c4","url":"http://JINT_SITE/","startedUtc":"2026-10-16T16:55:49.2719731Z","connections":4,"uniquePaths":13682,"seconds":30,"requests":252,"requestsPerSecond":8.4,"errors":0,"statuses":{"200":252},"failures":{},"averageBytes":52462.51190476191,"latency":{"mean":472.76682539682537,"p50":299.007,"p90":1196.031,"p95":1884.159,"p99":2326.527,"p999":3996.355,"max":3996.355},"requestsPerSecondTimeline":[9,11,16,10,11,7,9,3,5,6,7,4,9,10,9,11,9,11,4,6,5,4,4,11,9,9,10,8,12,13],"server":null,"gc":null,"cacheHits":4,"cacheMisses":248}
+=== sweep-jint-c8
+[sweep-jint-c8] 8 connections, 30s, 13,682 distinct paths -> http://JINT_SITE/
+  requests 290  rps 9.7  errors 0  avg 50.7 KB  status 200:290
+  latency ms  mean 824  p50 680  p90 1,442  p95 1,950  p99 2,654  p99.9 3,440  max 3,440
+  x-astro-cache  HIT 10  MISS 280  hit ratio 3.4%
+#json {"label":"sweep-jint-c8","url":"http://JINT_SITE/","startedUtc":"2026-10-16T16:56:30.3591906Z","connections":8,"uniquePaths":13682,"seconds":30,"requests":290,"requestsPerSecond":9.666666666666666,"errors":0,"statuses":{"200":290},"failures":{},"averageBytes":51902.79655172414,"latency":{"mean":823.9741344827586,"p50":679.935,"p90":1441.791,"p95":1949.695,"p99":2654.207,"p999":3440.42,"max":3440.42},"requestsPerSecondTimeline":[13,11,9,14,7,9,8,8,10,15,12,12,10,6,9,10,9,12,9,9,7,10,5,9,10,7,3,12,13,12],"server":null,"gc":null,"cacheHits":10,"cacheMisses":280}
+=== sweep-node-c8
+[sweep-node-c8] 8 connections, 30s, 13,682 distinct paths -> http://NODE_SITE/
+  requests 2,466  rps 82.2  errors 0  avg 50.3 KB  status 200:2466
+  latency ms  mean 97.36  p50 84.99  p90 160  p95 201  p99 356  p99.9 504  max 507
+  x-astro-cache  HIT 59  MISS 2,407  hit ratio 2.4%
+#json {"label":"sweep-node-c8","url":"http://NODE_SITE/","startedUtc":"2026-10-16T16:57:11.2451611Z","connections":8,"uniquePaths":13682,"seconds":30,"requests":2466,"requestsPerSecond":82.2,"errors":0,"statuses":{"200":2466},"failures":{},"averageBytes":51474.134630981345,"latency":{"mean":97.35584266017842,"p50":84.991,"p90":159.743,"p95":200.703,"p99":356.351,"p999":503.807,"max":507.427},"requestsPerSecondTimeline":[72,90,95,85,77,92,90,84,87,75,72,94,79,94,86,87,85,75,86,73,91,60,49,84,68,88,83,96,89,80],"server":null,"gc":null,"cacheHits":59,"cacheMisses":2407}
+=== sweep-node-c16
+[sweep-node-c16] 16 connections, 30s, 13,682 distinct paths -> http://NODE_SITE/
+  requests 2,409  rps 80.3  errors 0  avg 50.4 KB  status 200:2409
+  latency ms  mean 199  p50 176  p90 373  p95 459  p99 672  p99.9 918  max 970
+  x-astro-cache  HIT 38  MISS 2,371  hit ratio 1.6%
+#json {"label":"sweep-node-c16","url":"http://NODE_SITE/","startedUtc":"2026-10-16T16:57:51.7646604Z","connections":16,"uniquePaths":13682,"seconds":30,"requests":2409,"requestsPerSecond":80.3,"errors":0,"statuses":{"200":2409},"failures":{},"averageBytes":51582.53466168535,"latency":{"mean":199.06119593192196,"p50":176.127,"p90":372.735,"p95":458.751,"p99":671.743,"p999":917.503,"max":969.916},"requestsPerSecondTimeline":[90,80,80,69,76,60,80,82,85,92,81,79,70,83,83,90,90,75,84,66,73,77,76,86,89,88,79,81,76,89],"server":null,"gc":null,"cacheHits":38,"cacheMisses":2371}
+=== sweep-jint-c16
+[sweep-jint-c16] 16 connections, 30s, 13,682 distinct paths -> http://JINT_SITE/
+  requests 249  rps 8.3  errors 0  avg 51.3 KB  status 200:249
+  latency ms  mean 1,909  p50 1,769  p90 3,015  p95 3,408  p99 4,850  p99.9 5,295  max 5,295
+  x-astro-cache  HIT 4  MISS 245  hit ratio 1.6%
+#json {"label":"sweep-jint-c16","url":"http://JINT_SITE/","startedUtc":"2026-10-16T16:58:32.4339923Z","connections":16,"uniquePaths":13682,"seconds":30,"requests":249,"requestsPerSecond":8.3,"errors":0,"statuses":{"200":249},"failures":{},"averageBytes":52537.0843373494,"latency":{"mean":1909.1828473895582,"p50":1769.471,"p90":3014.655,"p95":3407.871,"p99":4849.663,"p999":5294.783,"max":5294.783},"requestsPerSecondTimeline":[6,9,9,14,12,3,6,9,8,11,8,10,8,6,7,6,7,8,7,9,6,11,11,9,7,6,9,7,12,8],"server":null,"gc":null,"cacheHits":4,"cacheMisses":245}
+=== sweep-jint-c32
+[sweep-jint-c32] 32 connections, 30s, 13,682 distinct paths -> http://JINT_SITE/
+  requests 263  rps 8.8  errors 0  avg 51.2 KB  status 200:263
+  latency ms  mean 3,725  p50 3,473  p90 5,898  p95 6,357  p99 6,947  p99.9 7,305  max 7,305
+  x-astro-cache  HIT 4  MISS 259  hit ratio 1.5%
+#json {"label":"sweep-jint-c32","url":"http://JINT_SITE/","startedUtc":"2026-10-16T16:59:14.7400974Z","connections":32,"uniquePaths":13682,"seconds":30,"requests":263,"requestsPerSecond":8.766666666666667,"errors":0,"statuses":{"200":263},"failures":{},"averageBytes":52394.43346007605,"latency":{"mean":3725.0541825095056,"p50":3473.407,"p90":5898.239,"p95":6356.991,"p99":6946.815,"p999":7304.948,"max":7304.948},"requestsPerSecondTimeline":[9,7,9,12,7,11,9,5,6,3,11,12,7,11,12,12,8,10,11,12,8,7,9,8,8,7,2,12,10,8],"server":null,"gc":null,"cacheHits":4,"cacheMisses":259}
+=== sweep-node-c32
+[sweep-node-c32] 32 connections, 30s, 13,682 distinct paths -> http://NODE_SITE/
+  requests 2,309  rps 77.0  errors 0  avg 50.4 KB  status 200:2309
+  latency ms  mean 413  p50 356  p90 795  p95 1,040  p99 1,655  p99.9 2,654  max 3,192
+  x-astro-cache  HIT 54  MISS 2,255  hit ratio 2.3%
+#json {"label":"sweep-node-c32","url":"http://NODE_SITE/","startedUtc":"2026-10-16T17:00:00.9591820Z","connections":32,"uniquePaths":13682,"seconds":30,"requests":2309,"requestsPerSecond":76.96666666666667,"errors":0,"statuses":{"200":2309},"failures":{},"averageBytes":51595.4343871806,"latency":{"mean":412.6864387180597,"p50":356.351,"p90":794.623,"p95":1040.383,"p99":1654.783,"p999":2654.207,"max":3191.707},"requestsPerSecondTimeline":[75,73,76,88,77,78,84,62,70,71,85,83,80,87,87,79,71,74,66,74,70,66,93,82,84,89,61,82,72,70],"server":null,"gc":null,"cacheHits":54,"cacheMisses":2255}
+=== sweep-node-c64
+[sweep-node-c64] 64 connections, 30s, 13,682 distinct paths -> http://NODE_SITE/
+  requests 2,371  rps 79.0  errors 0  avg 50.3 KB  status 200:2371
+  latency ms  mean 780  p50 606  p90 1,278  p95 1,655  p99 6,029  p99.9 9,961  max 10,405
+  x-astro-cache  HIT 62  MISS 2,309  hit ratio 2.6%
+#json {"label":"sweep-node-c64","url":"http://NODE_SITE/","startedUtc":"2026-10-16T17:00:41.8443112Z","connections":64,"uniquePaths":13682,"seconds":30,"requests":2371,"requestsPerSecond":79.03333333333333,"errors":0,"statuses":{"200":2371},"failures":{},"averageBytes":51504.194854491776,"latency":{"mean":779.8459156474062,"p50":606.207,"p90":1277.951,"p95":1654.783,"p99":6029.311,"p999":9961.471,"max":10405.228},"requestsPerSecondTimeline":[81,85,71,85,83,67,85,75,80,73,78,86,83,79,73,72,84,82,83,58,77,85,89,88,84,85,67,75,79,79],"server":null,"gc":null,"cacheHits":62,"cacheMisses":2309}
+=== sweep-jint-c64
+[sweep-jint-c64] 64 connections, 30s, 13,682 distinct paths -> http://JINT_SITE/
+  requests 259  rps 8.6  errors 0  avg 51.5 KB  status 200:259
+  latency ms  mean 7,517  p50 7,799  p90 9,568  p95 10,224  p99 10,617  p99.9 11,467  max 11,467
+  x-astro-cache  HIT 10  MISS 249  hit ratio 3.9%
+#json {"label":"sweep-jint-c64","url":"http://JINT_SITE/","startedUtc":"2026-10-16T17:01:23.2338446Z","connections":64,"uniquePaths":13682,"seconds":30,"requests":259,"requestsPerSecond":8.633333333333333,"errors":0,"statuses":{"200":259},"failures":{},"averageBytes":52723.21235521235,"latency":{"mean":7517.133698841699,"p50":7798.783,"p90":9568.255,"p95":10223.615,"p99":10616.831,"p999":11466.594,"max":11466.594},"requestsPerSecondTimeline":[7,14,5,10,10,9,11,9,14,11,8,5,6,6,10,7,14,9,11,2,3,0,9,9,11,12,7,9,13,8],"server":null,"gc":null,"cacheHits":10,"cacheMisses":249}
+#end 2026-10-16T17:02:11Z

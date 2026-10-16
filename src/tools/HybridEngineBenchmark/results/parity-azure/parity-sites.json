@@ -1,0 +1,1041 @@
+{
+  "startedUtc": "2026-10-16T17:56:39.998Z",
+  "perKind": 25,
+  "kinds": {
+    "csharp-package": {
+      "compared": 25,
+      "identical": 0,
+      "identicalAfterBuildNoise": 0,
+      "differing": 25,
+      "statusMismatches": 0,
+      "nodeStatuses": {
+        "200": 25
+      },
+      "jintStatuses": {
+        "200": 25
+      },
+      "examples": [
+        {
+          "path": "/reference/api/csharp/communitytoolkit.aspire.hosting.umami/",
+          "nodeStatus": 200,
+          "jintStatus": 200,
+          "nodeBytes": 198427,
+          "jintBytes": 192139,
+          "hunkCount": 188,
+          "hunks": [
+            {
+              "removedChars": 294,
+              "addedChars": 294,
+              "node": "…git-commit-id\" content=\"1a61517655b4fd7811ef63fb5913f6fb623d9d6a\"><meta name=\"git-source-url\" content=\"https://github.com/microsoft/aspire.dev/blob/1a61517655b4fd7811ef63fb5913f6fb623d9d6a/src/frontend/src/conten…",
+              "jint": "…git-commit-id\" content=\"73158d1929860ac896485d12ad0d5d8cd5991b57\"><meta name=\"git-source-url\" content=\"https://github.com/microsoft/aspire.dev/blob/73158d1929860ac896485d12ad0d5d8cd5991b57/src/frontend/src/conten…"
+            },
+            {
+              "removedChars": 0,
+              "addedChars": 324,
+              "node": "",
+              "jint": "<link rel=\"preload\" as=\"font\" type=\"font/woff2\" href=\"/_astro/poppins-latin-400-normal.#.woff2\" crossorigin><link rel=\"preload\" as=\"font\" type=\"font/woff2\" href=\"/_astro/poppins-latin-600-normal.#.woff2\" crossorigin><link rel=\"preload\" as=\"font\" type=\"font/woff2\" href=\"/_astro/poppins-latin-700-norm"
+            },
+            {
+              "removedChars": 60,
+              "addedChars": 0,
+              "node": "<link rel=\"stylesheet\" href=\"/_astro/AsciinemaPlayer.#.css\">",
+              "jint": ""
+            },
+            {
+              "removedChars": 4311,
+              "addedChars": 4537,
+              "node": "…em;font-size:.88em}.doc-href:where(.astro-s4){color:var(--api-accent-text);text-decoration:none}.doc-href:where(.astro-s4):hover{text-decoration:underline}.doc-paramref:where(.astro-s4),.doc-typeparamref:where(.astro-s4){border-radius:var(--api-radius-sm);background:var(--sl-color-gray-5);padding:.",
+              "jint": "…em;font-size:.88em}.doc-content:where(.astro-s4) a.type-link{color:var(--api-accent-text);text-underline-offset:.2em;text-decoration:underline}.doc-content:where(.astro-s4) a.type-link:hover{text-decoration-thickness:2px}.doc-href:where(.astro-s4){text-underline-offset:.2em;color:var(--api-accent-t"
+            },
+            {
+              "removedChars": 4483,
+              "addedChars": 0,
+              "node": "<button class=\"header-icon-btn install-cli-btn astro-s18\" data-open-install-modal data-tour-target=\"install-cli\" data-tour-step=\"install-cli\" aria-label=\"Open install Aspire CLI dialog\"><span class=\"sr-only astro-s18\">Install Aspire CLI</span><svg aria-hidden=\"true\" class=\"astro-s18 astro-s2\" width=",
+              "jint": ""
+            },
+            {
+              "removedChars": 247,
+              "addedChars": 44,
+              "node": "<div class=\"expressive-code astro-s20\"><link rel=\"stylesheet\" href=\"/_astro/ec.ncl7s.css\"><script type=\"module\" src=\"/_astro/ec.0vx5m.js\"></script><figure class=\"frame not-content\"><figcaption class=\"header\"></figcaption><pre data-language=\"bash\">",
+              "jint": "<pre data-language=\"bash\" class=\"astro-s20\">"
+            }
+          ]
+        },
+        {
+          "path": "/reference/api/csharp/aspire.hosting.openai/",
+          "nodeStatus": 200,
+          "jintStatus": 200,
+          "nodeBytes": 199916,
+          "jintBytes": 193665,
+          "hunkCount": 194,
+          "hunks": [
+            {
+              "removedChars": 278,
+              "addedChars": 278,
+              "node": "…git-commit-id\" content=\"1a61517655b4fd7811ef63fb5913f6fb623d9d6a\"><meta name=\"git-source-url\" content=\"https://github.com/microsoft/aspire.dev/blob/1a61517655b4fd7811ef63fb5913f6fb623d9d6a/src/frontend/src/conten…",
+              "jint": "…git-commit-id\" content=\"73158d1929860ac896485d12ad0d5d8cd5991b57\"><meta name=\"git-source-url\" content=\"https://github.com/microsoft/aspire.dev/blob/73158d1929860ac896485d12ad0d5d8cd5991b57/src/frontend/src/conten…"
+            },
+            {
+              "removedChars": 0,
+              "addedChars": 324,
+              "node": "",
+              "jint": "<link rel=\"preload\" as=\"font\" type=\"font/woff2\" href=\"/_astro/poppins-latin-400-normal.#.woff2\" crossorigin><link rel=\"preload\" as=\"font\" type=\"font/woff2\" href=\"/_astro/poppins-latin-600-normal.#.woff2\" crossorigin><link rel=\"preload\" as=\"font\" type=\"font/woff2\" href=\"/_astro/poppins-latin-700-norm"
+            },
+            {
+              "removedChars": 60,
+              "addedChars": 0,
+              "node": "<link rel=\"stylesheet\" href=\"/_astro/AsciinemaPlayer.#.css\">",
+              "jint": ""
+            },
+            {
+              "removedChars": 4311,
+              "addedChars": 4537,
+              "node": "…em;font-size:.88em}.doc-href:where(.astro-s4){color:var(--api-accent-text);text-decoration:none}.doc-href:where(.astro-s4):hover{text-decoration:underline}.doc-paramref:where(.astro-s4),.doc-typeparamref:where(.astro-s4){border-radius:var(--api-radius-sm);background:var(--sl-color-gray-5);padding:.",
+              "jint": "…em;font-size:.88em}.doc-content:where(.astro-s4) a.type-link{color:var(--api-accent-text);text-underline-offset:.2em;text-decoration:underline}.doc-content:where(.astro-s4) a.type-link:hover{text-decoration-thickness:2px}.doc-href:where(.astro-s4){text-underline-offset:.2em;color:var(--api-accent-t"
+            },
+            {
+              "removedChars": 4483,
+              "addedChars": 0,
+              "node": "<button class=\"header-icon-btn install-cli-btn astro-s18\" data-open-install-modal data-tour-target=\"install-cli\" data-tour-step=\"install-cli\" aria-label=\"Open install Aspire CLI dialog\"><span class=\"sr-only astro-s18\">Install Aspire CLI</span><svg aria-hidden=\"true\" class=\"astro-s18 astro-s2\" width=",
+              "jint": ""
+            },
+            {
+              "removedChars": 247,
+              "addedChars": 44,
+              "node": "<div class=\"expressive-code astro-s20\"><link rel=\"stylesheet\" href=\"/_astro/ec.ncl7s.css\"><script type=\"module\" src=\"/_astro/ec.0vx5m.js\"></script><figure class=\"frame not-content\"><figcaption class=\"header\"></figcaption><pre data-language=\"bash\">",
+              "jint": "<pre data-language=\"bash\" class=\"astro-s20\">"
+            }
+          ]
+        },
+        {
+          "path": "/reference/api/csharp/communitytoolkit.aspire.hosting.elasticsearch.extensions/",
+          "nodeStatus": 200,
+          "jintStatus": 200,
+          "nodeBytes": 200014,
+          "jintBytes": 193718,
+          "hunkCount": 189,
+          "hunks": [
+            {
+              "removedChars": 313,
+              "addedChars": 313,
+              "node": "…git-commit-id\" content=\"1a61517655b4fd7811ef63fb5913f6fb623d9d6a\"><meta name=\"git-source-url\" content=\"https://github.com/microsoft/aspire.dev/blob/1a61517655b4fd7811ef63fb5913f6fb623d9d6a/src/frontend/src/conten…",
+              "jint": "…git-commit-id\" content=\"73158d1929860ac896485d12ad0d5d8cd5991b57\"><meta name=\"git-source-url\" content=\"https://github.com/microsoft/aspire.dev/blob/73158d1929860ac896485d12ad0d5d8cd5991b57/src/frontend/src/conten…"
+            },
+            {
+              "removedChars": 0,
+              "addedChars": 324,
+              "node": "",
+              "jint": "<link rel=\"preload\" as=\"font\" type=\"font/woff2\" href=\"/_astro/poppins-latin-400-normal.#.woff2\" crossorigin><link rel=\"preload\" as=\"font\" type=\"font/woff2\" href=\"/_astro/poppins-latin-600-normal.#.woff2\" crossorigin><link rel=\"preload\" as=\"font\" type=\"font/woff2\" href=\"/_astro/poppins-latin-700-norm"
+            },
+            {
+              "removedChars": 60,
+              "addedChars": 0,
+              "node": "<link rel=\"stylesheet\" href=\"/_astro/AsciinemaPlayer.#.css\">",
+              "jint": ""
+            },
+            {
+              "removedChars": 4311,
+              "addedChars": 4537,
+              "node": "…em;font-size:.88em}.doc-href:where(.astro-s4){color:var(--api-accent-text);text-decoration:none}.doc-href:where(.astro-s4):hover{text-decoration:underline}.doc-paramref:where(.astro-s4),.doc-typeparamref:where(.astro-s4){border-radius:var(--api-radius-sm);background:var(--sl-color-gray-5);padding:.",
+              "jint": "…em;font-size:.88em}.doc-content:where(.astro-s4) a.type-link{color:var(--api-accent-text);text-underline-offset:.2em;text-decoration:underline}.doc-content:where(.astro-s4) a.type-link:hover{text-decoration-thickness:2px}.doc-href:where(.astro-s4){text-underline-offset:.2em;color:var(--api-accent-t"
+            },
+            {
+              "removedChars": 4483,
+              "addedChars": 0,
+              "node": "<button class=\"header-icon-btn install-cli-btn astro-s18\" data-open-install-modal data-tour-target=\"install-cli\" data-tour-step=\"install-cli\" aria-label=\"Open install Aspire CLI dialog\"><span class=\"sr-only astro-s18\">Install Aspire CLI</span><svg aria-hidden=\"true\" class=\"astro-s18 astro-s2\" width=",
+              "jint": ""
+            },
+            {
+              "removedChars": 247,
+              "addedChars": 44,
+              "node": "<div class=\"expressive-code astro-s20\"><link rel=\"stylesheet\" href=\"/_astro/ec.ncl7s.css\"><script type=\"module\" src=\"/_astro/ec.0vx5m.js\"></script><figure class=\"frame not-content\"><figcaption class=\"header\"></figcaption><pre data-language=\"bash\">",
+              "jint": "<pre data-language=\"bash\" class=\"astro-s20\">"
+            }
+          ]
+        }
+      ],
+      "matchingPercent": 0
+    },
+    "csharp-type": {
+      "compared": 25,
+      "identical": 0,
+      "identicalAfterBuildNoise": 0,
+      "differing": 25,
+      "statusMismatches": 0,
+      "nodeStatuses": {
+        "200": 25
+      },
+      "jintStatuses": {
+        "200": 25
+      },
+      "examples": [
+        {
+          "path": "/reference/api/csharp/aspire.hosting.azure.kubernetes/standarddsv2promo/",
+          "nodeStatus": 200,
+          "jintStatus": 200,
+          "nodeBytes": 403290,
+          "jintBytes": 395239,
+          "hunkCount": 1028,
+          "hunks": [
+            {
+              "removedChars": 306,
+              "addedChars": 306,
+              "node": "…git-commit-id\" content=\"1a61517655b4fd7811ef63fb5913f6fb623d9d6a\"><meta name=\"git-source-url\" content=\"https://github.com/microsoft/aspire.dev/blob/1a61517655b4fd7811ef63fb5913f6fb623d9d6a/src/frontend/src/conten…",
+              "jint": "…git-commit-id\" content=\"73158d1929860ac896485d12ad0d5d8cd5991b57\"><meta name=\"git-source-url\" content=\"https://github.com/microsoft/aspire.dev/blob/73158d1929860ac896485d12ad0d5d8cd5991b57/src/frontend/src/conten…"
+            },
+            {
+              "removedChars": 0,
+              "addedChars": 324,
+              "node": "",
+              "jint": "<link rel=\"preload\" as=\"font\" type=\"font/woff2\" href=\"/_astro/poppins-latin-400-normal.#.woff2\" crossorigin><link rel=\"preload\" as=\"font\" type=\"font/woff2\" href=\"/_astro/poppins-latin-600-normal.#.woff2\" crossorigin><link rel=\"preload\" as=\"font\" type=\"font/woff2\" href=\"/_astro/poppins-latin-700-norm"
+            },
+            {
+              "removedChars": 60,
+              "addedChars": 0,
+              "node": "<link rel=\"stylesheet\" href=\"/_astro/AsciinemaPlayer.#.css\">",
+              "jint": ""
+            },
+            {
+              "removedChars": 5348,
+              "addedChars": 1972,
+              "node": "…panel:where(.astro-s4){gap:.75rem;margin:0 0 1rem;display:grid}.polyglot-note:where(.astro-s4){padding:0;box-shadow:none!important;background:0 0!important;border:0!important;border-radius:0!important}.polyglot-title:where(.astro-s4){font-size:var(--api-text-base);letter-spacing:.06em;text-transfor",
+              "jint": "…panel:where(.astro-s4){grid-template-columns:minmax(0,1fr);gap:.75rem;min-width:0;margin:0 0 1rem;display:grid}.polyglot-note:where(.astro-s4){overflow-wrap:anywhere;min-width:0;padding:0;box-shadow:none!important;background:0 0!important;border:0!important;border-radius:0!important}.polyglot-title"
+            },
+            {
+              "removedChars": 2290,
+              "addedChars": 6017,
+              "node": ".theme-image:where(.astro…",
+              "jint": ".doc-content:where(.astro-s5){line-height:1.5}.doc-inline-code:where(.astro-s5){border-radius:var(--api-radius-sm);background:var(--sl-color-gray-5);color:var(--sl-color-gray-1);padding:.15em .35em;font-size:.9em}.doc-codeblock:where(.astro-s5){background:var(--sl-color-gray-6);border:1px solid var("
+            },
+            {
+              "removedChars": 4483,
+              "addedChars": 0,
+              "node": "<button class=\"header-icon-btn install-cli-btn astro-s17\" data-open-install-modal data-tour-target=\"install-cli\" data-tour-step=\"install-cli\" aria-label=\"Open install Aspire CLI dialog\"><span class=\"sr-only astro-s17\">Install Aspire CLI</span><svg aria-hidden=\"true\" class=\"astro-s17 astro-s2\" width=",
+              "jint": ""
+            }
+          ]
+        },
+        {
+          "path": "/reference/api/csharp/aspire.hosting.azure/aspirev8resourcenamepropertyresolver/",
+          "nodeStatus": 200,
+          "jintStatus": 200,
+          "nodeBytes": 250325,
+          "jintBytes": 241787,
+          "hunkCount": 420,
+          "hunks": [
+            {
+              "removedChars": 314,
+              "addedChars": 314,
+              "node": "…git-commit-id\" content=\"1a61517655b4fd7811ef63fb5913f6fb623d9d6a\"><meta name=\"git-source-url\" content=\"https://github.com/microsoft/aspire.dev/blob/1a61517655b4fd7811ef63fb5913f6fb623d9d6a/src/frontend/src/conten…",
+              "jint": "…git-commit-id\" content=\"73158d1929860ac896485d12ad0d5d8cd5991b57\"><meta name=\"git-source-url\" content=\"https://github.com/microsoft/aspire.dev/blob/73158d1929860ac896485d12ad0d5d8cd5991b57/src/frontend/src/conten…"
+            },
+            {
+              "removedChars": 0,
+              "addedChars": 324,
+              "node": "",
+              "jint": "<link rel=\"preload\" as=\"font\" type=\"font/woff2\" href=\"/_astro/poppins-latin-400-normal.#.woff2\" crossorigin><link rel=\"preload\" as=\"font\" type=\"font/woff2\" href=\"/_astro/poppins-latin-600-normal.#.woff2\" crossorigin><link rel=\"preload\" as=\"font\" type=\"font/woff2\" href=\"/_astro/poppins-latin-700-norm"
+            },
+            {
+              "removedChars": 60,
+              "addedChars": 0,
+              "node": "<link rel=\"stylesheet\" href=\"/_astro/AsciinemaPlayer.#.css\">",
+              "jint": ""
+            },
+            {
+              "removedChars": 5348,
+              "addedChars": 1972,
+              "node": "…panel:where(.astro-s4){gap:.75rem;margin:0 0 1rem;display:grid}.polyglot-note:where(.astro-s4){padding:0;box-shadow:none!important;background:0 0!important;border:0!important;border-radius:0!important}.polyglot-title:where(.astro-s4){font-size:var(--api-text-base);letter-spacing:.06em;text-transfor",
+              "jint": "…panel:where(.astro-s4){grid-template-columns:minmax(0,1fr);gap:.75rem;min-width:0;margin:0 0 1rem;display:grid}.polyglot-note:where(.astro-s4){overflow-wrap:anywhere;min-width:0;padding:0;box-shadow:none!important;background:0 0!important;border:0!important;border-radius:0!important}.polyglot-title"
+            },
+            {
+              "removedChars": 2290,
+              "addedChars": 6017,
+              "node": ".theme-image:where(.astro…",
+              "jint": ".doc-content:where(.astro-s5){line-height:1.5}.doc-inline-code:where(.astro-s5){border-radius:var(--api-radius-sm);background:var(--sl-color-gray-5);color:var(--sl-color-gray-1);padding:.15em .35em;font-size:.9em}.doc-codeblock:where(.astro-s5){background:var(--sl-color-gray-6);border:1px solid var("
+            },
+            {
+              "removedChars": 4483,
+              "addedChars": 0,
+              "node": "<button class=\"header-icon-btn install-cli-btn astro-s17\" data-open-install-modal data-tour-target=\"install-cli\" data-tour-step=\"install-cli\" aria-label=\"Open install Aspire CLI dialog\"><span class=\"sr-only astro-s17\">Install Aspire CLI</span><svg aria-hidden=\"true\" class=\"astro-s17 astro-s2\" width=",
+              "jint": ""
+            }
+          ]
+        },
+        {
+          "path": "/reference/api/csharp/communitytoolkit.aspire.minio.client/minioclientbuilderextensionmethods/",
+          "nodeStatus": 200,
+          "jintStatus": 200,
+          "nodeBytes": 198128,
+          "jintBytes": 190094,
+          "hunkCount": 215,
+          "hunks": [
+            {
+              "removedChars": 328,
+              "addedChars": 328,
+              "node": "…git-commit-id\" content=\"1a61517655b4fd7811ef63fb5913f6fb623d9d6a\"><meta name=\"git-source-url\" content=\"https://github.com/microsoft/aspire.dev/blob/1a61517655b4fd7811ef63fb5913f6fb623d9d6a/src/frontend/src/conten…",
+              "jint": "…git-commit-id\" content=\"73158d1929860ac896485d12ad0d5d8cd5991b57\"><meta name=\"git-source-url\" content=\"https://github.com/microsoft/aspire.dev/blob/73158d1929860ac896485d12ad0d5d8cd5991b57/src/frontend/src/conten…"
+            },
+            {
+              "removedChars": 0,
+              "addedChars": 324,
+              "node": "",
+              "jint": "<link rel=\"preload\" as=\"font\" type=\"font/woff2\" href=\"/_astro/poppins-latin-400-normal.#.woff2\" crossorigin><link rel=\"preload\" as=\"font\" type=\"font/woff2\" href=\"/_astro/poppins-latin-600-normal.#.woff2\" crossorigin><link rel=\"preload\" as=\"font\" type=\"font/woff2\" href=\"/_astro/poppins-latin-700-norm"
+            },
+            {
+              "removedChars": 60,
+              "addedChars": 0,
+              "node": "<link rel=\"stylesheet\" href=\"/_astro/AsciinemaPlayer.#.css\">",
+              "jint": ""
+            },
+            {
+              "removedChars": 5348,
+              "addedChars": 1972,
+              "node": "…panel:where(.astro-s4){gap:.75rem;margin:0 0 1rem;display:grid}.polyglot-note:where(.astro-s4){padding:0;box-shadow:none!important;background:0 0!important;border:0!important;border-radius:0!important}.polyglot-title:where(.astro-s4){font-size:var(--api-text-base);letter-spacing:.06em;text-transfor",
+              "jint": "…panel:where(.astro-s4){grid-template-columns:minmax(0,1fr);gap:.75rem;min-width:0;margin:0 0 1rem;display:grid}.polyglot-note:where(.astro-s4){overflow-wrap:anywhere;min-width:0;padding:0;box-shadow:none!important;background:0 0!important;border:0!important;border-radius:0!important}.polyglot-title"
+            },
+            {
+              "removedChars": 2290,
+              "addedChars": 6017,
+              "node": ".theme-image:where(.astro…",
+              "jint": ".doc-content:where(.astro-s5){line-height:1.5}.doc-inline-code:where(.astro-s5){border-radius:var(--api-radius-sm);background:var(--sl-color-gray-5);color:var(--sl-color-gray-1);padding:.15em .35em;font-size:.9em}.doc-codeblock:where(.astro-s5){background:var(--sl-color-gray-6);border:1px solid var("
+            },
+            {
+              "removedChars": 4483,
+              "addedChars": 0,
+              "node": "<button class=\"header-icon-btn install-cli-btn astro-s17\" data-open-install-modal data-tour-target=\"install-cli\" data-tour-step=\"install-cli\" aria-label=\"Open install Aspire CLI dialog\"><span class=\"sr-only astro-s17\">Install Aspire CLI</span><svg aria-hidden=\"true\" class=\"astro-s17 astro-s2\" width=",
+              "jint": ""
+            }
+          ]
+        }
+      ],
+      "matchingPercent": 0
+    },
+    "csharp-memberkind": {
+      "compared": 25,
+      "identical": 0,
+      "identicalAfterBuildNoise": 0,
+      "differing": 25,
+      "statusMismatches": 0,
+      "nodeStatuses": {
+        "200": 25
+      },
+      "jintStatuses": {
+        "200": 25
+      },
+      "examples": [
+        {
+          "path": "/reference/api/csharp/aspire.hosting.foundry/staticvalueprovider-1/methods/",
+          "nodeStatus": 200,
+          "jintStatus": 200,
+          "nodeBytes": 258544,
+          "jintBytes": 247105,
+          "hunkCount": 450,
+          "hunks": [
+            {
+              "removedChars": 309,
+              "addedChars": 309,
+              "node": "…git-commit-id\" content=\"1a61517655b4fd7811ef63fb5913f6fb623d9d6a\"><meta name=\"git-source-url\" content=\"https://github.com/microsoft/aspire.dev/blob/1a61517655b4fd7811ef63fb5913f6fb623d9d6a/src/frontend/src/conten…",
+              "jint": "…git-commit-id\" content=\"73158d1929860ac896485d12ad0d5d8cd5991b57\"><meta name=\"git-source-url\" content=\"https://github.com/microsoft/aspire.dev/blob/73158d1929860ac896485d12ad0d5d8cd5991b57/src/frontend/src/conten…"
+            },
+            {
+              "removedChars": 0,
+              "addedChars": 324,
+              "node": "",
+              "jint": "<link rel=\"preload\" as=\"font\" type=\"font/woff2\" href=\"/_astro/poppins-latin-400-normal.#.woff2\" crossorigin><link rel=\"preload\" as=\"font\" type=\"font/woff2\" href=\"/_astro/poppins-latin-600-normal.#.woff2\" crossorigin><link rel=\"preload\" as=\"font\" type=\"font/woff2\" href=\"/_astro/poppins-latin-700-norm"
+            },
+            {
+              "removedChars": 60,
+              "addedChars": 0,
+              "node": "<link rel=\"stylesheet\" href=\"/_astro/AsciinemaPlayer.#.css\">",
+              "jint": ""
+            },
+            {
+              "removedChars": 6149,
+              "addedChars": 6500,
+              "node": "…panel:where(.astro-s4){gap:.75rem;margin:0 0 1rem;display:grid}.polyglot-note:where(.astro-s4){padding:0;box-shadow:none!important;background:0 0!important;border:0!important;border-radius:0!important}.polyglot-title:where(.astro-s4){font-size:var(--api-text-base);letter-spacing:.06em;text-transfor",
+              "jint": "…panel:where(.astro-s4){grid-template-columns:minmax(0,1fr);gap:.75rem;min-width:0;margin:0 0 1rem;display:grid}.polyglot-note:where(.astro-s4){overflow-wrap:anywhere;min-width:0;padding:0;box-shadow:none!important;background:0 0!important;border:0!important;border-radius:0!important}.polyglot-title"
+            },
+            {
+              "removedChars": 4483,
+              "addedChars": 0,
+              "node": "<button class=\"header-icon-btn install-cli-btn astro-s17\" data-open-install-modal data-tour-target=\"install-cli\" data-tour-step=\"install-cli\" aria-label=\"Open install Aspire CLI dialog\"><span class=\"sr-only astro-s17\">Install Aspire CLI</span><svg aria-hidden=\"true\" class=\"astro-s17 astro-s2\" width=",
+              "jint": ""
+            },
+            {
+              "removedChars": 139,
+              "addedChars": 44,
+              "node": "<div class=\"expressive-code astro-s19\"><figure class=\"frame not-content\"><figcaption class=\"header\"></figcaption><pre data-language=\"bash\">",
+              "jint": "<pre data-language=\"bash\" class=\"astro-s19\">"
+            }
+          ]
+        },
+        {
+          "path": "/reference/api/csharp/aspire.hosting.kubernetes/secret/constructors/",
+          "nodeStatus": 200,
+          "jintStatus": 200,
+          "nodeBytes": 442330,
+          "jintBytes": 433692,
+          "hunkCount": 1214,
+          "hunks": [
+            {
+              "removedChars": 302,
+              "addedChars": 302,
+              "node": "…git-commit-id\" content=\"1a61517655b4fd7811ef63fb5913f6fb623d9d6a\"><meta name=\"git-source-url\" content=\"https://github.com/microsoft/aspire.dev/blob/1a61517655b4fd7811ef63fb5913f6fb623d9d6a/src/frontend/src/conten…",
+              "jint": "…git-commit-id\" content=\"73158d1929860ac896485d12ad0d5d8cd5991b57\"><meta name=\"git-source-url\" content=\"https://github.com/microsoft/aspire.dev/blob/73158d1929860ac896485d12ad0d5d8cd5991b57/src/frontend/src/conten…"
+            },
+            {
+              "removedChars": 0,
+              "addedChars": 324,
+              "node": "",
+              "jint": "<link rel=\"preload\" as=\"font\" type=\"font/woff2\" href=\"/_astro/poppins-latin-400-normal.#.woff2\" crossorigin><link rel=\"preload\" as=\"font\" type=\"font/woff2\" href=\"/_astro/poppins-latin-600-normal.#.woff2\" crossorigin><link rel=\"preload\" as=\"font\" type=\"font/woff2\" href=\"/_astro/poppins-latin-700-norm"
+            },
+            {
+              "removedChars": 60,
+              "addedChars": 0,
+              "node": "<link rel=\"stylesheet\" href=\"/_astro/AsciinemaPlayer.#.css\">",
+              "jint": ""
+            },
+            {
+              "removedChars": 6149,
+              "addedChars": 6500,
+              "node": "…panel:where(.astro-s4){gap:.75rem;margin:0 0 1rem;display:grid}.polyglot-note:where(.astro-s4){padding:0;box-shadow:none!important;background:0 0!important;border:0!important;border-radius:0!important}.polyglot-title:where(.astro-s4){font-size:var(--api-text-base);letter-spacing:.06em;text-transfor",
+              "jint": "…panel:where(.astro-s4){grid-template-columns:minmax(0,1fr);gap:.75rem;min-width:0;margin:0 0 1rem;display:grid}.polyglot-note:where(.astro-s4){overflow-wrap:anywhere;min-width:0;padding:0;box-shadow:none!important;background:0 0!important;border:0!important;border-radius:0!important}.polyglot-title"
+            },
+            {
+              "removedChars": 4483,
+              "addedChars": 0,
+              "node": "<button class=\"header-icon-btn install-cli-btn astro-s17\" data-open-install-modal data-tour-target=\"install-cli\" data-tour-step=\"install-cli\" aria-label=\"Open install Aspire CLI dialog\"><span class=\"sr-only astro-s17\">Install Aspire CLI</span><svg aria-hidden=\"true\" class=\"astro-s17 astro-s2\" width=",
+              "jint": ""
+            },
+            {
+              "removedChars": 139,
+              "addedChars": 44,
+              "node": "<div class=\"expressive-code astro-s19\"><figure class=\"frame not-content\"><figcaption class=\"header\"></figcaption><pre data-language=\"bash\">",
+              "jint": "<pre data-language=\"bash\" class=\"astro-s19\">"
+            }
+          ]
+        },
+        {
+          "path": "/reference/api/csharp/aspire.hosting/executionconfigurationbuilder/methods/",
+          "nodeStatus": 200,
+          "jintStatus": 200,
+          "nodeBytes": 644411,
+          "jintBytes": 626330,
+          "hunkCount": 1995,
+          "hunks": [
+            {
+              "removedChars": 309,
+              "addedChars": 309,
+              "node": "…git-commit-id\" content=\"1a61517655b4fd7811ef63fb5913f6fb623d9d6a\"><meta name=\"git-source-url\" content=\"https://github.com/microsoft/aspire.dev/blob/1a61517655b4fd7811ef63fb5913f6fb623d9d6a/src/frontend/src/conten…",
+              "jint": "…git-commit-id\" content=\"73158d1929860ac896485d12ad0d5d8cd5991b57\"><meta name=\"git-source-url\" content=\"https://github.com/microsoft/aspire.dev/blob/73158d1929860ac896485d12ad0d5d8cd5991b57/src/frontend/src/conten…"
+            },
+            {
+              "removedChars": 0,
+              "addedChars": 324,
+              "node": "",
+              "jint": "<link rel=\"preload\" as=\"font\" type=\"font/woff2\" href=\"/_astro/poppins-latin-400-normal.#.woff2\" crossorigin><link rel=\"preload\" as=\"font\" type=\"font/woff2\" href=\"/_astro/poppins-latin-600-normal.#.woff2\" crossorigin><link rel=\"preload\" as=\"font\" type=\"font/woff2\" href=\"/_astro/poppins-latin-700-norm"
+            },
+            {
+              "removedChars": 60,
+              "addedChars": 0,
+              "node": "<link rel=\"stylesheet\" href=\"/_astro/AsciinemaPlayer.#.css\">",
+              "jint": ""
+            },
+            {
+              "removedChars": 6149,
+              "addedChars": 6500,
+              "node": "…panel:where(.astro-s4){gap:.75rem;margin:0 0 1rem;display:grid}.polyglot-note:where(.astro-s4){padding:0;box-shadow:none!important;background:0 0!important;border:0!important;border-radius:0!important}.polyglot-title:where(.astro-s4){font-size:var(--api-text-base);letter-spacing:.06em;text-transfor",
+              "jint": "…panel:where(.astro-s4){grid-template-columns:minmax(0,1fr);gap:.75rem;min-width:0;margin:0 0 1rem;display:grid}.polyglot-note:where(.astro-s4){overflow-wrap:anywhere;min-width:0;padding:0;box-shadow:none!important;background:0 0!important;border:0!important;border-radius:0!important}.polyglot-title"
+            },
+            {
+              "removedChars": 4483,
+              "addedChars": 0,
+              "node": "<button class=\"header-icon-btn install-cli-btn astro-s17\" data-open-install-modal data-tour-target=\"install-cli\" data-tour-step=\"install-cli\" aria-label=\"Open install Aspire CLI dialog\"><span class=\"sr-only astro-s17\">Install Aspire CLI</span><svg aria-hidden=\"true\" class=\"astro-s17 astro-s2\" width=",
+              "jint": ""
+            },
+            {
+              "removedChars": 139,
+              "addedChars": 44,
+              "node": "<div class=\"expressive-code astro-s19\"><figure class=\"frame not-content\"><figcaption class=\"header\"></figcaption><pre data-language=\"bash\">",
+              "jint": "<pre data-language=\"bash\" class=\"astro-s19\">"
+            }
+          ]
+        }
+      ],
+      "matchingPercent": 0
+    },
+    "ts-module": {
+      "compared": 25,
+      "identical": 0,
+      "identicalAfterBuildNoise": 0,
+      "differing": 25,
+      "statusMismatches": 0,
+      "nodeStatuses": {
+        "200": 25
+      },
+      "jintStatuses": {
+        "200": 25
+      },
+      "examples": [
+        {
+          "path": "/reference/api/typescript/aspire.hosting.radius/",
+          "nodeStatus": 200,
+          "jintStatus": 200,
+          "nodeBytes": 186602,
+          "jintBytes": 180081,
+          "hunkCount": 175,
+          "hunks": [
+            {
+              "removedChars": 282,
+              "addedChars": 282,
+              "node": "…git-commit-id\" content=\"1a61517655b4fd7811ef63fb5913f6fb623d9d6a\"><meta name=\"git-source-url\" content=\"https://github.com/microsoft/aspire.dev/blob/1a61517655b4fd7811ef63fb5913f6fb623d9d6a/src/frontend/src/conten…",
+              "jint": "…git-commit-id\" content=\"73158d1929860ac896485d12ad0d5d8cd5991b57\"><meta name=\"git-source-url\" content=\"https://github.com/microsoft/aspire.dev/blob/73158d1929860ac896485d12ad0d5d8cd5991b57/src/frontend/src/conten…"
+            },
+            {
+              "removedChars": 0,
+              "addedChars": 324,
+              "node": "",
+              "jint": "<link rel=\"preload\" as=\"font\" type=\"font/woff2\" href=\"/_astro/poppins-latin-400-normal.#.woff2\" crossorigin><link rel=\"preload\" as=\"font\" type=\"font/woff2\" href=\"/_astro/poppins-latin-600-normal.#.woff2\" crossorigin><link rel=\"preload\" as=\"font\" type=\"font/woff2\" href=\"/_astro/poppins-latin-700-norm"
+            },
+            {
+              "removedChars": 60,
+              "addedChars": 0,
+              "node": "<link rel=\"stylesheet\" href=\"/_astro/AsciinemaPlayer.#.css\">",
+              "jint": ""
+            },
+            {
+              "removedChars": 4483,
+              "addedChars": 0,
+              "node": "<button class=\"header-icon-btn install-cli-btn astro-s15\" data-open-install-modal data-tour-target=\"install-cli\" data-tour-step=\"install-cli\" aria-label=\"Open install Aspire CLI dialog\"><span class=\"sr-only astro-s15\">Install Aspire CLI</span><svg aria-hidden=\"true\" class=\"astro-s15 astro-s2\" width=",
+              "jint": ""
+            },
+            {
+              "removedChars": 247,
+              "addedChars": 44,
+              "node": "<div class=\"expressive-code astro-s17\"><link rel=\"stylesheet\" href=\"/_astro/ec.ncl7s.css\"><script type=\"module\" src=\"/_astro/ec.0vx5m.js\"></script><figure class=\"frame not-content\"><figcaption class=\"header\"></figcaption><pre data-language=\"bash\">",
+              "jint": "<pre data-language=\"bash\" class=\"astro-s17\">"
+            },
+            {
+              "removedChars": 509,
+              "addedChars": 53,
+              "node": "<div class=\"ec-line\"><div class=\"code\"><span style=\"--0:#EC6BBC;--1:#517221\">curl</span><span style=\"--0:#FFFFFF;--1:#002339\"> </span><span style=\"--0:#B4DCE7;--1:#174781\">-sSL</span><span style=\"--0:#FFFFFF;--1:#002339\"> </span><span style=\"--0:#B4DCE7;--1:#A44185\">https://aspire.dev/install.sh</sp",
+              "jint": "curl -sSL https://aspire.dev/install.sh | bash</code>"
+            }
+          ]
+        },
+        {
+          "path": "/reference/api/typescript/aspire.hosting.azure.connectornamespace/",
+          "nodeStatus": 200,
+          "jintStatus": 200,
+          "nodeBytes": 196271,
+          "jintBytes": 189734,
+          "hunkCount": 177,
+          "hunks": [
+            {
+              "removedChars": 300,
+              "addedChars": 300,
+              "node": "…git-commit-id\" content=\"1a61517655b4fd7811ef63fb5913f6fb623d9d6a\"><meta name=\"git-source-url\" content=\"https://github.com/microsoft/aspire.dev/blob/1a61517655b4fd7811ef63fb5913f6fb623d9d6a/src/frontend/src/conten…",
+              "jint": "…git-commit-id\" content=\"73158d1929860ac896485d12ad0d5d8cd5991b57\"><meta name=\"git-source-url\" content=\"https://github.com/microsoft/aspire.dev/blob/73158d1929860ac896485d12ad0d5d8cd5991b57/src/frontend/src/conten…"
+            },
+            {
+              "removedChars": 0,
+              "addedChars": 324,
+              "node": "",
+              "jint": "<link rel=\"preload\" as=\"font\" type=\"font/woff2\" href=\"/_astro/poppins-latin-400-normal.#.woff2\" crossorigin><link rel=\"preload\" as=\"font\" type=\"font/woff2\" href=\"/_astro/poppins-latin-600-normal.#.woff2\" crossorigin><link rel=\"preload\" as=\"font\" type=\"font/woff2\" href=\"/_astro/poppins-latin-700-norm"
+            },
+            {
+              "removedChars": 60,
+              "addedChars": 0,
+              "node": "<link rel=\"stylesheet\" href=\"/_astro/AsciinemaPlayer.#.css\">",
+              "jint": ""
+            },
+            {
+              "removedChars": 4483,
+              "addedChars": 0,
+              "node": "<button class=\"header-icon-btn install-cli-btn astro-s15\" data-open-install-modal data-tour-target=\"install-cli\" data-tour-step=\"install-cli\" aria-label=\"Open install Aspire CLI dialog\"><span class=\"sr-only astro-s15\">Install Aspire CLI</span><svg aria-hidden=\"true\" class=\"astro-s15 astro-s2\" width=",
+              "jint": ""
+            },
+            {
+              "removedChars": 247,
+              "addedChars": 44,
+              "node": "<div class=\"expressive-code astro-s17\"><link rel=\"stylesheet\" href=\"/_astro/ec.ncl7s.css\"><script type=\"module\" src=\"/_astro/ec.0vx5m.js\"></script><figure class=\"frame not-content\"><figcaption class=\"header\"></figcaption><pre data-language=\"bash\">",
+              "jint": "<pre data-language=\"bash\" class=\"astro-s17\">"
+            },
+            {
+              "removedChars": 509,
+              "addedChars": 53,
+              "node": "<div class=\"ec-line\"><div class=\"code\"><span style=\"--0:#EC6BBC;--1:#517221\">curl</span><span style=\"--0:#FFFFFF;--1:#002339\"> </span><span style=\"--0:#B4DCE7;--1:#174781\">-sSL</span><span style=\"--0:#FFFFFF;--1:#002339\"> </span><span style=\"--0:#B4DCE7;--1:#A44185\">https://aspire.dev/install.sh</sp",
+              "jint": "curl -sSL https://aspire.dev/install.sh | bash</code>"
+            }
+          ]
+        },
+        {
+          "path": "/reference/api/typescript/communitytoolkit.aspire.hosting.k3s/",
+          "nodeStatus": 200,
+          "jintStatus": 200,
+          "nodeBytes": 195509,
+          "jintBytes": 188980,
+          "hunkCount": 175,
+          "hunks": [
+            {
+              "removedChars": 296,
+              "addedChars": 296,
+              "node": "…git-commit-id\" content=\"1a61517655b4fd7811ef63fb5913f6fb623d9d6a\"><meta name=\"git-source-url\" content=\"https://github.com/microsoft/aspire.dev/blob/1a61517655b4fd7811ef63fb5913f6fb623d9d6a/src/frontend/src/conten…",
+              "jint": "…git-commit-id\" content=\"73158d1929860ac896485d12ad0d5d8cd5991b57\"><meta name=\"git-source-url\" content=\"https://github.com/microsoft/aspire.dev/blob/73158d1929860ac896485d12ad0d5d8cd5991b57/src/frontend/src/conten…"
+            },
+            {
+              "removedChars": 0,
+              "addedChars": 324,
+              "node": "",
+              "jint": "<link rel=\"preload\" as=\"font\" type=\"font/woff2\" href=\"/_astro/poppins-latin-400-normal.#.woff2\" crossorigin><link rel=\"preload\" as=\"font\" type=\"font/woff2\" href=\"/_astro/poppins-latin-600-normal.#.woff2\" crossorigin><link rel=\"preload\" as=\"font\" type=\"font/woff2\" href=\"/_astro/poppins-latin-700-norm"
+            },
+            {
+              "removedChars": 60,
+              "addedChars": 0,
+              "node": "<link rel=\"stylesheet\" href=\"/_astro/AsciinemaPlayer.#.css\">",
+              "jint": ""
+            },
+            {
+              "removedChars": 4483,
+              "addedChars": 0,
+              "node": "<button class=\"header-icon-btn install-cli-btn astro-s15\" data-open-install-modal data-tour-target=\"install-cli\" data-tour-step=\"install-cli\" aria-label=\"Open install Aspire CLI dialog\"><span class=\"sr-only astro-s15\">Install Aspire CLI</span><svg aria-hidden=\"true\" class=\"astro-s15 astro-s2\" width=",
+              "jint": ""
+            },
+            {
+              "removedChars": 247,
+              "addedChars": 44,
+              "node": "<div class=\"expressive-code astro-s17\"><link rel=\"stylesheet\" href=\"/_astro/ec.ncl7s.css\"><script type=\"module\" src=\"/_astro/ec.0vx5m.js\"></script><figure class=\"frame not-content\"><figcaption class=\"header\"></figcaption><pre data-language=\"bash\">",
+              "jint": "<pre data-language=\"bash\" class=\"astro-s17\">"
+            },
+            {
+              "removedChars": 509,
+              "addedChars": 53,
+              "node": "<div class=\"ec-line\"><div class=\"code\"><span style=\"--0:#EC6BBC;--1:#517221\">curl</span><span style=\"--0:#FFFFFF;--1:#002339\"> </span><span style=\"--0:#B4DCE7;--1:#174781\">-sSL</span><span style=\"--0:#FFFFFF;--1:#002339\"> </span><span style=\"--0:#B4DCE7;--1:#A44185\">https://aspire.dev/install.sh</sp",
+              "jint": "curl -sSL https://aspire.dev/install.sh | bash</code>"
+            }
+          ]
+        }
+      ],
+      "matchingPercent": 0
+    },
+    "ts-item": {
+      "compared": 25,
+      "identical": 0,
+      "identicalAfterBuildNoise": 0,
+      "differing": 25,
+      "statusMismatches": 0,
+      "nodeStatuses": {
+        "200": 25
+      },
+      "jintStatuses": {
+        "200": 25
+      },
+      "examples": [
+        {
+          "path": "/reference/api/typescript/aspire.hosting.azure.provisioning.operationalinsights/loganalyticsquerypackproxy/",
+          "nodeStatus": 200,
+          "jintStatus": 200,
+          "nodeBytes": 204490,
+          "jintBytes": 189246,
+          "hunkCount": 220,
+          "hunks": [
+            {
+              "removedChars": 341,
+              "addedChars": 341,
+              "node": "…git-commit-id\" content=\"1a61517655b4fd7811ef63fb5913f6fb623d9d6a\"><meta name=\"git-source-url\" content=\"https://github.com/microsoft/aspire.dev/blob/1a61517655b4fd7811ef63fb5913f6fb623d9d6a/src/frontend/src/conten…",
+              "jint": "…git-commit-id\" content=\"73158d1929860ac896485d12ad0d5d8cd5991b57\"><meta name=\"git-source-url\" content=\"https://github.com/microsoft/aspire.dev/blob/73158d1929860ac896485d12ad0d5d8cd5991b57/src/frontend/src/conten…"
+            },
+            {
+              "removedChars": 0,
+              "addedChars": 324,
+              "node": "",
+              "jint": "<link rel=\"preload\" as=\"font\" type=\"font/woff2\" href=\"/_astro/poppins-latin-400-normal.#.woff2\" crossorigin><link rel=\"preload\" as=\"font\" type=\"font/woff2\" href=\"/_astro/poppins-latin-600-normal.#.woff2\" crossorigin><link rel=\"preload\" as=\"font\" type=\"font/woff2\" href=\"/_astro/poppins-latin-700-norm"
+            },
+            {
+              "removedChars": 60,
+              "addedChars": 0,
+              "node": "<link rel=\"stylesheet\" href=\"/_astro/AsciinemaPlayer.#.css\">",
+              "jint": ""
+            },
+            {
+              "removedChars": 4189,
+              "addedChars": 4330,
+              "node": "…5rem;line-height:1.6}.mcb:where(.astro-s4) .mc-s…",
+              "jint": "…5rem;line-height:1.6}.mc-header:where(.astro-s4)>:where(.astro-s4):is(code,a),.mc-param-header:where(.astro-s4){overflow-wrap:anywhere;min-width:0;max-width:100%}.mcb:where(.astro-s4) .mc-s…"
+            },
+            {
+              "removedChars": 4483,
+              "addedChars": 0,
+              "node": "<button class=\"header-icon-btn install-cli-btn astro-s16\" data-open-install-modal data-tour-target=\"install-cli\" data-tour-step=\"install-cli\" aria-label=\"Open install Aspire CLI dialog\"><span class=\"sr-only astro-s16\">Install Aspire CLI</span><svg aria-hidden=\"true\" class=\"astro-s16 astro-s2\" width=",
+              "jint": ""
+            },
+            {
+              "removedChars": 139,
+              "addedChars": 44,
+              "node": "<div class=\"expressive-code astro-s18\"><figure class=\"frame not-content\"><figcaption class=\"header\"></figcaption><pre data-language=\"bash\">",
+              "jint": "<pre data-language=\"bash\" class=\"astro-s18\">"
+            }
+          ]
+        },
+        {
+          "path": "/reference/api/typescript/aspire.hosting.azure.provisioning.network/commissionedstate/",
+          "nodeStatus": 200,
+          "jintStatus": 200,
+          "nodeBytes": 191250,
+          "jintBytes": 180824,
+          "hunkCount": 183,
+          "hunks": [
+            {
+              "removedChars": 320,
+              "addedChars": 320,
+              "node": "…git-commit-id\" content=\"1a61517655b4fd7811ef63fb5913f6fb623d9d6a\"><meta name=\"git-source-url\" content=\"https://github.com/microsoft/aspire.dev/blob/1a61517655b4fd7811ef63fb5913f6fb623d9d6a/src/frontend/src/conten…",
+              "jint": "…git-commit-id\" content=\"73158d1929860ac896485d12ad0d5d8cd5991b57\"><meta name=\"git-source-url\" content=\"https://github.com/microsoft/aspire.dev/blob/73158d1929860ac896485d12ad0d5d8cd5991b57/src/frontend/src/conten…"
+            },
+            {
+              "removedChars": 0,
+              "addedChars": 324,
+              "node": "",
+              "jint": "<link rel=\"preload\" as=\"font\" type=\"font/woff2\" href=\"/_astro/poppins-latin-400-normal.#.woff2\" crossorigin><link rel=\"preload\" as=\"font\" type=\"font/woff2\" href=\"/_astro/poppins-latin-600-normal.#.woff2\" crossorigin><link rel=\"preload\" as=\"font\" type=\"font/woff2\" href=\"/_astro/poppins-latin-700-norm"
+            },
+            {
+              "removedChars": 60,
+              "addedChars": 0,
+              "node": "<link rel=\"stylesheet\" href=\"/_astro/AsciinemaPlayer.#.css\">",
+              "jint": ""
+            },
+            {
+              "removedChars": 4189,
+              "addedChars": 4330,
+              "node": "…5rem;line-height:1.6}.mcb:where(.astro-s4) .mc-s…",
+              "jint": "…5rem;line-height:1.6}.mc-header:where(.astro-s4)>:where(.astro-s4):is(code,a),.mc-param-header:where(.astro-s4){overflow-wrap:anywhere;min-width:0;max-width:100%}.mcb:where(.astro-s4) .mc-s…"
+            },
+            {
+              "removedChars": 4483,
+              "addedChars": 0,
+              "node": "<button class=\"header-icon-btn install-cli-btn astro-s16\" data-open-install-modal data-tour-target=\"install-cli\" data-tour-step=\"install-cli\" aria-label=\"Open install Aspire CLI dialog\"><span class=\"sr-only astro-s16\">Install Aspire CLI</span><svg aria-hidden=\"true\" class=\"astro-s16 astro-s2\" width=",
+              "jint": ""
+            },
+            {
+              "removedChars": 139,
+              "addedChars": 44,
+              "node": "<div class=\"expressive-code astro-s18\"><figure class=\"frame not-content\"><figcaption class=\"header\"></figcaption><pre data-language=\"bash\">",
+              "jint": "<pre data-language=\"bash\" class=\"astro-s18\">"
+            }
+          ]
+        },
+        {
+          "path": "/reference/api/typescript/aspire.hosting.azure.provisioning.servicebus/getservicebusprivateendpointconnectionbyidentifier/",
+          "nodeStatus": 200,
+          "jintStatus": 200,
+          "nodeBytes": 188943,
+          "jintBytes": 179847,
+          "hunkCount": 184,
+          "hunks": [
+            {
+              "removedChars": 356,
+              "addedChars": 356,
+              "node": "…git-commit-id\" content=\"1a61517655b4fd7811ef63fb5913f6fb623d9d6a\"><meta name=\"git-source-url\" content=\"https://github.com/microsoft/aspire.dev/blob/1a61517655b4fd7811ef63fb5913f6fb623d9d6a/src/frontend/src/conten…",
+              "jint": "…git-commit-id\" content=\"73158d1929860ac896485d12ad0d5d8cd5991b57\"><meta name=\"git-source-url\" content=\"https://github.com/microsoft/aspire.dev/blob/73158d1929860ac896485d12ad0d5d8cd5991b57/src/frontend/src/conten…"
+            },
+            {
+              "removedChars": 0,
+              "addedChars": 324,
+              "node": "",
+              "jint": "<link rel=\"preload\" as=\"font\" type=\"font/woff2\" href=\"/_astro/poppins-latin-400-normal.#.woff2\" crossorigin><link rel=\"preload\" as=\"font\" type=\"font/woff2\" href=\"/_astro/poppins-latin-600-normal.#.woff2\" crossorigin><link rel=\"preload\" as=\"font\" type=\"font/woff2\" href=\"/_astro/poppins-latin-700-norm"
+            },
+            {
+              "removedChars": 60,
+              "addedChars": 0,
+              "node": "<link rel=\"stylesheet\" href=\"/_astro/AsciinemaPlayer.#.css\">",
+              "jint": ""
+            },
+            {
+              "removedChars": 4189,
+              "addedChars": 4330,
+              "node": "…5rem;line-height:1.6}.mcb:where(.astro-s4) .mc-s…",
+              "jint": "…5rem;line-height:1.6}.mc-header:where(.astro-s4)>:where(.astro-s4):is(code,a),.mc-param-header:where(.astro-s4){overflow-wrap:anywhere;min-width:0;max-width:100%}.mcb:where(.astro-s4) .mc-s…"
+            },
+            {
+              "removedChars": 4483,
+              "addedChars": 0,
+              "node": "<button class=\"header-icon-btn install-cli-btn astro-s16\" data-open-install-modal data-tour-target=\"install-cli\" data-tour-step=\"install-cli\" aria-label=\"Open install Aspire CLI dialog\"><span class=\"sr-only astro-s16\">Install Aspire CLI</span><svg aria-hidden=\"true\" class=\"astro-s16 astro-s2\" width=",
+              "jint": ""
+            },
+            {
+              "removedChars": 139,
+              "addedChars": 44,
+              "node": "<div class=\"expressive-code astro-s18\"><figure class=\"frame not-content\"><figcaption class=\"header\"></figcaption><pre data-language=\"bash\">",
+              "jint": "<pre data-language=\"bash\" class=\"astro-s18\">"
+            }
+          ]
+        }
+      ],
+      "matchingPercent": 0
+    },
+    "ts-member": {
+      "compared": 25,
+      "identical": 0,
+      "identicalAfterBuildNoise": 0,
+      "differing": 25,
+      "statusMismatches": 0,
+      "nodeStatuses": {
+        "200": 25
+      },
+      "jintStatuses": {
+        "200": 25
+      },
+      "examples": [
+        {
+          "path": "/reference/api/typescript/aspire.hosting.azure.provisioning.sql/sqldatabaseproxy/clearlicensetype/",
+          "nodeStatus": 200,
+          "jintStatus": 200,
+          "nodeBytes": 186965,
+          "jintBytes": 178026,
+          "hunkCount": 188,
+          "hunks": [
+            {
+              "removedChars": 332,
+              "addedChars": 332,
+              "node": "…git-commit-id\" content=\"1a61517655b4fd7811ef63fb5913f6fb623d9d6a\"><meta name=\"git-source-url\" content=\"https://github.com/microsoft/aspire.dev/blob/1a61517655b4fd7811ef63fb5913f6fb623d9d6a/src/frontend/src/conten…",
+              "jint": "…git-commit-id\" content=\"73158d1929860ac896485d12ad0d5d8cd5991b57\"><meta name=\"git-source-url\" content=\"https://github.com/microsoft/aspire.dev/blob/73158d1929860ac896485d12ad0d5d8cd5991b57/src/frontend/src/conten…"
+            },
+            {
+              "removedChars": 0,
+              "addedChars": 324,
+              "node": "",
+              "jint": "<link rel=\"preload\" as=\"font\" type=\"font/woff2\" href=\"/_astro/poppins-latin-400-normal.#.woff2\" crossorigin><link rel=\"preload\" as=\"font\" type=\"font/woff2\" href=\"/_astro/poppins-latin-600-normal.#.woff2\" crossorigin><link rel=\"preload\" as=\"font\" type=\"font/woff2\" href=\"/_astro/poppins-latin-700-norm"
+            },
+            {
+              "removedChars": 60,
+              "addedChars": 0,
+              "node": "<link rel=\"stylesheet\" href=\"/_astro/AsciinemaPlayer.#.css\">",
+              "jint": ""
+            },
+            {
+              "removedChars": 2388,
+              "addedChars": 2529,
+              "node": "…5rem;line-height:1.6}.mcb:where(.astro-s4) .mc-s…",
+              "jint": "…5rem;line-height:1.6}.mc-header:where(.astro-s4)>:where(.astro-s4):is(code,a),.mc-param-header:where(.astro-s4){overflow-wrap:anywhere;min-width:0;max-width:100%}.mcb:where(.astro-s4) .mc-s…"
+            },
+            {
+              "removedChars": 4483,
+              "addedChars": 0,
+              "node": "<button class=\"header-icon-btn install-cli-btn astro-s16\" data-open-install-modal data-tour-target=\"install-cli\" data-tour-step=\"install-cli\" aria-label=\"Open install Aspire CLI dialog\"><span class=\"sr-only astro-s16\">Install Aspire CLI</span><svg aria-hidden=\"true\" class=\"astro-s16 astro-s2\" width=",
+              "jint": ""
+            },
+            {
+              "removedChars": 139,
+              "addedChars": 44,
+              "node": "<div class=\"expressive-code astro-s18\"><figure class=\"frame not-content\"><figcaption class=\"header\"></figcaption><pre data-language=\"bash\">",
+              "jint": "<pre data-language=\"bash\" class=\"astro-s18\">"
+            }
+          ]
+        },
+        {
+          "path": "/reference/api/typescript/aspire.hosting.azure.provisioning.network/vpnserverconfigurationpolicygroupproxy/clearpriority/",
+          "nodeStatus": 200,
+          "jintStatus": 200,
+          "nodeBytes": 188472,
+          "jintBytes": 179482,
+          "hunkCount": 188,
+          "hunks": [
+            {
+              "removedChars": 355,
+              "addedChars": 355,
+              "node": "…git-commit-id\" content=\"1a61517655b4fd7811ef63fb5913f6fb623d9d6a\"><meta name=\"git-source-url\" content=\"https://github.com/microsoft/aspire.dev/blob/1a61517655b4fd7811ef63fb5913f6fb623d9d6a/src/frontend/src/conten…",
+              "jint": "…git-commit-id\" content=\"73158d1929860ac896485d12ad0d5d8cd5991b57\"><meta name=\"git-source-url\" content=\"https://github.com/microsoft/aspire.dev/blob/73158d1929860ac896485d12ad0d5d8cd5991b57/src/frontend/src/conten…"
+            },
+            {
+              "removedChars": 0,
+              "addedChars": 324,
+              "node": "",
+              "jint": "<link rel=\"preload\" as=\"font\" type=\"font/woff2\" href=\"/_astro/poppins-latin-400-normal.#.woff2\" crossorigin><link rel=\"preload\" as=\"font\" type=\"font/woff2\" href=\"/_astro/poppins-latin-600-normal.#.woff2\" crossorigin><link rel=\"preload\" as=\"font\" type=\"font/woff2\" href=\"/_astro/poppins-latin-700-norm"
+            },
+            {
+              "removedChars": 60,
+              "addedChars": 0,
+              "node": "<link rel=\"stylesheet\" href=\"/_astro/AsciinemaPlayer.#.css\">",
+              "jint": ""
+            },
+            {
+              "removedChars": 2388,
+              "addedChars": 2529,
+              "node": "…5rem;line-height:1.6}.mcb:where(.astro-s4) .mc-s…",
+              "jint": "…5rem;line-height:1.6}.mc-header:where(.astro-s4)>:where(.astro-s4):is(code,a),.mc-param-header:where(.astro-s4){overflow-wrap:anywhere;min-width:0;max-width:100%}.mcb:where(.astro-s4) .mc-s…"
+            },
+            {
+              "removedChars": 4483,
+              "addedChars": 0,
+              "node": "<button class=\"header-icon-btn install-cli-btn astro-s16\" data-open-install-modal data-tour-target=\"install-cli\" data-tour-step=\"install-cli\" aria-label=\"Open install Aspire CLI dialog\"><span class=\"sr-only astro-s16\">Install Aspire CLI</span><svg aria-hidden=\"true\" class=\"astro-s16 astro-s2\" width=",
+              "jint": ""
+            },
+            {
+              "removedChars": 139,
+              "addedChars": 44,
+              "node": "<div class=\"expressive-code astro-s18\"><figure class=\"frame not-content\"><figcaption class=\"header\"></figcaption><pre data-language=\"bash\">",
+              "jint": "<pre data-language=\"bash\" class=\"astro-s18\">"
+            }
+          ]
+        },
+        {
+          "path": "/reference/api/typescript/aspire.hosting.azure.provisioning.cosmosdb/cosmosdbtablepropertiesoptionsproxy/clearthroughput/",
+          "nodeStatus": 200,
+          "jintStatus": 200,
+          "nodeBytes": 188457,
+          "jintBytes": 179470,
+          "hunkCount": 188,
+          "hunks": [
+            {
+              "removedChars": 355,
+              "addedChars": 355,
+              "node": "…git-commit-id\" content=\"1a61517655b4fd7811ef63fb5913f6fb623d9d6a\"><meta name=\"git-source-url\" content=\"https://github.com/microsoft/aspire.dev/blob/1a61517655b4fd7811ef63fb5913f6fb623d9d6a/src/frontend/src/conten…",
+              "jint": "…git-commit-id\" content=\"73158d1929860ac896485d12ad0d5d8cd5991b57\"><meta name=\"git-source-url\" content=\"https://github.com/microsoft/aspire.dev/blob/73158d1929860ac896485d12ad0d5d8cd5991b57/src/frontend/src/conten…"
+            },
+            {
+              "removedChars": 0,
+              "addedChars": 324,
+              "node": "",
+              "jint": "<link rel=\"preload\" as=\"font\" type=\"font/woff2\" href=\"/_astro/poppins-latin-400-normal.#.woff2\" crossorigin><link rel=\"preload\" as=\"font\" type=\"font/woff2\" href=\"/_astro/poppins-latin-600-normal.#.woff2\" crossorigin><link rel=\"preload\" as=\"font\" type=\"font/woff2\" href=\"/_astro/poppins-latin-700-norm"
+            },
+            {
+              "removedChars": 60,
+              "addedChars": 0,
+              "node": "<link rel=\"stylesheet\" href=\"/_astro/AsciinemaPlayer.#.css\">",
+              "jint": ""
+            },
+            {
+              "removedChars": 2388,
+              "addedChars": 2529,
+              "node": "…5rem;line-height:1.6}.mcb:where(.astro-s4) .mc-s…",
+              "jint": "…5rem;line-height:1.6}.mc-header:where(.astro-s4)>:where(.astro-s4):is(code,a),.mc-param-header:where(.astro-s4){overflow-wrap:anywhere;min-width:0;max-width:100%}.mcb:where(.astro-s4) .mc-s…"
+            },
+            {
+              "removedChars": 4483,
+              "addedChars": 0,
+              "node": "<button class=\"header-icon-btn install-cli-btn astro-s16\" data-open-install-modal data-tour-target=\"install-cli\" data-tour-step=\"install-cli\" aria-label=\"Open install Aspire CLI dialog\"><span class=\"sr-only astro-s16\">Install Aspire CLI</span><svg aria-hidden=\"true\" class=\"astro-s16 astro-s2\" width=",
+              "jint": ""
+            },
+            {
+              "removedChars": 139,
+              "addedChars": 44,
+              "node": "<div class=\"expressive-code astro-s18\"><figure class=\"frame not-content\"><figcaption class=\"header\"></figcaption><pre data-language=\"bash\">",
+              "jint": "<pre data-language=\"bash\" class=\"astro-s18\">"
+            }
+          ]
+        }
+      ],
+      "matchingPercent": 0
+    },
+    "csharp-md": {
+      "compared": 25,
+      "identical": 25,
+      "identicalAfterBuildNoise": 0,
+      "differing": 0,
+      "statusMismatches": 0,
+      "nodeStatuses": {
+        "200": 25
+      },
+      "jintStatuses": {
+        "200": 25
+      },
+      "examples": [],
+      "matchingPercent": 100
+    },
+    "ts-md": {
+      "compared": 25,
+      "identical": 25,
+      "identicalAfterBuildNoise": 0,
+      "differing": 0,
+      "statusMismatches": 0,
+      "nodeStatuses": {
+        "200": 25
+      },
+      "jintStatuses": {
+        "200": 25
+      },
+      "examples": [],
+      "matchingPercent": 100
+    }
+  },
+  "headers": {
+    "content-type": {
+      "node": [
+        "text/html",
+        "text/markdown; charset=utf-8"
+      ],
+      "jint": [
+        "text/html",
+        "text/markdown; charset=utf-8"
+      ]
+    },
+    "cache-control": {
+      "node": [
+        "no-cache"
+      ],
+      "jint": [
+        "no-cache"
+      ]
+    },
+    "etag": {
+      "node": [
+        "W/\"3a059519dfd374f269a302f7\"",
+        "W/\"dfcb0020fb4dbcca288cc7f4\"",
+        "W/\"9b6e2446dddd66c00dc102d8\"",
+        "W/\"896b11138fcaa4c1bdc66f0b\"",
+        "W/\"cd56f15f5a3f0d832601a3e0\"",
+        "W/\"cc9ac1715f3a061f678292e6\""
+      ],
+      "jint": [
+        "W/\"eebecbedb9ac2b82c7f6317f\"",
+        "W/\"e017f6ddfee7dbd61c2fe5e4\"",
+        "W/\"9c5354bf5564eb0f13e7ff8f\"",
+        "W/\"b7b5b3ece352979027795b63\"",
+        "W/\"5af0a9b9b11c2c636df2ac1d\"",
+        "W/\"c70cd43e405a80010a90d5ab\""
+      ]
+    },
+    "vary": {
+      "node": [
+        "Accept-Encoding"
+      ],
+      "jint": [
+        "Accept-Encoding"
+      ]
+    },
+    "x-astro-cache": {
+      "node": [
+        "HIT"
+      ],
+      "jint": [
+        "MISS",
+        "HIT"
+      ]
+    },
+    "x-aspire-build-id": {
+      "node": [
+        "13607ce60497834b102643e71fa4169fecc1f3c9497927336d786f894215e5d3"
+      ],
+      "jint": [
+        "f0b3a6fa5423184728ad39b4f9e57a19176b5fea33dcfdbbc253a18d168b14b2"
+      ]
+    },
+    "link": {
+      "node": [
+        "</llms.txt>; rel=\"llms\"; type=\"text/plain\", </.well-known/agent-skills/index.json>; rel=\"agent-skills\"; type=\"application/json\", </sitemap-index.xml>; rel=\"sitemap\"; type=\"application/xml\", </reference/api/csharp/communitytoolkit.aspire.hosting.umami.md>; rel=\"alternate\"; type=\"text/markdown\"",
+        "</llms.txt>; rel=\"llms\"; type=\"text/plain\", </.well-known/agent-skills/index.json>; rel=\"agent-skills\"; type=\"application/json\", </sitemap-index.xml>; rel=\"sitemap\"; type=\"application/xml\", </reference/api/csharp/aspire.hosting.openai.md>; rel=\"alternate\"; type=\"text/markdown\"",
+        "</llms.txt>; rel=\"llms\"; type=\"text/plain\", </.well-known/agent-skills/index.json>; rel=\"agent-skills\"; type=\"application/json\", </sitemap-index.xml>; rel=\"sitemap\"; type=\"application/xml\", </reference/api/csharp/communitytoolkit.aspire.hosting.elasticsearch.extensions.md>; rel=\"alternate\"; type=\"text/markdown\"",
+        "</llms.txt>; rel=\"llms\"; type=\"text/plain\", </.well-known/agent-skills/index.json>; rel=\"agent-skills\"; type=\"application/json\", </sitemap-index.xml>; rel=\"sitemap\"; type=\"application/xml\", </reference/api/csharp/aspire.mongodb.entityframeworkcore.md>; rel=\"alternate\"; type=\"text/markdown\"",
+        "</llms.txt>; rel=\"llms\"; type=\"text/plain\", </.well-known/agent-skills/index.json>; rel=\"agent-skills\"; type=\"application/json\", </sitemap-index.xml>; rel=\"sitemap\"; type=\"application/xml\", </reference/api/csharp/communitytoolkit.aspire.hosting.k3s.md>; rel=\"alternate\"; type=\"text/markdown\"",
+        "</llms.txt>; rel=\"llms\"; type=\"text/plain\", </.well-known/agent-skills/index.json>; rel=\"agent-skills\"; type=\"application/json\", </sitemap-index.xml>; rel=\"sitemap\"; type=\"application/xml\", </reference/api/csharp/aspire.hosting.azure.search.md>; rel=\"alternate\"; type=\"text/markdown\""
+      ],
+      "jint": [
+        "</llms.txt>; rel=\"llms\"; type=\"text/plain\", </.well-known/agent-skills/index.json>; rel=\"agent-skills\"; type=\"application/json\", </sitemap-index.xml>; rel=\"sitemap\"; type=\"application/xml\", </reference/api/csharp/communitytoolkit.aspire.hosting.umami.md>; rel=\"alternate\"; type=\"text/markdown\"",
+        "</llms.txt>; rel=\"llms\"; type=\"text/plain\", </.well-known/agent-skills/index.json>; rel=\"agent-skills\"; type=\"application/json\", </sitemap-index.xml>; rel=\"sitemap\"; type=\"application/xml\", </reference/api/csharp/aspire.hosting.openai.md>; rel=\"alternate\"; type=\"text/markdown\"",
+        "</llms.txt>; rel=\"llms\"; type=\"text/plain\", </.well-known/agent-skills/index.json>; rel=\"agent-skills\"; type=\"application/json\", </sitemap-index.xml>; rel=\"sitemap\"; type=\"application/xml\", </reference/api/csharp/communitytoolkit.aspire.hosting.elasticsearch.extensions.md>; rel=\"alternate\"; type=\"text/markdown\"",
+        "</llms.txt>; rel=\"llms\"; type=\"text/plain\", </.well-known/agent-skills/index.json>; rel=\"agent-skills\"; type=\"application/json\", </sitemap-index.xml>; rel=\"sitemap\"; type=\"application/xml\", </reference/api/csharp/aspire.mongodb.entityframeworkcore.md>; rel=\"alternate\"; type=\"text/markdown\"",
+        "</llms.txt>; rel=\"llms\"; type=\"text/plain\", </.well-known/agent-skills/index.json>; rel=\"agent-skills\"; type=\"application/json\", </sitemap-index.xml>; rel=\"sitemap\"; type=\"application/xml\", </reference/api/csharp/communitytoolkit.aspire.hosting.k3s.md>; rel=\"alternate\"; type=\"text/markdown\"",
+        "</llms.txt>; rel=\"llms\"; type=\"text/plain\", </.well-known/agent-skills/index.json>; rel=\"agent-skills\"; type=\"application/json\", </sitemap-index.xml>; rel=\"sitemap\"; type=\"application/xml\", </reference/api/csharp/aspire.hosting.azure.search.md>; rel=\"alternate\"; type=\"text/markdown\""
+      ]
+    }
+  }
+}

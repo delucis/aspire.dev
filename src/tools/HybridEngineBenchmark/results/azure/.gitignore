@@ -1,0 +1,2 @@
+# The suite logs hold the #start and #end lines that summarize-azure.mjs reads, so they are kept.
+!*.log
