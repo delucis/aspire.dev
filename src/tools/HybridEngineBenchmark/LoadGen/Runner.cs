@@ -36,9 +36,11 @@ internal sealed record LoadReport(
     LatencyMs Latency,
     long[] RequestsPerSecondTimeline,
     ServerUsage? Server,
-    GcUsage? Gc);
+    GcUsage? Gc,
+    long CacheHits,
+    long CacheMisses);
 
-internal sealed record SequenceEntry(string Path, int Status, long Bytes, double[] Milliseconds);
+internal sealed record SequenceEntry(string Path, int Status, long Bytes, double[] Milliseconds, string[] Cache);
 
 internal sealed record SequenceReport(string Label, string Url, string StartedUtc, IReadOnlyList<SequenceEntry> Entries);
 
@@ -77,11 +79,15 @@ internal static class Runner
         var timeline = new long[buckets];
         long errors = 0;
         long bytes = 0;
+        long cacheHits = 0;
+        long cacheMisses = 0;
         foreach (var worker in workers)
         {
             latency.Add(worker.Latency);
             errors += worker.Errors;
             bytes += worker.Bytes;
+            cacheHits += worker.CacheHits;
+            cacheMisses += worker.CacheMisses;
             Merge(statuses, worker.Statuses);
             Merge(failures, worker.Failures);
             for (var i = 0; i < buckets; i++)
@@ -114,7 +120,9 @@ internal static class Runner
                 latency.MaxMicroseconds / 1000d),
             timeline[..(buckets - 1)],
             await usage.ConfigureAwait(false),
-            await gc.ConfigureAwait(false));
+            await gc.ConfigureAwait(false),
+            cacheHits,
+            cacheMisses);
     }
 
     public static async Task<SequenceReport> RunSequenceAsync(Options options)
@@ -127,6 +135,7 @@ internal static class Runner
         {
             var request = BuildRequest(options, path);
             var times = new double[options.Repeat];
+            var caches = new string[options.Repeat];
             var status = 0;
             long bytes = 0;
             for (var i = 0; i < times.Length; i++)
@@ -134,11 +143,12 @@ internal static class Runner
                 var t0 = Stopwatch.GetTimestamp();
                 var exchange = await connection.SendAsync(request).ConfigureAwait(false);
                 times[i] = Stopwatch.GetElapsedTime(t0).TotalMilliseconds;
+                caches[i] = exchange.Cache switch { 1 => "HIT", 2 => "MISS", 3 => "OTHER", _ => string.Empty };
                 status = exchange.Status;
                 bytes = exchange.Bytes;
             }
 
-            entries.Add(new SequenceEntry(path, status, bytes, times));
+            entries.Add(new SequenceEntry(path, status, bytes, times, caches));
         }
 
         return new SequenceReport(options.Label, options.Url.ToString(), started, entries);
@@ -346,6 +356,10 @@ internal static class Runner
 
         public long Bytes { get; private set; }
 
+        public long CacheHits { get; private set; }
+
+        public long CacheMisses { get; private set; }
+
         public Dictionary<int, long> Statuses { get; } = [];
 
         public Dictionary<int, long> Failures { get; } = [];
@@ -375,6 +389,8 @@ internal static class Runner
                 {
                     Latency.Record(Stopwatch.GetElapsedTime(started).Ticks / (TimeSpan.TicksPerMillisecond / 1000));
                     Bytes += exchange.Bytes;
+                    CacheHits += exchange.Cache == 1 ? 1 : 0;
+                    CacheMisses += exchange.Cache == 2 ? 1 : 0;
                     Statuses[exchange.Status] = Statuses.GetValueOrDefault(exchange.Status) + 1;
                     var bucket = (int)((started - measureStart) / Stopwatch.Frequency);
                     Timeline[Math.Min(bucket, Timeline.Length - 1)]++;

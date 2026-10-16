@@ -41,7 +41,7 @@ internal sealed record Options(
           --pid <id>[,<id>...]     server processes whose processor time and memory are measured
           --gc-stats <path>        a JSON endpoint with a "gc" object (gen0, gen1, gen2, pauseMs, allocatedBytes)
           --label <text>           names the run in the report
-          --out <file.json>        writes the full result as JSON
+          --out <file.json>        writes the full result as JSON; '-' prints it to the standard output as one line that starts with "#json "
           --affinity <hex mask>    logical processors the generator itself may use (for example 0xFF00)
           --server-affinity <hex mask>   logical processors the --pid servers may use, to model a smaller machine
         """;

@@ -7,7 +7,14 @@
 //                   --out <results dir> [--per-kind 40] [--kinds csharp-type,ts-item,...] [--port 4330]
 //
 // The report in results/parity used --per-kind 25.
-import { request } from 'node:http';
+//
+// With --node-url and --jint-url the same paths are requested from two deployed sites instead of local engines, so
+// --renderer, --host and --dist are not needed. The Host header is left alone because App Service routes on it, and the
+// report is written to parity-sites.json.
+//
+//   node parity.mjs --node-url http://<node site> --jint-url http://<jint site> --paths <paths dir> --out <results dir>
+import { request as httpRequest } from 'node:http';
+import { request as httpsRequest } from 'node:https';
 import { mkdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { diff } from 'node:util';
@@ -19,12 +26,17 @@ const out = resolve(arg('out'));
 const perKind = Number(arg('per-kind', 40));
 const port = Number(arg('port', 4330));
 const kinds = arg('kinds', 'csharp-package,csharp-type,csharp-memberkind,ts-module,ts-item,ts-member,csharp-md,ts-md').split(',');
-const requestHeaders = { host: 'aspire.dev', 'x-forwarded-host': 'aspire.dev', 'x-forwarded-proto': 'https', 'x-aspire-cache-bypass': '1', 'accept-encoding': 'identity' };
+const remote = { node: arg('node-url')?.replace(/\/$/, ''), jint: arg('jint-url')?.replace(/\/$/, '') };
+const isRemote = Boolean(remote.node && remote.jint);
+const requestHeaders = isRemote
+  ? { 'accept-encoding': 'identity' }
+  : { host: 'aspire.dev', 'x-forwarded-host': 'aspire.dev', 'x-forwarded-proto': 'https', 'x-aspire-cache-bypass': '1', 'accept-encoding': 'identity' };
 const volatileHeaders = new Set(['date', 'server', 'x-powered-by', 'content-length', 'connection', 'keep-alive', 'transfer-encoding']);
 mkdirSync(out, { recursive: true });
 
 const fetchFull = (url) => new Promise((done, fail) => {
-  const req = request(url, { headers: requestHeaders, agent: false, timeout: 120000 }, (res) => {
+  const send = url.startsWith('https:') ? httpsRequest : httpRequest;
+  const req = send(url, { headers: requestHeaders, agent: false, timeout: 120000 }, (res) => {
     const chunks = [];
     res.on('data', (chunk) => chunks.push(chunk));
     res.on('end', () => done({ status: res.statusCode ?? 0, headers: res.headers, body: Buffer.concat(chunks) }));
@@ -67,10 +79,11 @@ function tokenDiff(nodeText, jintText, limit = 6) {
   const tokenize = (text) => text.split(/(?<=>)/);
   const hunks = [];
   let hunk;
+  // util.diff reports what only the first argument has as an insert (1) and what only the second has as a removal (-1).
   for (const [op, value] of diff(tokenize(nodeText), tokenize(jintText))) {
     if (op === 0) { hunk = undefined; continue; }
     if (!hunk) { hunk = { removedFromNode: [], addedByJint: [] }; hunks.push(hunk); }
-    (op < 0 ? hunk.removedFromNode : hunk.addedByJint).push(value);
+    (op > 0 ? hunk.removedFromNode : hunk.addedByJint).push(value);
   }
   const describe = (entry) => {
     const removed = entry.removedFromNode.join('');
@@ -82,10 +95,9 @@ function tokenDiff(nodeText, jintText, limit = 6) {
 }
 
 const logDir = resolve(out, 'logs');
-const nodeConfig = { engine: 'node', rendererDir: resolve(arg('renderer')), logDir };
-const jintConfig = { engine: 'jint', hostDir: resolve(arg('host')), distDir: resolve(arg('dist')), logDir };
-const nodeServer = await startEngine(nodeConfig, port, 'parity-node');
-const jintServer = await startEngine(jintConfig, port + 1, 'parity-jint');
+const nodeServer = isRemote ? undefined : await startEngine({ engine: 'node', rendererDir: resolve(arg('renderer')), logDir }, port, 'parity-node');
+const jintServer = isRemote ? undefined : await startEngine({ engine: 'jint', hostDir: resolve(arg('host')), distDir: resolve(arg('dist')), logDir }, port + 1, 'parity-jint');
+const base = isRemote ? remote : { node: `http://127.0.0.1:${port}`, jint: `http://127.0.0.1:${port + 1}` };
 
 const report = { startedUtc: new Date().toISOString(), perKind, kinds: {}, headers: {} };
 const headerValues = { node: new Map(), jint: new Map() };
@@ -102,7 +114,7 @@ for (const kind of kinds) {
   const paths = pickPaths(pathsDir, kind, perKind, 11);
   const row = { compared: 0, identical: 0, identicalAfterBuildNoise: 0, differing: 0, statusMismatches: 0, nodeStatuses: {}, jintStatuses: {}, examples: [] };
   for (const path of paths) {
-    const [node, jint] = [await fetchFull(`http://127.0.0.1:${port}${path}`), await fetchFull(`http://127.0.0.1:${port + 1}${path}`)];
+    const [node, jint] = [await fetchFull(`${base.node}${path}`), await fetchFull(`${base.jint}${path}`)];
     row.compared++;
     row.nodeStatuses[node.status] = (row.nodeStatuses[node.status] ?? 0) + 1;
     row.jintStatuses[jint.status] = (row.jintStatuses[jint.status] ?? 0) + 1;
@@ -123,7 +135,8 @@ for (const kind of kinds) {
 for (const name of new Set([...headerValues.node.keys(), ...headerValues.jint.keys()])) {
   report.headers[name] = { node: [...(headerValues.node.get(name) ?? [])], jint: [...(headerValues.jint.get(name) ?? [])] };
 }
-await nodeServer.stop();
-await jintServer.stop();
-writeJson(resolve(out, 'parity.json'), report);
-console.log(`Wrote ${resolve(out, 'parity.json')}`);
+await nodeServer?.stop();
+await jintServer?.stop();
+const reportFile = resolve(out, isRemote ? 'parity-sites.json' : 'parity.json');
+writeJson(reportFile, report);
+console.log(`Wrote ${reportFile}`);

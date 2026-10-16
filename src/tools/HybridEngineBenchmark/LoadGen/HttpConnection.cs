@@ -4,7 +4,8 @@ using System.Net.Sockets;
 
 namespace LoadGen;
 
-internal readonly record struct Exchange(int Status, long Bytes, bool Failed);
+/// <summary>Cache is the value of the X-Astro-Cache header: 0 when absent, 1 for HIT, 2 for MISS, 3 for any other value.</summary>
+internal readonly record struct Exchange(int Status, long Bytes, bool Failed, byte Cache = 0);
 
 /// <summary>
 /// A keep-alive HTTP/1.1 connection that sends a prepared request and reads the response up to its last byte, either sized by
@@ -25,13 +26,13 @@ internal sealed class HttpConnection(EndPoint endPoint) : IDisposable
             var socket = _socket ?? await ConnectAsync().ConfigureAwait(false);
             _start = _end = 0;
             await socket.SendAsync(request, SocketFlags.None).ConfigureAwait(false);
-            var (status, bytes, keepAlive) = await ReadResponseAsync(socket).ConfigureAwait(false);
+            var (status, bytes, keepAlive, cache) = await ReadResponseAsync(socket).ConfigureAwait(false);
             if (!keepAlive)
             {
                 Close();
             }
 
-            return new Exchange(status, bytes, false);
+            return new Exchange(status, bytes, false, cache);
         }
         catch (Exception ex) when (ex is SocketException or IOException or InvalidDataException or ObjectDisposedException)
         {
@@ -65,7 +66,7 @@ internal sealed class HttpConnection(EndPoint endPoint) : IDisposable
         _socket = null;
     }
 
-    private async ValueTask<(int Status, long Bytes, bool KeepAlive)> ReadResponseAsync(Socket socket)
+    private async ValueTask<(int Status, long Bytes, bool KeepAlive, byte Cache)> ReadResponseAsync(Socket socket)
     {
         int headerEnd;
         while ((headerEnd = _buffer.AsSpan(_start, _end - _start).IndexOf("\r\n\r\n"u8)) < 0)
@@ -74,13 +75,13 @@ internal sealed class HttpConnection(EndPoint endPoint) : IDisposable
         }
 
         headerEnd += 4;
-        var (status, contentLength, chunked, keepAlive) = ParseHeaders(_buffer.AsSpan(_start, headerEnd));
+        var (status, contentLength, chunked, keepAlive, cache) = ParseHeaders(_buffer.AsSpan(_start, headerEnd));
         long total = headerEnd;
         _start += headerEnd;
 
         if (status is 204 or 304 or (>= 100 and < 200))
         {
-            return (status, total, keepAlive);
+            return (status, total, keepAlive, cache);
         }
 
         if (chunked)
@@ -109,10 +110,10 @@ internal sealed class HttpConnection(EndPoint endPoint) : IDisposable
             }
         }
 
-        return (status, total, keepAlive);
+        return (status, total, keepAlive, cache);
     }
 
-    private static (int Status, long ContentLength, bool Chunked, bool KeepAlive) ParseHeaders(ReadOnlySpan<byte> headers)
+    private static (int Status, long ContentLength, bool Chunked, bool KeepAlive, byte Cache) ParseHeaders(ReadOnlySpan<byte> headers)
     {
         if (headers.Length < 12 || !Utf8Parser.TryParse(headers.Slice(9, 3), out int status, out _))
         {
@@ -120,6 +121,7 @@ internal sealed class HttpConnection(EndPoint endPoint) : IDisposable
         }
 
         long contentLength = -1;
+        byte cache = 0;
         var chunked = false;
         var keepAlive = !headers.StartsWith("HTTP/1.0"u8);
         var rest = headers;
@@ -160,9 +162,13 @@ internal sealed class HttpConnection(EndPoint endPoint) : IDisposable
             {
                 keepAlive = !System.Text.Ascii.EqualsIgnoreCase(value, "close"u8);
             }
+            else if (name.Length == 13 && System.Text.Ascii.EqualsIgnoreCase(name, "X-Astro-Cache"u8))
+            {
+                cache = System.Text.Ascii.EqualsIgnoreCase(value, "HIT"u8) ? (byte)1 : System.Text.Ascii.EqualsIgnoreCase(value, "MISS"u8) ? (byte)2 : (byte)3;
+            }
         }
 
-        return (status, contentLength, chunked, keepAlive);
+        return (status, contentLength, chunked, keepAlive, cache);
     }
 
     private async ValueTask<long> SkipChunkedAsync(Socket socket)

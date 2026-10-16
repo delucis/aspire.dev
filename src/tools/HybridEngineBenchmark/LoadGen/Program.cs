@@ -13,6 +13,11 @@ internal static class Program
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
     };
 
+    private static readonly JsonSerializerOptions s_compactJson = new()
+    {
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+    };
+
     public static async Task<int> Main(string[] args)
     {
         Options options;
@@ -57,8 +62,15 @@ internal static class Program
 
             if (options.OutPath is { } path)
             {
-                Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(path))!);
-                await File.WriteAllTextAsync(path, JsonSerializer.Serialize(report, s_json)).ConfigureAwait(false);
+                if (path == "-")
+                {
+                    Console.WriteLine("#json " + JsonSerializer.Serialize(report, s_compactJson));
+                }
+                else
+                {
+                    Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(path))!);
+                    await File.WriteAllTextAsync(path, JsonSerializer.Serialize(report, s_json)).ConfigureAwait(false);
+                }
             }
 
             return 0;
@@ -100,6 +112,10 @@ internal static class Program
         Console.WriteLine($"[{r.Label}] {r.Connections} connections, {r.Seconds:N0}s, {r.UniquePaths:N0} distinct paths -> {r.Url}");
         Console.WriteLine($"  requests {r.Requests:N0}  rps {r.RequestsPerSecond.ToString("N1", c)}  errors {r.Errors:N0}{(r.Failures.Count > 0 ? " (" + string.Join(", ", r.Failures.Select(f => f.Key + ":" + f.Value)) + ")" : string.Empty)}  avg {(r.AverageBytes / 1024).ToString("N1", c)} KB  status {string.Join(", ", r.Statuses.Select(s => s.Key + ":" + s.Value))}");
         Console.WriteLine($"  latency ms  mean {Ms(r.Latency.Mean)}  p50 {Ms(r.Latency.P50)}  p90 {Ms(r.Latency.P90)}  p95 {Ms(r.Latency.P95)}  p99 {Ms(r.Latency.P99)}  p99.9 {Ms(r.Latency.P999)}  max {Ms(r.Latency.Max)}");
+        if (r.CacheHits + r.CacheMisses > 0)
+        {
+            Console.WriteLine($"  x-astro-cache  HIT {r.CacheHits:N0}  MISS {r.CacheMisses:N0}  hit ratio {(100d * r.CacheHits / (r.CacheHits + r.CacheMisses)).ToString("N1", c)}%");
+        }
         if (r.Server is { } s)
         {
             Console.WriteLine($"  server  cores {s.ServerCores.ToString("N2", c)}  cpu-ms/request {(r.Requests == 0 ? 0 : s.ServerCpuSeconds * 1000 / r.Requests).ToString("N2", c)}  rss {Mb(s.ServerRssStartBytes)} -> {Mb(s.ServerRssEndBytes)} (peak {Mb(s.ServerRssPeakBytes)}, private peak {Mb(s.ServerPrivatePeakBytes)})  | generator cores {s.GeneratorCores.ToString("N2", c)}");
@@ -115,12 +131,13 @@ internal static class Program
     {
         var c = CultureInfo.InvariantCulture;
         Console.WriteLine($"[{r.Label}] sequence -> {r.Url}");
-        Console.WriteLine($"  {"first",9} {"second",9} {"median*",9} {"min",9}  status  {"KB",7}  path");
+        Console.WriteLine($"  {"first",9} {"second",9} {"median*",9} {"min",9}  status  {"KB",7}  {"cache",9}  path");
         foreach (var e in r.Entries)
         {
             var rest = e.Milliseconds.Skip(1).Order().ToArray();
             var median = rest.Length == 0 ? double.NaN : rest[rest.Length / 2];
-            Console.WriteLine($"  {Ms(e.Milliseconds[0]),9} {(e.Milliseconds.Length > 1 ? Ms(e.Milliseconds[1]) : "-"),9} {(double.IsNaN(median) ? "-" : Ms(median)),9} {Ms(e.Milliseconds.Min()),9}  {e.Status,6}  {(e.Bytes / 1024d).ToString("N1", c),7}  {e.Path}");
+            var cache = string.Join('>', e.Cache.Take(2).Select(static s => s.Length == 0 ? "-" : s));
+            Console.WriteLine($"  {Ms(e.Milliseconds[0]),9} {(e.Milliseconds.Length > 1 ? Ms(e.Milliseconds[1]) : "-"),9} {(double.IsNaN(median) ? "-" : Ms(median)),9} {Ms(e.Milliseconds.Min()),9}  {e.Status,6}  {(e.Bytes / 1024d).ToString("N1", c),7}  {cache,9}  {e.Path}");
         }
 
         Console.WriteLine("  (* median of requests after the first)");
