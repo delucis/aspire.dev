@@ -25,6 +25,7 @@ import {
   identityFinalization,
   restoredPaths,
   restoredRouteCounts,
+  textDifference,
 } from '../../scripts/test-incremental-builds.mjs';
 
 const commit = '0123456789abcdef0123456789abcdef01234567';
@@ -748,6 +749,19 @@ describe('whole-output equivalence', () => {
     );
     expect(() => changedIdentity('', [next])).toThrow('full git commit IDs');
     expect(() => changedIdentity(commit, ['not-a-commit'])).toThrow('full git commit IDs');
+  });
+
+  it('reports the first raw text difference with bounded context', () => {
+    expect(textDifference('prefix-before-after', 'prefix-during-after', 3)).toEqual({
+      offset: 7,
+      expected: 'ix-bef',
+      actual: 'ix-dur',
+    });
+    expect(textDifference('same', 'same', 2)).toEqual({
+      offset: 4,
+      expected: 'me',
+      actual: 'me',
+    });
   });
 
   it('counts Astro 7.3 restored routes, not image-cache or timing messages', () => {

@@ -143,6 +143,23 @@ export function changedIdentity(current, candidates) {
   return identity;
 }
 
+export function textDifference(expected, actual, radius = 120) {
+  let offset = 0;
+  while (
+    offset < expected.length &&
+    offset < actual.length &&
+    expected.charCodeAt(offset) === actual.charCodeAt(offset)
+  ) {
+    offset++;
+  }
+  const start = Math.max(0, offset - radius);
+  return {
+    offset,
+    expected: expected.slice(start, offset + radius),
+    actual: actual.slice(start, offset + radius),
+  };
+}
+
 async function runPilot(scenario) {
   if (process.env.CI !== 'true')
     throw new Error('This multi-build qualification harness is CI-only.');
@@ -268,12 +285,24 @@ async function runPilot(scenario) {
     }
     const manifest = await buildManifest(join(root, 'dist-hybrid'));
     await writeFile(join(reportDirectory, `${label}-manifest.json`), JSON.stringify(manifest));
+    const diagnosticPaths = Object.keys(manifest).filter(
+      (path) => path === 'hybrid-api-docs.json' || /^server\/chunks\/.+\.mjs$/.test(path)
+    );
+    const diagnosticText = Object.fromEntries(
+      await Promise.all(
+        diagnosticPaths.map(async (path) => [
+          path,
+          await readFile(join(root, 'dist-hybrid', path), 'utf8'),
+        ])
+      )
+    );
     const hybrid = JSON.parse(
       await readFile(join(root, 'dist-hybrid', 'hybrid-api-docs.json'), 'utf8')
     );
     return {
       files: manifest,
       routes: hybrid.routes,
+      diagnosticText,
     };
   }
 
@@ -288,6 +317,18 @@ async function runPilot(scenario) {
         console.error(
           `[incremental-pilot] ${label} ${kind}: ${paths.length}; first paths: ${paths.slice(0, 10).join(', ')}`
         );
+      }
+      for (const path of differences.changed.slice(0, 5)) {
+        const expectedText = expected.diagnosticText[path];
+        const actualText = actual.diagnosticText[path];
+        if (expectedText !== undefined && actualText !== undefined) {
+          console.error(
+            `[incremental-pilot] ${label} text difference ${JSON.stringify({
+              path,
+              ...textDifference(expectedText, actualText),
+            })}`
+          );
+        }
       }
       throw new Error(
         `${label}: output differs; see ${label}-diff.json. No normalization is allowed.`
