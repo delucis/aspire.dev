@@ -50,7 +50,6 @@
     "test:unit:cli-config-schema": "vitest run --config vitest.config.ts tests/unit/cli-config-schema.vitest.test.ts",
     "test:unit:llms-small-whitespace": "vitest run --config vitest.config.ts tests/unit/llms-small-whitespace.vitest.test.ts",
     "test:unit:llms-txt": "vitest run --config vitest.config.ts tests/unit/llms-txt-twoslash.vitest.test.ts",
-    "test:incremental-builds": "node ./scripts/test-incremental-builds.mjs",
     "test:e2e:api-markdown": "playwright test --config playwright.api-markdown.config.mjs",
     "test:e2e": "playwright test",
     "test:e2e:install": "playwright install chromium",

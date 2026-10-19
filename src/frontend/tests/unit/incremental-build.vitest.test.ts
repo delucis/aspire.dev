@@ -17,16 +17,6 @@ import {
   stampBuildIdentity,
   stampBuildIdentityBytes,
 } from '../../config/incremental-build.mjs';
-import { buildManifest, compareManifests } from '../../scripts/compare-builds.mjs';
-import {
-  buildArguments,
-  changedIdentity,
-  compareIncrementalDiagnostics,
-  identityFinalization,
-  restoredPaths,
-  restoredRouteCounts,
-  textDifference,
-} from '../../scripts/test-incremental-builds.mjs';
 
 const commit = '0123456789abcdef0123456789abcdef01234567';
 const roots: string[] = [];
@@ -694,16 +684,9 @@ describe('incremental compatibility and package keys', () => {
     expect(incrementalCompatibility(root, 'production', {})).not.toBe(before);
   });
 
-  it('does not evict APIs for the uncached RSS fallback clock', async () => {
-    const root = await fixture();
-    vi.stubEnv('SOURCE_DATE_EPOCH', '1');
-    const before = incrementalCompatibility(root, 'production', {});
-    vi.stubEnv('SOURCE_DATE_EPOCH', '2');
-    expect(incrementalCompatibility(root, 'production', {})).toBe(before);
-  });
 });
 
-describe('whole-output equivalence', () => {
+describe('Astro incremental compatibility', () => {
   it('normalizes Rolldown asset handles in Astro incremental dependency hashes', async () => {
     const source = await readFile(
       join(
@@ -719,149 +702,5 @@ describe('whole-output equivalence', () => {
       'utf8'
     );
     expect(source).toContain('import.meta.ROLLDOWN_FILE_URL_');
-  });
-
-  it('keeps ordinary full-build controls distinct from the forced-clean oracle', () => {
-    expect(buildArguments('clean')).toEqual(['build', '--mode', 'production', '--force']);
-    expect(buildArguments('full')).toEqual(['build', '--mode', 'production']);
-    expect(buildArguments('incremental')).toEqual(['build', '--mode', 'production']);
-  });
-
-  it('records measured identity work without accepting missing, duplicate or inconsistent totals', () => {
-    const measurement = { htmlFiles: 10, parsedPages: 2, reusedPages: 8, wallMs: 20.5 };
-    const log = `[incremental-build] finalized identity ${JSON.stringify(measurement)}`;
-    expect(identityFinalization(`other output\n\u001b[32m${log}\u001b[0m\n`)).toEqual(measurement);
-    expect(() => identityFinalization('')).toThrow('Expected one');
-    expect(() => identityFinalization(`${log}\n${log}`)).toThrow('Expected one');
-    expect(() =>
-      identityFinalization(
-        `[incremental-build] finalized identity ${JSON.stringify({ ...measurement, htmlFiles: 9 })}`
-      )
-    ).toThrow('Invalid');
-  });
-
-  it('selects a different real identity for both PR merges and main-branch builds', () => {
-    const next = 'abcdef0123456789abcdef0123456789abcdef01';
-    expect(changedIdentity(commit, [next, commit])).toBe(next);
-    expect(changedIdentity(commit, [commit, next])).toBe(next);
-    expect(() => changedIdentity(commit, [commit, commit.toUpperCase()])).toThrow(
-      'different real commit'
-    );
-    expect(() => changedIdentity('', [next])).toThrow('full git commit IDs');
-    expect(() => changedIdentity(commit, ['not-a-commit'])).toThrow('full git commit IDs');
-  });
-
-  it('reports the first raw text difference with bounded context', () => {
-    expect(textDifference('prefix-before-after', 'prefix-during-after', 3)).toEqual({
-      offset: 7,
-      expected: 'ix-bef',
-      actual: 'ix-dur',
-    });
-    expect(textDifference('same', 'same', 2)).toEqual({
-      offset: 4,
-      expected: 'me',
-      actual: 'me',
-    });
-  });
-
-  it('counts Astro 7.3 restored routes, not image-cache or timing messages', () => {
-    expect(
-      restoredPaths(
-        [
-          '  ├─ /reference/api/csharp/test/index.html (restored)',
-          '  ├─ /reference/api/csharp/test.md (cached)',
-          '  ├─ /docs/index.html (+2ms)',
-          'image.png (+1ms) (reused cache entry)',
-        ].join('\n')
-      )
-    ).toEqual(['/reference/api/csharp/test/index.html', '/reference/api/csharp/test.md']);
-  });
-
-  it('counts restored prerendered hybrid routes across docs, endpoints, and OG images', () => {
-    expect(
-      restoredRouteCounts(
-        [
-          '/reference/api/csharp/test/index.html (restored)',
-          '/reference/api/typescript/test.md (restored)',
-          '/docs/index.html (restored)',
-          '/og/app-host/configuration.png/ (restored)',
-          '/og/reference/samples/example.png (cached)',
-        ].join('\n')
-      )
-    ).toEqual({
-      htmlRestored: 2,
-      markdownRestored: 1,
-      ogRestored: 2,
-      totalRestored: 5,
-    });
-  });
-
-  it('reports changed route and module dependency records without flooding CI logs', () => {
-    const record = (value: string) => ({ codeHash: value, importsHash: value });
-    expect(
-      compareIncrementalDiagnostics(
-        {
-          routes: {
-            html: { dependencyHash: 'before', pathCount: 2 },
-            removed: { dependencyHash: 'same', pathCount: 1 },
-          },
-          modules: {
-            client: { stable: record('same'), volatile: record('before') },
-            prerender: {},
-          },
-        },
-        {
-          routes: {
-            html: { dependencyHash: 'after', pathCount: 2 },
-            added: { dependencyHash: 'same', pathCount: 1 },
-          },
-          modules: {
-            client: { stable: record('same'), volatile: record('after') },
-            prerender: { new: record('new') },
-          },
-        }
-      )
-    ).toEqual({
-      routes: {
-        added: { count: 1, items: ['added'] },
-        removed: { count: 1, items: ['removed'] },
-        changed: { count: 1, items: ['html'] },
-      },
-      clientModules: {
-        added: { count: 0, items: [] },
-        removed: { count: 0, items: [] },
-        changed: { count: 1, items: ['volatile'] },
-      },
-      prerenderModules: {
-        added: { count: 1, items: ['new'] },
-        removed: { count: 0, items: [] },
-        changed: { count: 0, items: [] },
-      },
-    });
-  });
-
-  it('detects missing, added and changed files without filtering output types', async () => {
-    const root = await fixture();
-    await put(root, 'index.html', '<html>Identity and scripts must match.</html>');
-    await put(root, 'pagefind/index.pf_meta', 'search');
-    await put(root, 'api/test.md', '# API');
-    const before = await buildManifest(root);
-    expect(compareManifests(before, await buildManifest(root))).toEqual({
-      missing: [],
-      extra: [],
-      changed: [],
-    });
-    await put(root, 'index.html', '<html>Changed identity.</html>');
-    await rm(join(root, 'api/test.md'));
-    await put(root, 'new.svg', '<svg/>');
-    expect(compareManifests(before, await buildManifest(root))).toEqual({
-      missing: ['api/test.md'],
-      extra: ['new.svg'],
-      changed: ['index.html'],
-    });
-  });
-
-  it('rejects empty output instead of accepting a vacuous match', async () => {
-    await expect(buildManifest(await fixture())).rejects.toThrow('empty');
   });
 });

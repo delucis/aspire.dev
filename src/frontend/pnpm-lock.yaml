@@ -5,8 +5,6 @@ settings:
   excludeLinksFromLockfile: false
 
 overrides:
-  expressive-code-twoslash@0.6.1>@expressive-code/core: 0.44.1
-  expressive-code-twoslash@0.6.1>expressive-code: 0.44.1
   '@anthropic-ai/claude-code@<2.0.31': '>=2.0.31'
   '@cacheable/memory@2.2.1': 2.2.0
   '@cacheable/net@2.1.1': 2.1.0
@@ -47,7 +45,6 @@ overrides:
 patchedDependencies:
   '@astrojs/starlight@0.41.3': ad8925179f0e3050ae6c804196faa6d38a2be2b718acf138001215a18648d3b5
   astro@7.3.2: f219ff102d363fbc37807fb46f3269cdf3c2943f25f786df83d4cc6d4b8aaf72
-  expressive-code-twoslash@0.6.1: 51c26d1f8c762630e465332034bbf87f084ab116727f8ecea92534c3546dc751
   starlight-page-actions@0.7.0: 584b28601fea4de666f3eb91e3425afd11f8da7e4d8aba649c15ec5be5b5d54c
   starlight-plugin-icons@1.1.6: 0c6dd9cc32f19c122d54f8f94d295dc96a3932baff5ff88ce2d54db538ebc2ac
 
@@ -114,7 +111,7 @@ importers:
         version: 0.44.1(astro@7.3.2(patch_hash=f219ff102d363fbc37807fb46f3269cdf3c2943f25f786df83d4cc6d4b8aaf72)(@astrojs/markdown-remark@7.2.1)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))
       expressive-code-twoslash:
         specifier: ^0.6.1
-        version: 0.6.1(patch_hash=51c26d1f8c762630e465332034bbf87f084ab116727f8ecea92534c3546dc751)(@expressive-code/core@0.44.1)(eslint@10.7.0(jiti@2.7.0))(expressive-code@0.44.1)(typescript@6.0.3)
+        version: 0.6.1(@expressive-code/core@0.44.1)(eslint@10.7.0(jiti@2.7.0))(expressive-code@0.44.1)(typescript@6.0.3)
       hast-util-select:
         specifier: ^6.0.4
         version: 6.0.4
@@ -2558,8 +2555,8 @@ packages:
   expressive-code-twoslash@0.6.1:
     resolution: {integrity: sha512-aEeKBgqg6cF4rQPxT5BHNbRffwsA66zWkNT/Y7CcUIE8eHW6KJHPCnZrGCLxvQ5xRd+qWj7ZXq84gT2zd2ECbg==}
     peerDependencies:
-      '@expressive-code/core': 0.44.1
-      expressive-code: 0.44.1
+      '@expressive-code/core': ^0.41.7
+      expressive-code: ^0.41.7
       typescript: ^5.5.0
 
   expressive-code@0.44.1:
@@ -5178,17 +5175,17 @@ snapshots:
     dependencies:
       '@chevrotain/types': 11.1.2
 
-  '@napi-rs/wasm-runtime@1.1.6(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)':
-    dependencies:
-      '@emnapi/core': 1.10.0
-      '@emnapi/runtime': 1.10.0
-      '@tybys/wasm-util': 0.10.3
-    optional: true
-
   '@napi-rs/wasm-runtime@1.1.6(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.1)':
     dependencies:
       '@emnapi/core': 1.11.1
       '@emnapi/runtime': 1.11.1
+      '@tybys/wasm-util': 0.10.3
+    optional: true
+
+  '@napi-rs/wasm-runtime@1.2.5(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)':
+    dependencies:
+      '@emnapi/core': 1.10.0
+      '@emnapi/runtime': 1.10.0
       '@tybys/wasm-util': 0.10.3
     optional: true
 
@@ -5274,7 +5271,7 @@ snapshots:
     dependencies:
       '@emnapi/core': 1.10.0
       '@emnapi/runtime': 1.10.0
-      '@napi-rs/wasm-runtime': 1.1.6(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)
+      '@napi-rs/wasm-runtime': 1.2.5(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)
     optional: true
 
   '@oxc-parser/binding-win32-arm64-msvc@0.131.0':
@@ -5369,7 +5366,7 @@ snapshots:
     dependencies:
       '@emnapi/core': 1.11.1
       '@emnapi/runtime': 1.11.1
-      '@napi-rs/wasm-runtime': 1.1.6(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.1)
+      '@napi-rs/wasm-runtime': 1.2.5(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.1)
     optional: true
 
   '@rolldown/binding-win32-arm64-msvc@1.1.5':
@@ -6767,7 +6764,7 @@ snapshots:
 
   expect-type@1.4.0: {}
 
-  expressive-code-twoslash@0.6.1(patch_hash=51c26d1f8c762630e465332034bbf87f084ab116727f8ecea92534c3546dc751)(@expressive-code/core@0.44.1)(eslint@10.7.0(jiti@2.7.0))(expressive-code@0.44.1)(typescript@6.0.3):
+  expressive-code-twoslash@0.6.1(@expressive-code/core@0.44.1)(eslint@10.7.0(jiti@2.7.0))(expressive-code@0.44.1)(typescript@6.0.3):
     dependencies:
       '@ec-ts/twoslash': 1.0.0(typescript@6.0.3)
       '@ec-ts/twoslash-vue': 1.0.0(typescript@6.0.3)

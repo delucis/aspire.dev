@@ -25,8 +25,6 @@ peerDependencyRules:
     vite-plugin-virtual@0.5.0>vite: ^8.0.0
 
 overrides:
-  'expressive-code-twoslash@0.6.1>@expressive-code/core': 0.44.1
-  'expressive-code-twoslash@0.6.1>expressive-code': 0.44.1
   '@anthropic-ai/claude-code@<2.0.31': '>=2.0.31'
   '@cacheable/memory@2.2.1': 2.2.0
   '@cacheable/net@2.1.1': 2.1.0
@@ -71,8 +69,6 @@ patchedDependencies:
   # Starlight search must initialize and dispose per element across ClientRouter
   # swaps, not only on DOMContentLoaded (microsoft/aspire.dev#1673).
   '@astrojs/starlight@0.41.3': patches/@astrojs__starlight@0.41.3.patch
-  # Keep generated Twoslash syntax output deterministic across builds.
-  expressive-code-twoslash@0.6.1: patches/expressive-code-twoslash@0.6.1.patch
   # Keep accessible actions across page swaps and allow readable heading markup.
   starlight-page-actions@0.7.0: patches/starlight-page-actions@0.7.0.patch
   # Temporary network-resilience fix for getMaterialIconsData (falls back to the

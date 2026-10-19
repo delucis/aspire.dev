@@ -25,7 +25,6 @@ import starlightPageActions from 'starlight-page-actions';
 import buildTiming from './config/build-timing.mjs';
 import { contributorCacheIntegration } from './src/utils/contributors.ts';
 import { loadIncrementalBuildSettings } from './config/incremental-build.mjs';
-import { pagefindManifestIntegration } from './config/pagefind-manifest.mjs';
 import UnoCSS from 'unocss/astro';
 import Icons from 'starlight-plugin-icons';
 import node from '@astrojs/node';
@@ -95,10 +94,7 @@ export default defineConfig({
     },
     ...(incremental
       ? {
-          plugins: [
-            incremental.privateIdentityPlugin,
-            ...(incremental.dependencyDiagnostics ? [incremental.dependencyDiagnostics] : []),
-          ],
+          plugins: [incremental.privateIdentityPlugin],
         }
       : {}),
     ...(staticHostUrl
@@ -281,9 +277,6 @@ export default defineConfig({
     ...(isBuildTimingEnabled ? [buildTiming()] : []),
     aspireVersionPlaceholdersIntegration(),
     ...(hybridApiDocs ? [hybridApiDocsIntegration(redirects)] : []),
-    ...(!isSkipSearchBuild
-      ? [pagefindManifestIntegration()]
-      : []),
     ...(incremental ? [incremental.integration] : []),
   ],
   build: {
