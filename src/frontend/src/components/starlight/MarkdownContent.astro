@@ -25,7 +25,7 @@ const route = routeData as
   | { slug?: string; id?: string; entry?: { slug?: string; id?: string } }
   | undefined;
 const release = getWhatsNewRelease(
-  route?.slug ?? route?.entry?.slug ?? route?.id ?? route?.entry?.id
+  route?.id ?? route?.entry?.id ?? route?.slug ?? route?.entry?.slug
 );
 ---
 

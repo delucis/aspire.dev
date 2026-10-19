@@ -87,7 +87,7 @@ export function getContentBreadcrumbs(routeData?: RouteDataLike): BreadcrumbItem
 
 function resolveRoutePath(routeData?: RouteDataLike): string {
   return normalizePath(
-    routeData?.slug ?? routeData?.entry?.slug ?? routeData?.id ?? routeData?.entry?.id
+    routeData?.id ?? routeData?.entry?.id ?? routeData?.slug ?? routeData?.entry?.slug
   );
 }
 
