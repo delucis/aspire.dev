@@ -44,17 +44,17 @@ describe('Pagefind manifest generation', () => {
     expect(serializePagefindEntry(result)).toBe(serializePagefindEntry(entry));
   });
 
-  test.each(['', 'client/'])(
-    'finalizes the actual %ssearch file and rejects missing or malformed output',
-    async (outputSubdirectory) => {
+  test.each(['dist', 'dist-hybrid/client'])(
+    'finalizes the search file in Astro hook directory %s',
+    async (outputDirectory) => {
       const root = await mkdtemp(join(tmpdir(), 'aspire-pagefind-'));
-      const dir = pathToFileURL(root + sep);
-      const finalize =
-        pagefindManifestIntegration(outputSubdirectory).hooks['astro:build:done'];
+      const output = join(root, outputDirectory);
+      const dir = pathToFileURL(output + sep);
+      const finalize = pagefindManifestIntegration().hooks['astro:build:done'];
       try {
         await expect(finalize({ dir })).rejects.toThrow('ENOENT');
-        await mkdir(join(root, outputSubdirectory, 'pagefind'), { recursive: true });
-        const path = join(root, outputSubdirectory, 'pagefind', 'pagefind-entry.json');
+        await mkdir(join(output, 'pagefind'), { recursive: true });
+        const path = join(output, 'pagefind', 'pagefind-entry.json');
         await writeFile(path, '{');
         await expect(finalize({ dir })).rejects.toThrow();
         await writeFile(

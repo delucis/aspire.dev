@@ -282,7 +282,7 @@ export default defineConfig({
     aspireVersionPlaceholdersIntegration(),
     ...(hybridApiDocs ? [hybridApiDocsIntegration(redirects)] : []),
     ...(!isSkipSearchBuild
-      ? [pagefindManifestIntegration(hybridApiDocs ? 'client/' : '')]
+      ? [pagefindManifestIntegration()]
       : []),
     ...(incremental ? [incremental.integration] : []),
   ],
