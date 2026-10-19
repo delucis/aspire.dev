@@ -44,27 +44,31 @@ describe('Pagefind manifest generation', () => {
     expect(serializePagefindEntry(result)).toBe(serializePagefindEntry(entry));
   });
 
-  test('finalizes the actual search file and rejects missing or malformed output', async () => {
-    const root = await mkdtemp(join(tmpdir(), 'aspire-pagefind-'));
-    const dir = pathToFileURL(root + sep);
-    const finalize = pagefindManifestIntegration().hooks['astro:build:done'];
-    try {
-      await expect(finalize({ dir })).rejects.toThrow('ENOENT');
-      await mkdir(join(root, 'pagefind'));
-      const path = join(root, 'pagefind', 'pagefind-entry.json');
-      await writeFile(path, '{');
-      await expect(finalize({ dir })).rejects.toThrow();
-      await writeFile(
-        path,
-        JSON.stringify({
-          ...entry,
-          languages: { ja: languages.ja, de: languages.de, en: languages.en },
-        })
-      );
-      await finalize({ dir });
-      expect(await readFile(path, 'utf8')).toBe(JSON.stringify(entry));
-    } finally {
-      await rm(root, { recursive: true, force: true });
+  test.each(['', 'client/'])(
+    'finalizes the actual %ssearch file and rejects missing or malformed output',
+    async (outputSubdirectory) => {
+      const root = await mkdtemp(join(tmpdir(), 'aspire-pagefind-'));
+      const dir = pathToFileURL(root + sep);
+      const finalize =
+        pagefindManifestIntegration(outputSubdirectory).hooks['astro:build:done'];
+      try {
+        await expect(finalize({ dir })).rejects.toThrow('ENOENT');
+        await mkdir(join(root, outputSubdirectory, 'pagefind'), { recursive: true });
+        const path = join(root, outputSubdirectory, 'pagefind', 'pagefind-entry.json');
+        await writeFile(path, '{');
+        await expect(finalize({ dir })).rejects.toThrow();
+        await writeFile(
+          path,
+          JSON.stringify({
+            ...entry,
+            languages: { ja: languages.ja, de: languages.de, en: languages.en },
+          })
+        );
+        await finalize({ dir });
+        expect(await readFile(path, 'utf8')).toBe(JSON.stringify(entry));
+      } finally {
+        await rm(root, { recursive: true, force: true });
+      }
     }
-  });
+  );
 });

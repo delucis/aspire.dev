@@ -80,7 +80,7 @@ test('CPU, timing, output inventories and diagnostic uploads are opt-in only', a
   expect(workflow).toMatch(/if \[\[ "\$PROFILE_BUILD" == "true" \]\]; then\n\s+mkdir -p/);
   expect(workflow).toMatch(/else\n\s+pnpm build:production\n\s+fi/);
   expect(workflow).toContain('name: Measure frontend output\n        if: ${{ inputs.profile_build }}');
-  expect(workflow).toContain('name: Upload build diagnostics\n        if: ${{ always() && inputs.profile_build }}');
+  expect(workflow).toContain('name: Upload build diagnostics\n        if: ${{ inputs.profile_build }}');
 });
 
 test('Astro build source does not receive workflow credentials', async () => {

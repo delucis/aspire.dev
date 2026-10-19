@@ -26,7 +26,6 @@ import buildTiming from './config/build-timing.mjs';
 import { contributorCacheIntegration } from './src/utils/contributors.ts';
 import { loadIncrementalBuildSettings } from './config/incremental-build.mjs';
 import { pagefindManifestIntegration } from './config/pagefind-manifest.mjs';
-import { pagefindCacheIntegration } from './config/pagefind-cache.mjs';
 import UnoCSS from 'unocss/astro';
 import Icons from 'starlight-plugin-icons';
 import node from '@astrojs/node';
@@ -279,9 +278,8 @@ export default defineConfig({
     ...(isBuildTimingEnabled ? [buildTiming()] : []),
     aspireVersionPlaceholdersIntegration(),
     ...(hybridApiDocs ? [hybridApiDocsIntegration(redirects)] : []),
-    ...(!isSkipSearchBuild ? [pagefindManifestIntegration()] : []),
-    ...(incremental && !isSkipSearchBuild
-      ? [pagefindCacheIntegration(incremental.cacheDir, process.argv.includes('--force'))]
+    ...(!isSkipSearchBuild
+      ? [pagefindManifestIntegration(hybridApiDocs ? 'client/' : '')]
       : []),
     ...(incremental ? [incremental.integration] : []),
   ],

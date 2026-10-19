@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { ogCacheKey } from '../../src/utils/og-build-cache';
-import { getStaticPaths as docsPaths } from '../../src/pages/og/[...slug]';
+import { getStaticPaths as docsPaths } from '../../src/pages/og/[...slug].png';
 import { getStaticPaths as samplePaths } from '../../src/pages/og/reference/samples/[sample].png';
 
 const fixture = vi.hoisted(() => ({
@@ -85,8 +85,8 @@ describe('OG route caching', () => {
       normal.map(({ params, props }) => ({ params, props }))
     );
     expect(cached.map(({ params }) => params.slug)).toEqual([
-      'app-host/cache-probe.png',
-      'community/cache-probe.png',
+      'app-host/cache-probe',
+      'community/cache-probe',
     ]);
     expect(cached[0].cacheKey).toMatch(/^[a-f\d]{64}$/);
     expect(cached[1].cacheKey).toBeUndefined();

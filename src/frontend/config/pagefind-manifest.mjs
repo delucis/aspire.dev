@@ -11,12 +11,16 @@ export function serializePagefindEntry(entry) {
   return JSON.stringify({ ...entry, languages });
 }
 
-export function pagefindManifestIntegration() {
+/** @param {string} outputSubdirectory */
+export function pagefindManifestIntegration(outputSubdirectory = '') {
   return {
     name: 'aspire-pagefind-manifest',
     hooks: {
       'astro:build:done': async ({ dir }) => {
-        const path = new URL('pagefind/pagefind-entry.json', dir);
+        const path = new URL(
+          'pagefind/pagefind-entry.json',
+          new URL(outputSubdirectory, dir)
+        );
         const entry = JSON.parse(await readFile(path, 'utf8'));
         await writeFile(path, serializePagefindEntry(entry));
       },
