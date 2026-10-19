@@ -35,9 +35,9 @@ function readContent(directory: string): CatalogDoc[] {
     if (!/\.mdx?$/.test(entry.name)) return [];
     const base = path.join(root, 'src', 'content', directory.includes('glossary') ? 'glossary' : 'docs');
     const parsed = parseFrontmatter(readFileSync(filePath, 'utf8'));
-    const data = parsed.frontmatter as CatalogDoc['data'];
+    const { slug, ...data } = parsed.frontmatter as CatalogDoc['data'] & { slug?: string };
     return [{
-      id: data.slug ?? path.relative(base, filePath).replace(/\\/g, '/').replace(/\.mdx?$/, '').replace(/(^|\/)index$/, ''),
+      id: slug ?? path.relative(base, filePath).replace(/\\/g, '/').replace(/\.mdx?$/, '').replace(/(^|\/)index$/, ''),
       filePath,
       body: parsed.content,
       data,
@@ -84,8 +84,8 @@ describe('resource catalog normalization', () => {
     ] }).map(({ id }) => id)).toEqual(['doc:guide']);
   });
 
-  it('honors canonical slugs and index routes without mangling names ending in index', () => {
-    expect(docHref(doc('old', { slug: 'new/page' }))).toBe('/new/page/');
+  it('honors canonical IDs and index routes without mangling names ending in index', () => {
+    expect(docHref(doc('new/page'))).toBe('/new/page/');
     expect(docHref(doc('fundamentals/index'))).toBe('/fundamentals/');
     expect(docHref(doc('reference/search-index'))).toBe('/reference/search-index/');
     expect(canonicalDestination('/')).toBe('/');
@@ -128,11 +128,11 @@ describe('resource catalog normalization', () => {
     expect(docTopics(doc('unknown/path', { description: 'Deploy an Azure database with Python.' }))).toEqual([]);
   });
 
-  it('excludes includes by route, original ID, and source path even with slug overrides', () => {
+  it('excludes includes by route, original ID, and source path after slug overrides', () => {
     const entries = [
       doc('includes/shared'),
       doc('reference/cli/includes/option-help'),
-      doc('reference/cli/includes/renamed', { slug: 'public-fragment' }),
+      { ...doc('public-fragment'), filePath: 'src/content/docs/reference/cli/includes/renamed.mdx' },
       { ...doc('another-fragment'), filePath: 'C:\\repo\\src\\content\\docs\\reference\\cli\\includes\\shared.md' },
       doc('reference/cli/includes-overview'),
     ];
@@ -143,7 +143,7 @@ describe('resource catalog normalization', () => {
 
   it('merges packages into canonical docs and preserves package search metadata', () => {
     const result = buildResourceCatalog({ ...empty,
-      docs: [{ ...doc('integrations/new', { slug: 'integrations/canonical', category: 'quickstart' }), filePath: 'src/content/docs/integrations/old.mdx' }],
+      docs: [{ ...doc('integrations/canonical', { category: 'quickstart' }), filePath: 'src/content/docs/integrations/old.mdx' }],
       integrations: [
         { title: 'Hosting.Redis', href: 'https://nuget.org/packages/Hosting.Redis', description: 'Hosting package', tags: ['redis'], icon: 'https://example.com/redis.svg' },
         { title: 'Client.Redis', href: 'https://nuget.org/packages/Client.Redis', description: 'Client package', tags: ['client'] },
@@ -212,8 +212,6 @@ describe('resource catalog normalization', () => {
 
   it('fails loudly on conflicting source identities, destinations, mappings and unsafe URLs', () => {
     expect(() => buildResourceCatalog({ ...empty, docs: [doc('same'), doc('same')] })).toThrow('Conflicting resource ID');
-    expect(() => buildResourceCatalog({ ...empty, docs: [doc('same', { slug: 'one' }), doc('same', { slug: 'two' })] })).toThrow('Conflicting resource ID');
-    expect(() => buildResourceCatalog({ ...empty, docs: [doc('one', { slug: 'same' }), doc('two', { slug: 'same' })] })).toThrow('Conflicting resource destination');
     expect(() => buildResourceCatalog({ ...empty, integrationDocs: [{ match: 'One', href: '/one/' }, { match: 'one', href: '/two/' }] })).toThrow('Duplicate integration documentation mapping');
     expect(() => buildResourceCatalog({ ...empty, integrations: [
       { title: 'One', href: 'https://nuget.org/packages/One', description: '' },
