@@ -44,8 +44,9 @@ overrides:
 
 patchedDependencies:
   '@astrojs/starlight@0.41.3': ad8925179f0e3050ae6c804196faa6d38a2be2b718acf138001215a18648d3b5
+  astro@7.3.2: f219ff102d363fbc37807fb46f3269cdf3c2943f25f786df83d4cc6d4b8aaf72
   starlight-page-actions@0.7.0: 584b28601fea4de666f3eb91e3425afd11f8da7e4d8aba649c15ec5be5b5d54c
-  starlight-plugin-icons@1.1.6: ecdc00afa0722d3cdc77871f9debee551f67d1c02d82fea11c5aa41bf0f48a54
+  starlight-plugin-icons@1.1.6: 0c6dd9cc32f19c122d54f8f94d295dc96a3932baff5ff88ce2d54db538ebc2ac
 
 importers:
 
@@ -62,19 +63,19 @@ importers:
         version: 7.2.1
       '@astrojs/mdx':
         specifier: ^7.0.3
-        version: 7.0.3(@astrojs/markdown-satteri@0.3.4)(astro@7.3.2(@astrojs/markdown-remark@7.2.1)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))
+        version: 7.0.3(@astrojs/markdown-satteri@0.3.4)(astro@7.3.2(patch_hash=f219ff102d363fbc37807fb46f3269cdf3c2943f25f786df83d4cc6d4b8aaf72)(@astrojs/markdown-remark@7.2.1)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))
       '@astrojs/node':
         specifier: 11.1.6
-        version: 11.1.6(astro@7.3.2(@astrojs/markdown-remark@7.2.1)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))
+        version: 11.1.6(astro@7.3.2(patch_hash=f219ff102d363fbc37807fb46f3269cdf3c2943f25f786df83d4cc6d4b8aaf72)(@astrojs/markdown-remark@7.2.1)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))
       '@astrojs/rss':
         specifier: ^4.0.19
         version: 4.0.19
       '@astrojs/starlight':
-        specifier: ^0.41.3
-        version: 0.41.3(patch_hash=ad8925179f0e3050ae6c804196faa6d38a2be2b718acf138001215a18648d3b5)(@astrojs/markdown-remark@7.2.1)(astro@7.3.2(@astrojs/markdown-remark@7.2.1)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))(typescript@6.0.3)
+        specifier: 0.41.3
+        version: 0.41.3(patch_hash=ad8925179f0e3050ae6c804196faa6d38a2be2b718acf138001215a18648d3b5)(@astrojs/markdown-remark@7.2.1)(astro@7.3.2(patch_hash=f219ff102d363fbc37807fb46f3269cdf3c2943f25f786df83d4cc6d4b8aaf72)(@astrojs/markdown-remark@7.2.1)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))(typescript@6.0.3)
       '@catppuccin/starlight':
         specifier: ^2.1.0
-        version: 2.1.0(@astrojs/starlight@0.41.3(patch_hash=ad8925179f0e3050ae6c804196faa6d38a2be2b718acf138001215a18648d3b5)(@astrojs/markdown-remark@7.2.1)(astro@7.3.2(@astrojs/markdown-remark@7.2.1)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))(typescript@6.0.3))(astro@7.3.2(@astrojs/markdown-remark@7.2.1)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))
+        version: 2.1.0(@astrojs/starlight@0.41.3(patch_hash=ad8925179f0e3050ae6c804196faa6d38a2be2b718acf138001215a18648d3b5)(@astrojs/markdown-remark@7.2.1)(astro@7.3.2(patch_hash=f219ff102d363fbc37807fb46f3269cdf3c2943f25f786df83d4cc6d4b8aaf72)(@astrojs/markdown-remark@7.2.1)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))(typescript@6.0.3))(astro@7.3.2(patch_hash=f219ff102d363fbc37807fb46f3269cdf3c2943f25f786df83d4cc6d4b8aaf72)(@astrojs/markdown-remark@7.2.1)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))
       '@expressive-code/plugin-collapsible-sections':
         specifier: ^0.44.1
         version: 0.44.1
@@ -95,7 +96,7 @@ importers:
         version: 0.1.1
       '@lunariajs/starlight':
         specifier: ^0.1.1
-        version: 0.1.1(@astrojs/starlight@0.41.3(patch_hash=ad8925179f0e3050ae6c804196faa6d38a2be2b718acf138001215a18648d3b5)(@astrojs/markdown-remark@7.2.1)(astro@7.3.2(@astrojs/markdown-remark@7.2.1)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))(typescript@6.0.3))(astro@7.3.2(@astrojs/markdown-remark@7.2.1)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))
+        version: 0.1.1(@astrojs/starlight@0.41.3(patch_hash=ad8925179f0e3050ae6c804196faa6d38a2be2b718acf138001215a18648d3b5)(@astrojs/markdown-remark@7.2.1)(astro@7.3.2(patch_hash=f219ff102d363fbc37807fb46f3269cdf3c2943f25f786df83d4cc6d4b8aaf72)(@astrojs/markdown-remark@7.2.1)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))(typescript@6.0.3))(astro@7.3.2(patch_hash=f219ff102d363fbc37807fb46f3269cdf3c2943f25f786df83d4cc6d4b8aaf72)(@astrojs/markdown-remark@7.2.1)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))
       '@mdx-js/mdx':
         specifier: ^3.1.1
         version: 3.1.1
@@ -103,11 +104,11 @@ importers:
         specifier: ^3.17.0
         version: 3.17.0
       astro:
-        specifier: ^7.2.8
-        version: 7.3.2(@astrojs/markdown-remark@7.2.1)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0)
+        specifier: 7.3.2
+        version: 7.3.2(patch_hash=f219ff102d363fbc37807fb46f3269cdf3c2943f25f786df83d4cc6d4b8aaf72)(@astrojs/markdown-remark@7.2.1)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0)
       astro-expressive-code:
         specifier: ^0.44.1
-        version: 0.44.1(astro@7.3.2(@astrojs/markdown-remark@7.2.1)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))
+        version: 0.44.1(astro@7.3.2(patch_hash=f219ff102d363fbc37807fb46f3269cdf3c2943f25f786df83d4cc6d4b8aaf72)(@astrojs/markdown-remark@7.2.1)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))
       expressive-code-twoslash:
         specifier: ^0.6.1
         version: 0.6.1(@expressive-code/core@0.44.1)(eslint@10.7.0(jiti@2.7.0))(expressive-code@0.44.1)(typescript@6.0.3)
@@ -146,28 +147,28 @@ importers:
         version: 0.35.4(@types/node@24.13.3)
       starlight-github-alerts:
         specifier: ^0.4.0
-        version: 0.4.0(@astrojs/starlight@0.41.3(patch_hash=ad8925179f0e3050ae6c804196faa6d38a2be2b718acf138001215a18648d3b5)(@astrojs/markdown-remark@7.2.1)(astro@7.3.2(@astrojs/markdown-remark@7.2.1)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))(typescript@6.0.3))
+        version: 0.4.0(@astrojs/starlight@0.41.3(patch_hash=ad8925179f0e3050ae6c804196faa6d38a2be2b718acf138001215a18648d3b5)(@astrojs/markdown-remark@7.2.1)(astro@7.3.2(patch_hash=f219ff102d363fbc37807fb46f3269cdf3c2943f25f786df83d4cc6d4b8aaf72)(@astrojs/markdown-remark@7.2.1)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))(typescript@6.0.3))
       starlight-image-zoom:
         specifier: ^0.15.0
-        version: 0.15.0(@astrojs/starlight@0.41.3(patch_hash=ad8925179f0e3050ae6c804196faa6d38a2be2b718acf138001215a18648d3b5)(@astrojs/markdown-remark@7.2.1)(astro@7.3.2(@astrojs/markdown-remark@7.2.1)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))(typescript@6.0.3))
+        version: 0.15.0(@astrojs/starlight@0.41.3(patch_hash=ad8925179f0e3050ae6c804196faa6d38a2be2b718acf138001215a18648d3b5)(@astrojs/markdown-remark@7.2.1)(astro@7.3.2(patch_hash=f219ff102d363fbc37807fb46f3269cdf3c2943f25f786df83d4cc6d4b8aaf72)(@astrojs/markdown-remark@7.2.1)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))(typescript@6.0.3))
       starlight-kbd:
         specifier: ^0.4.0
-        version: 0.4.0(@astrojs/starlight@0.41.3(patch_hash=ad8925179f0e3050ae6c804196faa6d38a2be2b718acf138001215a18648d3b5)(@astrojs/markdown-remark@7.2.1)(astro@7.3.2(@astrojs/markdown-remark@7.2.1)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))(typescript@6.0.3))
+        version: 0.4.0(@astrojs/starlight@0.41.3(patch_hash=ad8925179f0e3050ae6c804196faa6d38a2be2b718acf138001215a18648d3b5)(@astrojs/markdown-remark@7.2.1)(astro@7.3.2(patch_hash=f219ff102d363fbc37807fb46f3269cdf3c2943f25f786df83d4cc6d4b8aaf72)(@astrojs/markdown-remark@7.2.1)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))(typescript@6.0.3))
       starlight-links-validator:
         specifier: ^0.25.2
-        version: 0.25.2(@astrojs/starlight@0.41.3(patch_hash=ad8925179f0e3050ae6c804196faa6d38a2be2b718acf138001215a18648d3b5)(@astrojs/markdown-remark@7.2.1)(astro@7.3.2(@astrojs/markdown-remark@7.2.1)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))(typescript@6.0.3))(astro@7.3.2(@astrojs/markdown-remark@7.2.1)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))
+        version: 0.25.2(@astrojs/starlight@0.41.3(patch_hash=ad8925179f0e3050ae6c804196faa6d38a2be2b718acf138001215a18648d3b5)(@astrojs/markdown-remark@7.2.1)(astro@7.3.2(patch_hash=f219ff102d363fbc37807fb46f3269cdf3c2943f25f786df83d4cc6d4b8aaf72)(@astrojs/markdown-remark@7.2.1)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))(typescript@6.0.3))(astro@7.3.2(patch_hash=f219ff102d363fbc37807fb46f3269cdf3c2943f25f786df83d4cc6d4b8aaf72)(@astrojs/markdown-remark@7.2.1)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))
       starlight-llms-txt:
         specifier: ^0.11.0
-        version: 0.11.0(@astrojs/markdown-satteri@0.3.4)(@astrojs/starlight@0.41.3(patch_hash=ad8925179f0e3050ae6c804196faa6d38a2be2b718acf138001215a18648d3b5)(@astrojs/markdown-remark@7.2.1)(astro@7.3.2(@astrojs/markdown-remark@7.2.1)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))(typescript@6.0.3))(astro@7.3.2(@astrojs/markdown-remark@7.2.1)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))
+        version: 0.11.0(@astrojs/markdown-satteri@0.3.4)(@astrojs/starlight@0.41.3(patch_hash=ad8925179f0e3050ae6c804196faa6d38a2be2b718acf138001215a18648d3b5)(@astrojs/markdown-remark@7.2.1)(astro@7.3.2(patch_hash=f219ff102d363fbc37807fb46f3269cdf3c2943f25f786df83d4cc6d4b8aaf72)(@astrojs/markdown-remark@7.2.1)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))(typescript@6.0.3))(astro@7.3.2(patch_hash=f219ff102d363fbc37807fb46f3269cdf3c2943f25f786df83d4cc6d4b8aaf72)(@astrojs/markdown-remark@7.2.1)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))
       starlight-page-actions:
-        specifier: ^0.7.0
-        version: 0.7.0(patch_hash=584b28601fea4de666f3eb91e3425afd11f8da7e4d8aba649c15ec5be5b5d54c)(@astrojs/starlight@0.41.3(patch_hash=ad8925179f0e3050ae6c804196faa6d38a2be2b718acf138001215a18648d3b5)(@astrojs/markdown-remark@7.2.1)(astro@7.3.2(@astrojs/markdown-remark@7.2.1)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))(typescript@6.0.3))(astro@7.3.2(@astrojs/markdown-remark@7.2.1)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))(vite@8.1.5(@types/node@24.13.3)(esbuild@0.28.1)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))
+        specifier: 0.7.0
+        version: 0.7.0(patch_hash=584b28601fea4de666f3eb91e3425afd11f8da7e4d8aba649c15ec5be5b5d54c)(@astrojs/starlight@0.41.3(patch_hash=ad8925179f0e3050ae6c804196faa6d38a2be2b718acf138001215a18648d3b5)(@astrojs/markdown-remark@7.2.1)(astro@7.3.2(patch_hash=f219ff102d363fbc37807fb46f3269cdf3c2943f25f786df83d4cc6d4b8aaf72)(@astrojs/markdown-remark@7.2.1)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))(typescript@6.0.3))(astro@7.3.2(patch_hash=f219ff102d363fbc37807fb46f3269cdf3c2943f25f786df83d4cc6d4b8aaf72)(@astrojs/markdown-remark@7.2.1)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))(vite@8.1.5(@types/node@24.13.3)(esbuild@0.28.1)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))
       starlight-plugin-icons:
-        specifier: ^1.1.6
-        version: 1.1.6(patch_hash=ecdc00afa0722d3cdc77871f9debee551f67d1c02d82fea11c5aa41bf0f48a54)(@astrojs/starlight@0.41.3(patch_hash=ad8925179f0e3050ae6c804196faa6d38a2be2b718acf138001215a18648d3b5)(@astrojs/markdown-remark@7.2.1)(astro@7.3.2(@astrojs/markdown-remark@7.2.1)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))(typescript@6.0.3))(astro@7.3.2(@astrojs/markdown-remark@7.2.1)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))(typescript@6.0.3)(unocss@66.7.5(@unocss/astro@66.7.5(vite@8.1.5(@types/node@24.13.3)(esbuild@0.28.1)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0)))(vite@8.1.5(@types/node@24.13.3)(esbuild@0.28.1)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0)))(zod@4.4.3)
+        specifier: 1.1.6
+        version: 1.1.6(patch_hash=0c6dd9cc32f19c122d54f8f94d295dc96a3932baff5ff88ce2d54db538ebc2ac)(@astrojs/starlight@0.41.3(patch_hash=ad8925179f0e3050ae6c804196faa6d38a2be2b718acf138001215a18648d3b5)(@astrojs/markdown-remark@7.2.1)(astro@7.3.2(patch_hash=f219ff102d363fbc37807fb46f3269cdf3c2943f25f786df83d4cc6d4b8aaf72)(@astrojs/markdown-remark@7.2.1)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))(typescript@6.0.3))(astro@7.3.2(patch_hash=f219ff102d363fbc37807fb46f3269cdf3c2943f25f786df83d4cc6d4b8aaf72)(@astrojs/markdown-remark@7.2.1)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))(typescript@6.0.3)(unocss@66.7.5(@unocss/astro@66.7.5(vite@8.1.5(@types/node@24.13.3)(esbuild@0.28.1)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0)))(vite@8.1.5(@types/node@24.13.3)(esbuild@0.28.1)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0)))(zod@4.5.4)
       starlight-sidebar-topics:
         specifier: ^0.8.0
-        version: 0.8.0(@astrojs/starlight@0.41.3(patch_hash=ad8925179f0e3050ae6c804196faa6d38a2be2b718acf138001215a18648d3b5)(@astrojs/markdown-remark@7.2.1)(astro@7.3.2(@astrojs/markdown-remark@7.2.1)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))(typescript@6.0.3))
+        version: 0.8.0(@astrojs/starlight@0.41.3(patch_hash=ad8925179f0e3050ae6c804196faa6d38a2be2b718acf138001215a18648d3b5)(@astrojs/markdown-remark@7.2.1)(astro@7.3.2(patch_hash=f219ff102d363fbc37807fb46f3269cdf3c2943f25f786df83d4cc6d4b8aaf72)(@astrojs/markdown-remark@7.2.1)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))(typescript@6.0.3))
       tippy.js:
         specifier: 6.3.7
         version: 6.3.7
@@ -213,7 +214,7 @@ importers:
         version: 66.7.5(vite@8.1.5(@types/node@24.13.3)(esbuild@0.28.1)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))
       astro-embed:
         specifier: ^0.13.1
-        version: 0.13.1(astro@7.3.2(@astrojs/markdown-remark@7.2.1)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))(typescript@6.0.3)
+        version: 0.13.1(astro@7.3.2(patch_hash=f219ff102d363fbc37807fb46f3269cdf3c2943f25f786df83d4cc6d4b8aaf72)(@astrojs/markdown-remark@7.2.1)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))(typescript@6.0.3)
       astro-vtbot:
         specifier: ^3.0.0
         version: 3.0.0
@@ -229,6 +230,9 @@ importers:
       http-proxy-agent:
         specifier: ^9.1.0
         version: 9.1.0
+      parse5-sax-parser:
+        specifier: ^8.0.0
+        version: 8.0.0
       prettier:
         specifier: ^3.9.5
         version: 3.9.5
@@ -253,6 +257,9 @@ importers:
       unocss:
         specifier: 66.7.5
         version: 66.7.5(@unocss/astro@66.7.5(vite@8.1.5(@types/node@24.13.3)(esbuild@0.28.1)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0)))(vite@8.1.5(@types/node@24.13.3)(esbuild@0.28.1)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))
+      vite:
+        specifier: 8.1.5
+        version: 8.1.5(@types/node@24.13.3)(esbuild@0.28.1)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0)
       vitest:
         specifier: ^4.1.11
         version: 4.1.11(@types/node@24.13.3)(vite@8.1.5(@types/node@24.13.3)(esbuild@0.28.1)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))
@@ -628,6 +635,9 @@ packages:
 
   '@emnapi/runtime@1.11.1':
     resolution: {integrity: sha512-vgj7R3y3Wgx24IQaGPA/R6YFXLHVMOZ0uVEyIQPaWs+rd1AzfEMXlAC22FYwO1XkKR6NPsq7mUandH8oIRdZFw==}
+
+  '@emnapi/runtime@1.11.3':
+    resolution: {integrity: sha512-Xz4Tpyki7XyrpbUK1jR1AhdAdaXyhhY4lZ3neLodmhpuWfy2PAQN5B46sAiU4liOXGLkHypn/qU+jvfWSCYYLA==}
 
   '@emnapi/wasi-threads@1.2.1':
     resolution: {integrity: sha512-uTII7OYF+/Mes/MrcIOYp5yOtSMLBWSIoLPpcgwipoiKbli6k322tcoFsxoIIxPDqW01SQGAgko4EzZi2BNv2w==}
@@ -1104,6 +1114,13 @@ packages:
       '@emnapi/core': ^1.7.1
       '@emnapi/runtime': ^1.7.1
 
+  '@napi-rs/wasm-runtime@1.2.5':
+    resolution: {integrity: sha512-HshSvXzmBxNzqejd3k/KemgQ3hdREUYFRRrgxOZ+gPljDIsO2SDZrVZMd4Z/HsxudQbE62OVyVFE8z9BCurfjA==}
+    engines: {node: ^20.19.0 || ^22.13.0 || >=23.5.0}
+    peerDependencies:
+      '@emnapi/core': ^1.7.1 || ^2.0.0-alpha.4
+      '@emnapi/runtime': ^1.7.1 || ^2.0.0-alpha.4
+
   '@nodable/entities@3.0.0':
     resolution: {integrity: sha512-8L9xFeTYKhm49xfIypoe2W5wV1m/3Z58kT+7kR9A8OyFxcPduI4VmxaUMQyKYrRjUoLLSXv6EKKID5Tvj9cUVw==}
 
@@ -1410,56 +1427,28 @@ packages:
   '@rolldown/pluginutils@1.0.1':
     resolution: {integrity: sha512-2j9bGt5Jh8hj+vPtgzPtl72j0yRxHAyumoo6TNfAjsLB04UtpSvPbPcDcBMxz7n+9CYB0c1GxQFxYRg2jimqGw==}
 
-  '@shikijs/core@4.3.1':
-    resolution: {integrity: sha512-ANMDxuaPsNMdDC1m4vfvhlDmJweMwkE5XitTwrq2rWHx5jM+dlm4MmHt2PP6t0uejfR77SuhrhJ0zEijIF/uhA==}
-    engines: {node: '>=20'}
-
   '@shikijs/core@4.4.2':
     resolution: {integrity: sha512-StyzbAyxg2/tBGf78gwbBkGyeQ73lf8UiJArFaQhTQIDqQOCKPCQFanvrs4/Yv3Yfyc+ONInJM6K+FMIf+P+kA==}
-    engines: {node: '>=20'}
-
-  '@shikijs/engine-javascript@4.3.1':
-    resolution: {integrity: sha512-JBItcnPuYq7jVJdZo/vMj94r+szT7XEjHFX+mvFDGSEIbVAXAGyHAHzhbWzpGOwYidCZrErJLLgn2PVeiokHnQ==}
     engines: {node: '>=20'}
 
   '@shikijs/engine-javascript@4.4.2':
     resolution: {integrity: sha512-MnIkeqWdVPUWsxlx8gKLVCJFTsqrQJgpTPBPpQwaFeJ56lOnJxj5aN2LUFnfxUEcvOQuNocmbaMnVrCEln6rkw==}
     engines: {node: '>=20'}
 
-  '@shikijs/engine-oniguruma@4.3.1':
-    resolution: {integrity: sha512-OXyNMzg0pews+msMj4cHeqT4xiYKKvbnn6VbdAXxfoFl3SSx4fJTc8FadECuc5/H9p3BzhNAoAUXKwAu9rWYhg==}
-    engines: {node: '>=20'}
-
   '@shikijs/engine-oniguruma@4.4.2':
     resolution: {integrity: sha512-GLhowz1+jixjz+wiZ3wMnOn1jTxiFCGl2PkXufivbnwPHKuyw1AYqu5/hbWhZZ2oAb0NP05WUJhYeigY14drnw==}
-    engines: {node: '>=20'}
-
-  '@shikijs/langs@4.3.1':
-    resolution: {integrity: sha512-m0l9nsDqgBHvbZbk7A0/kXz/impK3uB/c6rAn6Gpg/uPtdZRQ+alsN/17MU5thb68XTj/4DxkZAotrM0GGSpDQ==}
     engines: {node: '>=20'}
 
   '@shikijs/langs@4.4.2':
     resolution: {integrity: sha512-8DfeusD+Zdv/eYIDdXyJTUnSMHt+aAWjAOCXV20HNGAHRlInXpG8wh421v6B91WOm9TFwRLN+b/LG5F2NAIojg==}
     engines: {node: '>=20'}
 
-  '@shikijs/primitive@4.3.1':
-    resolution: {integrity: sha512-CXQRQOYy1leqQ8ceTeJdmXv/bsUY++6QyLpXJ94LZAAYj5X2SKRdc5ipguv4NPyGVKItB2PPwUpRNe0Sjh5S1A==}
-    engines: {node: '>=20'}
-
   '@shikijs/primitive@4.4.2':
     resolution: {integrity: sha512-l6fQQKsOMlz72n38fztmSgZ76MO6KSWuw8o+GJ+FhmqrpC9pIOJNQNXGgbb5yX2AwpzlEHwsaLPnk/8o4Fm+rA==}
     engines: {node: '>=20'}
 
-  '@shikijs/themes@4.3.1':
-    resolution: {integrity: sha512-dgpoJ4WqNi2yTmizQHBJ5zcX6j2lE6icN/0yt4l1kkf16jrY/pwPLoTb1ETsWMz0OBLf9ZNvwmxft+cH+N9qSA==}
-    engines: {node: '>=20'}
-
   '@shikijs/themes@4.4.2':
     resolution: {integrity: sha512-H0CFoL07ddDC2Dd6EdrPYNkRhUR6YCkJlnuYFceYYUJJA5TIm2b5B33qqiDYryBExgbKMndFJPb2u1gTuqO37g==}
-    engines: {node: '>=20'}
-
-  '@shikijs/types@4.3.1':
-    resolution: {integrity: sha512-CHFxE0jztBIZRHH6gxXE7DXUCFXjReEGxZ/j0rfSLGKZuwp2xBYycEP14875DSa9KLL/6700oxIq6oO6ef9K2g==}
     engines: {node: '>=20'}
 
   '@shikijs/types@4.4.2':
@@ -3398,6 +3387,9 @@ packages:
   parse-latin@7.0.0:
     resolution: {integrity: sha512-mhHgobPPua5kZ98EF4HWiH167JWBfl4pvAIXXdbaVohtK7a6YBOy56kvhCqduqyo/f3yrHFWmqmiMg/BkBkYYQ==}
 
+  parse5-sax-parser@8.0.0:
+    resolution: {integrity: sha512-/dQ8UzHZwnrzs3EvDj6IkKrD/jIZyTlB+8XrHJvcjNgRdmWruNdN9i9RK/JtxakmlUdPwKubKPTCqvbTgzGhrw==}
+
   parse5@7.3.0:
     resolution: {integrity: sha512-IInvU7fabl34qmi9gY8XOVxhYyMyuH2xUNpb2q8/Y+7552KlejkRvqvD19nMoUW/uQGGbqNpA6Tufu5FL5BZgw==}
 
@@ -3678,10 +3670,6 @@ packages:
   satteri@0.9.5:
     resolution: {integrity: sha512-ZuWVl+vnM64y+/TtX8Kosv2c00W+hLQiiwnEL6H0UKVVrxFqMw4D2CJHHQaouVd89OAhtBBfjWLqhKi3TVUV4w==}
 
-  sax@1.6.0:
-    resolution: {integrity: sha512-6R3J5M4AcbtLUdZmRv2SygeVaM7IhrLXu9BmnOGmmACak8fiUtOsYNWUS4uK7upbmHIBbLBeFeI//477BKLBzA==}
-    engines: {node: '>=11.0.0'}
-
   sax@1.6.1:
     resolution: {integrity: sha512-42tBVwLWnaQvW5zc4HbZrTuWccECCZfBi92FDuwtqxasH+JbPB3/FOKb1m222K42R4WxuxzzMsTswfzgtSu64Q==}
     engines: {node: '>=11.0.0'}
@@ -3727,10 +3715,6 @@ packages:
   shebang-regex@3.0.0:
     resolution: {integrity: sha512-7++dFhtcx3353uBaq8DDR4NuxBetBzC7ZQOhmTQInHEd6bSrXdiEyzCvG07Z44UYdLShWUyXt5M/yhz8ekcb1A==}
     engines: {node: '>=8'}
-
-  shiki@4.3.1:
-    resolution: {integrity: sha512-oR+qDVi2OjX1tmDpyv+3KviX01KzO6Af+0NNnKnsp9491UEGz2YpxTuJboS/6VhYpTdqzmuJBuiTlrAWWJAssw==}
-    engines: {node: '>=20'}
 
   shiki@4.4.2:
     resolution: {integrity: sha512-P8F/dFhRevaw2uSdeIYlq/5SXZNY85DPtmXQ947gD1Zj2JqO5AkNvVVBar0Me9JkFx3uzVud/qOtP5ek9NEQGA==}
@@ -4359,7 +4343,7 @@ snapshots:
     dependencies:
       '@astro-community/astro-embed-utils': 0.2.0
 
-  '@astro-community/astro-embed-integration@0.12.1(astro@7.3.2(@astrojs/markdown-remark@7.2.1)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))(typescript@6.0.3)':
+  '@astro-community/astro-embed-integration@0.12.1(astro@7.3.2(patch_hash=f219ff102d363fbc37807fb46f3269cdf3c2943f25f786df83d4cc6d4b8aaf72)(@astrojs/markdown-remark@7.2.1)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))(typescript@6.0.3)':
     dependencies:
       '@astro-community/astro-embed-bluesky': 0.2.3(typescript@6.0.3)
       '@astro-community/astro-embed-gist': 0.1.0
@@ -4369,8 +4353,8 @@ snapshots:
       '@astro-community/astro-embed-vimeo': 0.3.12
       '@astro-community/astro-embed-youtube': 0.5.10
       '@types/unist': 3.0.3
-      astro: 7.3.2(@astrojs/markdown-remark@7.2.1)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0)
-      astro-auto-import: 0.5.2(astro@7.3.2(@astrojs/markdown-remark@7.2.1)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))
+      astro: 7.3.2(patch_hash=f219ff102d363fbc37807fb46f3269cdf3c2943f25f786df83d4cc6d4b8aaf72)(@astrojs/markdown-remark@7.2.1)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0)
+      astro-auto-import: 0.5.2(astro@7.3.2(patch_hash=f219ff102d363fbc37807fb46f3269cdf3c2943f25f786df83d4cc6d4b8aaf72)(@astrojs/markdown-remark@7.2.1)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))
       unist-util-select: 5.1.0
     transitivePeerDependencies:
       - typescript
@@ -4417,7 +4401,12 @@ snapshots:
   '@astrojs/compiler-binding-linux-x64-musl@0.4.0':
     optional: true
 
-  '@astrojs/compiler-binding-wasm32-wasi@0.4.0':
+  '@astrojs/compiler-binding-wasm32-wasi@0.4.0(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)':
+    dependencies:
+      '@napi-rs/wasm-runtime': 1.2.5(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)
+    transitivePeerDependencies:
+      - '@emnapi/core'
+      - '@emnapi/runtime'
     optional: true
 
   '@astrojs/compiler-binding-win32-arm64-msvc@0.4.0':
@@ -4426,7 +4415,7 @@ snapshots:
   '@astrojs/compiler-binding-win32-x64-msvc@0.4.0':
     optional: true
 
-  '@astrojs/compiler-binding@0.4.0':
+  '@astrojs/compiler-binding@0.4.0(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)':
     optionalDependencies:
       '@astrojs/compiler-binding-darwin-arm64': 0.4.0
       '@astrojs/compiler-binding-darwin-x64': 0.4.0
@@ -4434,13 +4423,19 @@ snapshots:
       '@astrojs/compiler-binding-linux-arm64-musl': 0.4.0
       '@astrojs/compiler-binding-linux-x64-gnu': 0.4.0
       '@astrojs/compiler-binding-linux-x64-musl': 0.4.0
-      '@astrojs/compiler-binding-wasm32-wasi': 0.4.0
+      '@astrojs/compiler-binding-wasm32-wasi': 0.4.0(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)
       '@astrojs/compiler-binding-win32-arm64-msvc': 0.4.0
       '@astrojs/compiler-binding-win32-x64-msvc': 0.4.0
+    transitivePeerDependencies:
+      - '@emnapi/core'
+      - '@emnapi/runtime'
 
-  '@astrojs/compiler-rs@0.4.0':
+  '@astrojs/compiler-rs@0.4.0(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)':
     dependencies:
-      '@astrojs/compiler-binding': 0.4.0
+      '@astrojs/compiler-binding': 0.4.0(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)
+    transitivePeerDependencies:
+      - '@emnapi/core'
+      - '@emnapi/runtime'
 
   '@astrojs/compiler@2.13.1': {}
 
@@ -4451,7 +4446,7 @@ snapshots:
       js-yaml: 4.3.2
       picomatch: 4.0.5
       retext-smartypants: 6.2.0
-      shiki: 4.3.1
+      shiki: 4.4.2
       smol-toml: 1.7.1
       unified: 11.0.5
 
@@ -4503,13 +4498,13 @@ snapshots:
       github-slugger: 2.0.0
       satteri: 0.10.5
 
-  '@astrojs/mdx@7.0.3(@astrojs/markdown-satteri@0.3.4)(astro@7.3.2(@astrojs/markdown-remark@7.2.1)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))':
+  '@astrojs/mdx@7.0.3(@astrojs/markdown-satteri@0.3.4)(astro@7.3.2(patch_hash=f219ff102d363fbc37807fb46f3269cdf3c2943f25f786df83d4cc6d4b8aaf72)(@astrojs/markdown-remark@7.2.1)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))':
     dependencies:
       '@astrojs/internal-helpers': 0.10.1
       '@astrojs/markdown-remark': 7.2.1
       '@mdx-js/mdx': 3.1.1
       acorn: 8.17.0
-      astro: 7.3.2(@astrojs/markdown-remark@7.2.1)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0)
+      astro: 7.3.2(patch_hash=f219ff102d363fbc37807fb46f3269cdf3c2943f25f786df83d4cc6d4b8aaf72)(@astrojs/markdown-remark@7.2.1)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0)
       es-module-lexer: 2.3.1
       estree-util-visit: 2.0.0
       hast-util-to-html: 9.0.5
@@ -4525,10 +4520,10 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@astrojs/node@11.1.6(astro@7.3.2(@astrojs/markdown-remark@7.2.1)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))':
+  '@astrojs/node@11.1.6(astro@7.3.2(patch_hash=f219ff102d363fbc37807fb46f3269cdf3c2943f25f786df83d4cc6d4b8aaf72)(@astrojs/markdown-remark@7.2.1)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))':
     dependencies:
       '@astrojs/internal-helpers': 0.11.0
-      astro: 7.3.2(@astrojs/markdown-remark@7.2.1)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0)
+      astro: 7.3.2(patch_hash=f219ff102d363fbc37807fb46f3269cdf3c2943f25f786df83d4cc6d4b8aaf72)(@astrojs/markdown-remark@7.2.1)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0)
       send: 1.2.1
       server-destroy: 1.0.1
     transitivePeerDependencies:
@@ -4550,17 +4545,17 @@ snapshots:
       stream-replace-string: 2.0.0
       zod: 4.5.4
 
-  '@astrojs/starlight@0.41.3(patch_hash=ad8925179f0e3050ae6c804196faa6d38a2be2b718acf138001215a18648d3b5)(@astrojs/markdown-remark@7.2.1)(astro@7.3.2(@astrojs/markdown-remark@7.2.1)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))(typescript@6.0.3)':
+  '@astrojs/starlight@0.41.3(patch_hash=ad8925179f0e3050ae6c804196faa6d38a2be2b718acf138001215a18648d3b5)(@astrojs/markdown-remark@7.2.1)(astro@7.3.2(patch_hash=f219ff102d363fbc37807fb46f3269cdf3c2943f25f786df83d4cc6d4b8aaf72)(@astrojs/markdown-remark@7.2.1)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))(typescript@6.0.3)':
     dependencies:
       '@astrojs/markdown-satteri': 0.3.4
-      '@astrojs/mdx': 7.0.3(@astrojs/markdown-satteri@0.3.4)(astro@7.3.2(@astrojs/markdown-remark@7.2.1)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))
+      '@astrojs/mdx': 7.0.3(@astrojs/markdown-satteri@0.3.4)(astro@7.3.2(patch_hash=f219ff102d363fbc37807fb46f3269cdf3c2943f25f786df83d4cc6d4b8aaf72)(@astrojs/markdown-remark@7.2.1)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))
       '@astrojs/sitemap': 3.7.3
       '@pagefind/default-ui': 1.5.2
       '@types/hast': 3.0.5
       '@types/js-yaml': 4.0.9
       '@types/mdast': 4.0.4
-      astro: 7.3.2(@astrojs/markdown-remark@7.2.1)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0)
-      astro-expressive-code: 0.44.1(astro@7.3.2(@astrojs/markdown-remark@7.2.1)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))
+      astro: 7.3.2(patch_hash=f219ff102d363fbc37807fb46f3269cdf3c2943f25f786df83d4cc6d4b8aaf72)(@astrojs/markdown-remark@7.2.1)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0)
+      astro-expressive-code: 0.44.1(astro@7.3.2(patch_hash=f219ff102d363fbc37807fb46f3269cdf3c2943f25f786df83d4cc6d4b8aaf72)(@astrojs/markdown-remark@7.2.1)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))
       bcp-47: 2.1.1
       hast-util-from-html: 2.0.3
       hast-util-select: 6.0.4
@@ -4695,6 +4690,7 @@ snapshots:
     dependencies:
       '@emnapi/core': 1.11.1
       '@emnapi/runtime': 1.11.1
+      '@napi-rs/wasm-runtime': 1.2.5(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.1)
     optional: true
 
   '@bruits/satteri-wasm32-wasi@0.9.5':
@@ -4720,10 +4716,10 @@ snapshots:
     dependencies:
       fontkitten: 1.0.3
 
-  '@catppuccin/starlight@2.1.0(@astrojs/starlight@0.41.3(patch_hash=ad8925179f0e3050ae6c804196faa6d38a2be2b718acf138001215a18648d3b5)(@astrojs/markdown-remark@7.2.1)(astro@7.3.2(@astrojs/markdown-remark@7.2.1)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))(typescript@6.0.3))(astro@7.3.2(@astrojs/markdown-remark@7.2.1)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))':
+  '@catppuccin/starlight@2.1.0(@astrojs/starlight@0.41.3(patch_hash=ad8925179f0e3050ae6c804196faa6d38a2be2b718acf138001215a18648d3b5)(@astrojs/markdown-remark@7.2.1)(astro@7.3.2(patch_hash=f219ff102d363fbc37807fb46f3269cdf3c2943f25f786df83d4cc6d4b8aaf72)(@astrojs/markdown-remark@7.2.1)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))(typescript@6.0.3))(astro@7.3.2(patch_hash=f219ff102d363fbc37807fb46f3269cdf3c2943f25f786df83d4cc6d4b8aaf72)(@astrojs/markdown-remark@7.2.1)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))':
     dependencies:
-      '@astrojs/starlight': 0.41.3(patch_hash=ad8925179f0e3050ae6c804196faa6d38a2be2b718acf138001215a18648d3b5)(@astrojs/markdown-remark@7.2.1)(astro@7.3.2(@astrojs/markdown-remark@7.2.1)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))(typescript@6.0.3)
-      astro: 7.3.2(@astrojs/markdown-remark@7.2.1)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0)
+      '@astrojs/starlight': 0.41.3(patch_hash=ad8925179f0e3050ae6c804196faa6d38a2be2b718acf138001215a18648d3b5)(@astrojs/markdown-remark@7.2.1)(astro@7.3.2(patch_hash=f219ff102d363fbc37807fb46f3269cdf3c2943f25f786df83d4cc6d4b8aaf72)(@astrojs/markdown-remark@7.2.1)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))(typescript@6.0.3)
+      astro: 7.3.2(patch_hash=f219ff102d363fbc37807fb46f3269cdf3c2943f25f786df83d4cc6d4b8aaf72)(@astrojs/markdown-remark@7.2.1)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0)
 
   '@chevrotain/types@11.1.2': {}
 
@@ -4781,6 +4777,11 @@ snapshots:
     optional: true
 
   '@emnapi/runtime@1.11.1':
+    dependencies:
+      tslib: 2.8.1
+    optional: true
+
+  '@emnapi/runtime@1.11.3':
     dependencies:
       tslib: 2.8.1
     optional: true
@@ -5070,6 +5071,8 @@ snapshots:
     optional: true
 
   '@img/sharp-wasm32@0.35.4':
+    dependencies:
+      '@emnapi/runtime': 1.11.3
     optional: true
 
   '@img/sharp-webcontainers-wasm32@0.35.4':
@@ -5130,11 +5133,11 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@lunariajs/starlight@0.1.1(@astrojs/starlight@0.41.3(patch_hash=ad8925179f0e3050ae6c804196faa6d38a2be2b718acf138001215a18648d3b5)(@astrojs/markdown-remark@7.2.1)(astro@7.3.2(@astrojs/markdown-remark@7.2.1)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))(typescript@6.0.3))(astro@7.3.2(@astrojs/markdown-remark@7.2.1)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))':
+  '@lunariajs/starlight@0.1.1(@astrojs/starlight@0.41.3(patch_hash=ad8925179f0e3050ae6c804196faa6d38a2be2b718acf138001215a18648d3b5)(@astrojs/markdown-remark@7.2.1)(astro@7.3.2(patch_hash=f219ff102d363fbc37807fb46f3269cdf3c2943f25f786df83d4cc6d4b8aaf72)(@astrojs/markdown-remark@7.2.1)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))(typescript@6.0.3))(astro@7.3.2(patch_hash=f219ff102d363fbc37807fb46f3269cdf3c2943f25f786df83d4cc6d4b8aaf72)(@astrojs/markdown-remark@7.2.1)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))':
     dependencies:
-      '@astrojs/starlight': 0.41.3(patch_hash=ad8925179f0e3050ae6c804196faa6d38a2be2b718acf138001215a18648d3b5)(@astrojs/markdown-remark@7.2.1)(astro@7.3.2(@astrojs/markdown-remark@7.2.1)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))(typescript@6.0.3)
+      '@astrojs/starlight': 0.41.3(patch_hash=ad8925179f0e3050ae6c804196faa6d38a2be2b718acf138001215a18648d3b5)(@astrojs/markdown-remark@7.2.1)(astro@7.3.2(patch_hash=f219ff102d363fbc37807fb46f3269cdf3c2943f25f786df83d4cc6d4b8aaf72)(@astrojs/markdown-remark@7.2.1)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))(typescript@6.0.3)
       '@lunariajs/core': 0.1.1
-      astro: 7.3.2(@astrojs/markdown-remark@7.2.1)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0)
+      astro: 7.3.2(patch_hash=f219ff102d363fbc37807fb46f3269cdf3c2943f25f786df83d4cc6d4b8aaf72)(@astrojs/markdown-remark@7.2.1)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0)
     transitivePeerDependencies:
       - supports-color
 
@@ -5176,6 +5179,27 @@ snapshots:
     dependencies:
       '@emnapi/core': 1.11.1
       '@emnapi/runtime': 1.11.1
+      '@tybys/wasm-util': 0.10.3
+    optional: true
+
+  '@napi-rs/wasm-runtime@1.2.5(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)':
+    dependencies:
+      '@emnapi/core': 1.10.0
+      '@emnapi/runtime': 1.10.0
+      '@tybys/wasm-util': 0.10.3
+    optional: true
+
+  '@napi-rs/wasm-runtime@1.2.5(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.1)':
+    dependencies:
+      '@emnapi/core': 1.11.1
+      '@emnapi/runtime': 1.11.1
+      '@tybys/wasm-util': 0.10.3
+    optional: true
+
+  '@napi-rs/wasm-runtime@1.2.5(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)':
+    dependencies:
+      '@emnapi/core': 1.11.1
+      '@emnapi/runtime': 1.11.3
       '@tybys/wasm-util': 0.10.3
     optional: true
 
@@ -5247,6 +5271,7 @@ snapshots:
     dependencies:
       '@emnapi/core': 1.10.0
       '@emnapi/runtime': 1.10.0
+      '@napi-rs/wasm-runtime': 1.2.5(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)
     optional: true
 
   '@oxc-parser/binding-win32-arm64-msvc@0.131.0':
@@ -5341,7 +5366,7 @@ snapshots:
     dependencies:
       '@emnapi/core': 1.11.1
       '@emnapi/runtime': 1.11.1
-      '@napi-rs/wasm-runtime': 1.1.6(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.1)
+      '@napi-rs/wasm-runtime': 1.2.5(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.1)
     optional: true
 
   '@rolldown/binding-win32-arm64-msvc@1.1.5':
@@ -5352,14 +5377,6 @@ snapshots:
 
   '@rolldown/pluginutils@1.0.1': {}
 
-  '@shikijs/core@4.3.1':
-    dependencies:
-      '@shikijs/primitive': 4.3.1
-      '@shikijs/types': 4.3.1
-      '@shikijs/vscode-textmate': 10.0.2
-      '@types/hast': 3.0.5
-      hast-util-to-html: 9.0.5
-
   '@shikijs/core@4.4.2':
     dependencies:
       '@shikijs/primitive': 4.4.2
@@ -5368,41 +5385,20 @@ snapshots:
       '@types/hast': 3.0.5
       hast-util-to-html: 9.0.5
 
-  '@shikijs/engine-javascript@4.3.1':
-    dependencies:
-      '@shikijs/types': 4.3.1
-      '@shikijs/vscode-textmate': 10.0.2
-      oniguruma-to-es: 4.3.6
-
   '@shikijs/engine-javascript@4.4.2':
     dependencies:
       '@shikijs/types': 4.4.2
       '@shikijs/vscode-textmate': 10.0.2
       oniguruma-to-es: 4.3.6
 
-  '@shikijs/engine-oniguruma@4.3.1':
-    dependencies:
-      '@shikijs/types': 4.3.1
-      '@shikijs/vscode-textmate': 10.0.2
-
   '@shikijs/engine-oniguruma@4.4.2':
     dependencies:
       '@shikijs/types': 4.4.2
       '@shikijs/vscode-textmate': 10.0.2
 
-  '@shikijs/langs@4.3.1':
-    dependencies:
-      '@shikijs/types': 4.3.1
-
   '@shikijs/langs@4.4.2':
     dependencies:
       '@shikijs/types': 4.4.2
-
-  '@shikijs/primitive@4.3.1':
-    dependencies:
-      '@shikijs/types': 4.3.1
-      '@shikijs/vscode-textmate': 10.0.2
-      '@types/hast': 3.0.5
 
   '@shikijs/primitive@4.4.2':
     dependencies:
@@ -5410,18 +5406,9 @@ snapshots:
       '@shikijs/vscode-textmate': 10.0.2
       '@types/hast': 3.0.5
 
-  '@shikijs/themes@4.3.1':
-    dependencies:
-      '@shikijs/types': 4.3.1
-
   '@shikijs/themes@4.4.2':
     dependencies:
       '@shikijs/types': 4.4.2
-
-  '@shikijs/types@4.3.1':
-    dependencies:
-      '@shikijs/vscode-textmate': 10.0.2
-      '@types/hast': 3.0.5
 
   '@shikijs/types@4.4.2':
     dependencies:
@@ -6065,29 +6052,29 @@ snapshots:
 
   astring@1.9.0: {}
 
-  astro-auto-import@0.5.2(astro@7.3.2(@astrojs/markdown-remark@7.2.1)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0)):
+  astro-auto-import@0.5.2(astro@7.3.2(patch_hash=f219ff102d363fbc37807fb46f3269cdf3c2943f25f786df83d4cc6d4b8aaf72)(@astrojs/markdown-remark@7.2.1)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0)):
     dependencies:
       acorn: 8.17.0
-      astro: 7.3.2(@astrojs/markdown-remark@7.2.1)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0)
+      astro: 7.3.2(patch_hash=f219ff102d363fbc37807fb46f3269cdf3c2943f25f786df83d4cc6d4b8aaf72)(@astrojs/markdown-remark@7.2.1)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0)
 
-  astro-embed@0.13.1(astro@7.3.2(@astrojs/markdown-remark@7.2.1)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))(typescript@6.0.3):
+  astro-embed@0.13.1(astro@7.3.2(patch_hash=f219ff102d363fbc37807fb46f3269cdf3c2943f25f786df83d4cc6d4b8aaf72)(@astrojs/markdown-remark@7.2.1)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))(typescript@6.0.3):
     dependencies:
       '@astro-community/astro-embed-baseline-status': 0.2.2
       '@astro-community/astro-embed-bluesky': 0.2.3(typescript@6.0.3)
       '@astro-community/astro-embed-gist': 0.1.0
-      '@astro-community/astro-embed-integration': 0.12.1(astro@7.3.2(@astrojs/markdown-remark@7.2.1)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))(typescript@6.0.3)
+      '@astro-community/astro-embed-integration': 0.12.1(astro@7.3.2(patch_hash=f219ff102d363fbc37807fb46f3269cdf3c2943f25f786df83d4cc6d4b8aaf72)(@astrojs/markdown-remark@7.2.1)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))(typescript@6.0.3)
       '@astro-community/astro-embed-link-preview': 0.3.1
       '@astro-community/astro-embed-mastodon': 0.1.1
       '@astro-community/astro-embed-twitter': 0.5.11
       '@astro-community/astro-embed-vimeo': 0.3.12
       '@astro-community/astro-embed-youtube': 0.5.10
-      astro: 7.3.2(@astrojs/markdown-remark@7.2.1)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0)
+      astro: 7.3.2(patch_hash=f219ff102d363fbc37807fb46f3269cdf3c2943f25f786df83d4cc6d4b8aaf72)(@astrojs/markdown-remark@7.2.1)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0)
     transitivePeerDependencies:
       - typescript
 
-  astro-expressive-code@0.44.1(astro@7.3.2(@astrojs/markdown-remark@7.2.1)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0)):
+  astro-expressive-code@0.44.1(astro@7.3.2(patch_hash=f219ff102d363fbc37807fb46f3269cdf3c2943f25f786df83d4cc6d4b8aaf72)(@astrojs/markdown-remark@7.2.1)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0)):
     dependencies:
-      astro: 7.3.2(@astrojs/markdown-remark@7.2.1)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0)
+      astro: 7.3.2(patch_hash=f219ff102d363fbc37807fb46f3269cdf3c2943f25f786df83d4cc6d4b8aaf72)(@astrojs/markdown-remark@7.2.1)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0)
       rehype-expressive-code: 0.44.1
       url-extras: 0.1.0
 
@@ -6099,9 +6086,9 @@ snapshots:
       '@vtbag/turn-signal': 1.3.1
       '@vtbag/utensil-drawer': 1.2.16
 
-  astro@7.3.2(@astrojs/markdown-remark@7.2.1)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0):
+  astro@7.3.2(patch_hash=f219ff102d363fbc37807fb46f3269cdf3c2943f25f786df83d4cc6d4b8aaf72)(@astrojs/markdown-remark@7.2.1)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0):
     dependencies:
-      '@astrojs/compiler-rs': 0.4.0
+      '@astrojs/compiler-rs': 0.4.0(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)
       '@astrojs/internal-helpers': 0.11.0
       '@astrojs/markdown-satteri': 0.4.1
       '@astrojs/telemetry': 3.3.3
@@ -6166,6 +6153,8 @@ snapshots:
       - '@azure/storage-blob'
       - '@capacitor/preferences'
       - '@deno/kv'
+      - '@emnapi/core'
+      - '@emnapi/runtime'
       - '@netlify/blobs'
       - '@planetscale/database'
       - '@types/node'
@@ -8055,6 +8044,10 @@ snapshots:
       unist-util-visit-children: 3.0.0
       vfile: 6.0.3
 
+  parse5-sax-parser@8.0.0:
+    dependencies:
+      parse5: 8.0.1
+
   parse5@7.3.0:
     dependencies:
       entities: 6.0.1
@@ -8441,8 +8434,6 @@ snapshots:
       '@bruits/satteri-win32-arm64-msvc': 0.9.5
       '@bruits/satteri-win32-x64-msvc': 0.9.5
 
-  sax@1.6.0: {}
-
   sax@1.6.1: {}
 
   semver@7.8.5: {}
@@ -8512,17 +8503,6 @@ snapshots:
 
   shebang-regex@3.0.0: {}
 
-  shiki@4.3.1:
-    dependencies:
-      '@shikijs/core': 4.3.1
-      '@shikijs/engine-javascript': 4.3.1
-      '@shikijs/engine-oniguruma': 4.3.1
-      '@shikijs/langs': 4.3.1
-      '@shikijs/themes': 4.3.1
-      '@shikijs/types': 4.3.1
-      '@shikijs/vscode-textmate': 10.0.2
-      '@types/hast': 3.0.5
-
   shiki@4.4.2:
     dependencies:
       '@shikijs/core': 4.4.2
@@ -8561,7 +8541,7 @@ snapshots:
       '@types/node': 24.13.3
       '@types/sax': 1.2.7
       arg: 5.0.2
-      sax: 1.6.0
+      sax: 1.6.1
 
   smol-toml@1.7.1: {}
 
@@ -8585,15 +8565,15 @@ snapshots:
 
   stackback@0.0.2: {}
 
-  starlight-github-alerts@0.4.0(@astrojs/starlight@0.41.3(patch_hash=ad8925179f0e3050ae6c804196faa6d38a2be2b718acf138001215a18648d3b5)(@astrojs/markdown-remark@7.2.1)(astro@7.3.2(@astrojs/markdown-remark@7.2.1)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))(typescript@6.0.3)):
+  starlight-github-alerts@0.4.0(@astrojs/starlight@0.41.3(patch_hash=ad8925179f0e3050ae6c804196faa6d38a2be2b718acf138001215a18648d3b5)(@astrojs/markdown-remark@7.2.1)(astro@7.3.2(patch_hash=f219ff102d363fbc37807fb46f3269cdf3c2943f25f786df83d4cc6d4b8aaf72)(@astrojs/markdown-remark@7.2.1)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))(typescript@6.0.3)):
     dependencies:
-      '@astrojs/starlight': 0.41.3(patch_hash=ad8925179f0e3050ae6c804196faa6d38a2be2b718acf138001215a18648d3b5)(@astrojs/markdown-remark@7.2.1)(astro@7.3.2(@astrojs/markdown-remark@7.2.1)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))(typescript@6.0.3)
+      '@astrojs/starlight': 0.41.3(patch_hash=ad8925179f0e3050ae6c804196faa6d38a2be2b718acf138001215a18648d3b5)(@astrojs/markdown-remark@7.2.1)(astro@7.3.2(patch_hash=f219ff102d363fbc37807fb46f3269cdf3c2943f25f786df83d4cc6d4b8aaf72)(@astrojs/markdown-remark@7.2.1)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))(typescript@6.0.3)
       satteri: 0.9.5
       unist-util-visit: 5.1.0
 
-  starlight-image-zoom@0.15.0(@astrojs/starlight@0.41.3(patch_hash=ad8925179f0e3050ae6c804196faa6d38a2be2b718acf138001215a18648d3b5)(@astrojs/markdown-remark@7.2.1)(astro@7.3.2(@astrojs/markdown-remark@7.2.1)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))(typescript@6.0.3)):
+  starlight-image-zoom@0.15.0(@astrojs/starlight@0.41.3(patch_hash=ad8925179f0e3050ae6c804196faa6d38a2be2b718acf138001215a18648d3b5)(@astrojs/markdown-remark@7.2.1)(astro@7.3.2(patch_hash=f219ff102d363fbc37807fb46f3269cdf3c2943f25f786df83d4cc6d4b8aaf72)(@astrojs/markdown-remark@7.2.1)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))(typescript@6.0.3)):
     dependencies:
-      '@astrojs/starlight': 0.41.3(patch_hash=ad8925179f0e3050ae6c804196faa6d38a2be2b718acf138001215a18648d3b5)(@astrojs/markdown-remark@7.2.1)(astro@7.3.2(@astrojs/markdown-remark@7.2.1)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))(typescript@6.0.3)
+      '@astrojs/starlight': 0.41.3(patch_hash=ad8925179f0e3050ae6c804196faa6d38a2be2b718acf138001215a18648d3b5)(@astrojs/markdown-remark@7.2.1)(astro@7.3.2(patch_hash=f219ff102d363fbc37807fb46f3269cdf3c2943f25f786df83d4cc6d4b8aaf72)(@astrojs/markdown-remark@7.2.1)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))(typescript@6.0.3)
       mdast-util-mdx-jsx: 3.2.0
       rehype-raw: 7.0.0
       unist-util-visit: 5.1.0
@@ -8601,16 +8581,16 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  starlight-kbd@0.4.0(@astrojs/starlight@0.41.3(patch_hash=ad8925179f0e3050ae6c804196faa6d38a2be2b718acf138001215a18648d3b5)(@astrojs/markdown-remark@7.2.1)(astro@7.3.2(@astrojs/markdown-remark@7.2.1)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))(typescript@6.0.3)):
+  starlight-kbd@0.4.0(@astrojs/starlight@0.41.3(patch_hash=ad8925179f0e3050ae6c804196faa6d38a2be2b718acf138001215a18648d3b5)(@astrojs/markdown-remark@7.2.1)(astro@7.3.2(patch_hash=f219ff102d363fbc37807fb46f3269cdf3c2943f25f786df83d4cc6d4b8aaf72)(@astrojs/markdown-remark@7.2.1)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))(typescript@6.0.3)):
     dependencies:
-      '@astrojs/starlight': 0.41.3(patch_hash=ad8925179f0e3050ae6c804196faa6d38a2be2b718acf138001215a18648d3b5)(@astrojs/markdown-remark@7.2.1)(astro@7.3.2(@astrojs/markdown-remark@7.2.1)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))(typescript@6.0.3)
+      '@astrojs/starlight': 0.41.3(patch_hash=ad8925179f0e3050ae6c804196faa6d38a2be2b718acf138001215a18648d3b5)(@astrojs/markdown-remark@7.2.1)(astro@7.3.2(patch_hash=f219ff102d363fbc37807fb46f3269cdf3c2943f25f786df83d4cc6d4b8aaf72)(@astrojs/markdown-remark@7.2.1)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))(typescript@6.0.3)
 
-  starlight-links-validator@0.25.2(@astrojs/starlight@0.41.3(patch_hash=ad8925179f0e3050ae6c804196faa6d38a2be2b718acf138001215a18648d3b5)(@astrojs/markdown-remark@7.2.1)(astro@7.3.2(@astrojs/markdown-remark@7.2.1)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))(typescript@6.0.3))(astro@7.3.2(@astrojs/markdown-remark@7.2.1)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0)):
+  starlight-links-validator@0.25.2(@astrojs/starlight@0.41.3(patch_hash=ad8925179f0e3050ae6c804196faa6d38a2be2b718acf138001215a18648d3b5)(@astrojs/markdown-remark@7.2.1)(astro@7.3.2(patch_hash=f219ff102d363fbc37807fb46f3269cdf3c2943f25f786df83d4cc6d4b8aaf72)(@astrojs/markdown-remark@7.2.1)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))(typescript@6.0.3))(astro@7.3.2(patch_hash=f219ff102d363fbc37807fb46f3269cdf3c2943f25f786df83d4cc6d4b8aaf72)(@astrojs/markdown-remark@7.2.1)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0)):
     dependencies:
       '@astrojs/markdown-satteri': 0.3.4
-      '@astrojs/starlight': 0.41.3(patch_hash=ad8925179f0e3050ae6c804196faa6d38a2be2b718acf138001215a18648d3b5)(@astrojs/markdown-remark@7.2.1)(astro@7.3.2(@astrojs/markdown-remark@7.2.1)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))(typescript@6.0.3)
+      '@astrojs/starlight': 0.41.3(patch_hash=ad8925179f0e3050ae6c804196faa6d38a2be2b718acf138001215a18648d3b5)(@astrojs/markdown-remark@7.2.1)(astro@7.3.2(patch_hash=f219ff102d363fbc37807fb46f3269cdf3c2943f25f786df83d4cc6d4b8aaf72)(@astrojs/markdown-remark@7.2.1)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))(typescript@6.0.3)
       '@types/picomatch': 4.0.3
-      astro: 7.3.2(@astrojs/markdown-remark@7.2.1)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0)
+      astro: 7.3.2(patch_hash=f219ff102d363fbc37807fb46f3269cdf3c2943f25f786df83d4cc6d4b8aaf72)(@astrojs/markdown-remark@7.2.1)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0)
       github-slugger: 2.0.0
       hast-util-from-html: 2.0.3
       is-absolute-url: 5.0.0
@@ -8624,13 +8604,13 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  starlight-llms-txt@0.11.0(@astrojs/markdown-satteri@0.3.4)(@astrojs/starlight@0.41.3(patch_hash=ad8925179f0e3050ae6c804196faa6d38a2be2b718acf138001215a18648d3b5)(@astrojs/markdown-remark@7.2.1)(astro@7.3.2(@astrojs/markdown-remark@7.2.1)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))(typescript@6.0.3))(astro@7.3.2(@astrojs/markdown-remark@7.2.1)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0)):
+  starlight-llms-txt@0.11.0(@astrojs/markdown-satteri@0.3.4)(@astrojs/starlight@0.41.3(patch_hash=ad8925179f0e3050ae6c804196faa6d38a2be2b718acf138001215a18648d3b5)(@astrojs/markdown-remark@7.2.1)(astro@7.3.2(patch_hash=f219ff102d363fbc37807fb46f3269cdf3c2943f25f786df83d4cc6d4b8aaf72)(@astrojs/markdown-remark@7.2.1)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))(typescript@6.0.3))(astro@7.3.2(patch_hash=f219ff102d363fbc37807fb46f3269cdf3c2943f25f786df83d4cc6d4b8aaf72)(@astrojs/markdown-remark@7.2.1)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0)):
     dependencies:
-      '@astrojs/mdx': 7.0.3(@astrojs/markdown-satteri@0.3.4)(astro@7.3.2(@astrojs/markdown-remark@7.2.1)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))
-      '@astrojs/starlight': 0.41.3(patch_hash=ad8925179f0e3050ae6c804196faa6d38a2be2b718acf138001215a18648d3b5)(@astrojs/markdown-remark@7.2.1)(astro@7.3.2(@astrojs/markdown-remark@7.2.1)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))(typescript@6.0.3)
+      '@astrojs/mdx': 7.0.3(@astrojs/markdown-satteri@0.3.4)(astro@7.3.2(patch_hash=f219ff102d363fbc37807fb46f3269cdf3c2943f25f786df83d4cc6d4b8aaf72)(@astrojs/markdown-remark@7.2.1)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))
+      '@astrojs/starlight': 0.41.3(patch_hash=ad8925179f0e3050ae6c804196faa6d38a2be2b718acf138001215a18648d3b5)(@astrojs/markdown-remark@7.2.1)(astro@7.3.2(patch_hash=f219ff102d363fbc37807fb46f3269cdf3c2943f25f786df83d4cc6d4b8aaf72)(@astrojs/markdown-remark@7.2.1)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))(typescript@6.0.3)
       '@types/hast': 3.0.5
       '@types/micromatch': 4.0.10
-      astro: 7.3.2(@astrojs/markdown-remark@7.2.1)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0)
+      astro: 7.3.2(patch_hash=f219ff102d363fbc37807fb46f3269cdf3c2943f25f786df83d4cc6d4b8aaf72)(@astrojs/markdown-remark@7.2.1)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0)
       github-slugger: 2.0.0
       hast-util-select: 6.0.4
       micromatch: 4.0.8
@@ -8644,20 +8624,20 @@ snapshots:
       - '@astrojs/markdown-satteri'
       - supports-color
 
-  starlight-page-actions@0.7.0(patch_hash=584b28601fea4de666f3eb91e3425afd11f8da7e4d8aba649c15ec5be5b5d54c)(@astrojs/starlight@0.41.3(patch_hash=ad8925179f0e3050ae6c804196faa6d38a2be2b718acf138001215a18648d3b5)(@astrojs/markdown-remark@7.2.1)(astro@7.3.2(@astrojs/markdown-remark@7.2.1)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))(typescript@6.0.3))(astro@7.3.2(@astrojs/markdown-remark@7.2.1)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))(vite@8.1.5(@types/node@24.13.3)(esbuild@0.28.1)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0)):
+  starlight-page-actions@0.7.0(patch_hash=584b28601fea4de666f3eb91e3425afd11f8da7e4d8aba649c15ec5be5b5d54c)(@astrojs/starlight@0.41.3(patch_hash=ad8925179f0e3050ae6c804196faa6d38a2be2b718acf138001215a18648d3b5)(@astrojs/markdown-remark@7.2.1)(astro@7.3.2(patch_hash=f219ff102d363fbc37807fb46f3269cdf3c2943f25f786df83d4cc6d4b8aaf72)(@astrojs/markdown-remark@7.2.1)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))(typescript@6.0.3))(astro@7.3.2(patch_hash=f219ff102d363fbc37807fb46f3269cdf3c2943f25f786df83d4cc6d4b8aaf72)(@astrojs/markdown-remark@7.2.1)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))(vite@8.1.5(@types/node@24.13.3)(esbuild@0.28.1)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0)):
     dependencies:
-      '@astrojs/starlight': 0.41.3(patch_hash=ad8925179f0e3050ae6c804196faa6d38a2be2b718acf138001215a18648d3b5)(@astrojs/markdown-remark@7.2.1)(astro@7.3.2(@astrojs/markdown-remark@7.2.1)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))(typescript@6.0.3)
-      astro: 7.3.2(@astrojs/markdown-remark@7.2.1)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0)
+      '@astrojs/starlight': 0.41.3(patch_hash=ad8925179f0e3050ae6c804196faa6d38a2be2b718acf138001215a18648d3b5)(@astrojs/markdown-remark@7.2.1)(astro@7.3.2(patch_hash=f219ff102d363fbc37807fb46f3269cdf3c2943f25f786df83d4cc6d4b8aaf72)(@astrojs/markdown-remark@7.2.1)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))(typescript@6.0.3)
+      astro: 7.3.2(patch_hash=f219ff102d363fbc37807fb46f3269cdf3c2943f25f786df83d4cc6d4b8aaf72)(@astrojs/markdown-remark@7.2.1)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0)
       tidymd: 0.1.0
       vite-plugin-static-copy: 4.1.1(vite@8.1.5(@types/node@24.13.3)(esbuild@0.28.1)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))
       vite-plugin-virtual: 0.5.0(vite@8.1.5(@types/node@24.13.3)(esbuild@0.28.1)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))
     transitivePeerDependencies:
       - vite
 
-  starlight-plugin-icons@1.1.6(patch_hash=ecdc00afa0722d3cdc77871f9debee551f67d1c02d82fea11c5aa41bf0f48a54)(@astrojs/starlight@0.41.3(patch_hash=ad8925179f0e3050ae6c804196faa6d38a2be2b718acf138001215a18648d3b5)(@astrojs/markdown-remark@7.2.1)(astro@7.3.2(@astrojs/markdown-remark@7.2.1)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))(typescript@6.0.3))(astro@7.3.2(@astrojs/markdown-remark@7.2.1)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))(typescript@6.0.3)(unocss@66.7.5(@unocss/astro@66.7.5(vite@8.1.5(@types/node@24.13.3)(esbuild@0.28.1)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0)))(vite@8.1.5(@types/node@24.13.3)(esbuild@0.28.1)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0)))(zod@4.4.3):
+  starlight-plugin-icons@1.1.6(patch_hash=0c6dd9cc32f19c122d54f8f94d295dc96a3932baff5ff88ce2d54db538ebc2ac)(@astrojs/starlight@0.41.3(patch_hash=ad8925179f0e3050ae6c804196faa6d38a2be2b718acf138001215a18648d3b5)(@astrojs/markdown-remark@7.2.1)(astro@7.3.2(patch_hash=f219ff102d363fbc37807fb46f3269cdf3c2943f25f786df83d4cc6d4b8aaf72)(@astrojs/markdown-remark@7.2.1)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))(typescript@6.0.3))(astro@7.3.2(patch_hash=f219ff102d363fbc37807fb46f3269cdf3c2943f25f786df83d4cc6d4b8aaf72)(@astrojs/markdown-remark@7.2.1)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))(typescript@6.0.3)(unocss@66.7.5(@unocss/astro@66.7.5(vite@8.1.5(@types/node@24.13.3)(esbuild@0.28.1)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0)))(vite@8.1.5(@types/node@24.13.3)(esbuild@0.28.1)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0)))(zod@4.5.4):
     dependencies:
-      '@astrojs/starlight': 0.41.3(patch_hash=ad8925179f0e3050ae6c804196faa6d38a2be2b718acf138001215a18648d3b5)(@astrojs/markdown-remark@7.2.1)(astro@7.3.2(@astrojs/markdown-remark@7.2.1)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))(typescript@6.0.3)
-      astro: 7.3.2(@astrojs/markdown-remark@7.2.1)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0)
+      '@astrojs/starlight': 0.41.3(patch_hash=ad8925179f0e3050ae6c804196faa6d38a2be2b718acf138001215a18648d3b5)(@astrojs/markdown-remark@7.2.1)(astro@7.3.2(patch_hash=f219ff102d363fbc37807fb46f3269cdf3c2943f25f786df83d4cc6d4b8aaf72)(@astrojs/markdown-remark@7.2.1)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))(typescript@6.0.3)
+      astro: 7.3.2(patch_hash=f219ff102d363fbc37807fb46f3269cdf3c2943f25f786df83d4cc6d4b8aaf72)(@astrojs/markdown-remark@7.2.1)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0)
       glob: 11.1.0
       hast-util-select: 6.0.4
       hast-util-to-string: 3.0.1
@@ -8666,11 +8646,11 @@ snapshots:
       typescript: 6.0.3
       unist-util-visit: 5.1.0
       unocss: 66.7.5(@unocss/astro@66.7.5(vite@8.1.5(@types/node@24.13.3)(esbuild@0.28.1)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0)))(vite@8.1.5(@types/node@24.13.3)(esbuild@0.28.1)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))
-      zod: 4.4.3
+      zod: 4.5.4
 
-  starlight-sidebar-topics@0.8.0(@astrojs/starlight@0.41.3(patch_hash=ad8925179f0e3050ae6c804196faa6d38a2be2b718acf138001215a18648d3b5)(@astrojs/markdown-remark@7.2.1)(astro@7.3.2(@astrojs/markdown-remark@7.2.1)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))(typescript@6.0.3)):
+  starlight-sidebar-topics@0.8.0(@astrojs/starlight@0.41.3(patch_hash=ad8925179f0e3050ae6c804196faa6d38a2be2b718acf138001215a18648d3b5)(@astrojs/markdown-remark@7.2.1)(astro@7.3.2(patch_hash=f219ff102d363fbc37807fb46f3269cdf3c2943f25f786df83d4cc6d4b8aaf72)(@astrojs/markdown-remark@7.2.1)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))(typescript@6.0.3)):
     dependencies:
-      '@astrojs/starlight': 0.41.3(patch_hash=ad8925179f0e3050ae6c804196faa6d38a2be2b718acf138001215a18648d3b5)(@astrojs/markdown-remark@7.2.1)(astro@7.3.2(@astrojs/markdown-remark@7.2.1)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))(typescript@6.0.3)
+      '@astrojs/starlight': 0.41.3(patch_hash=ad8925179f0e3050ae6c804196faa6d38a2be2b718acf138001215a18648d3b5)(@astrojs/markdown-remark@7.2.1)(astro@7.3.2(patch_hash=f219ff102d363fbc37807fb46f3269cdf3c2943f25f786df83d4cc6d4b8aaf72)(@astrojs/markdown-remark@7.2.1)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.13.3)(jiti@2.7.0)(tsx@4.23.1)(yaml@2.9.0))(typescript@6.0.3)
       picomatch: 4.0.4
 
   statuses@2.0.2: {}

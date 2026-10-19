@@ -1,5 +1,6 @@
 ﻿// @ts-check
 import { defineConfig } from 'astro/config';
+import { fileURLToPath } from 'node:url';
 import { unified } from '@astrojs/markdown-remark';
 import { sidebarTopics } from './config/sidebar/sidebar.topics.ts';
 import { redirects } from './config/redirects.mjs';
@@ -23,6 +24,7 @@ import starlightSidebarTopics from 'starlight-sidebar-topics';
 import starlightPageActions from 'starlight-page-actions';
 import buildTiming from './config/build-timing.mjs';
 import { contributorCacheIntegration } from './src/utils/contributors.ts';
+import { loadIncrementalBuildSettings } from './config/incremental-build.mjs';
 import UnoCSS from 'unocss/astro';
 import Icons from 'starlight-plugin-icons';
 import node from '@astrojs/node';
@@ -33,6 +35,18 @@ const modeArgIndex = process.argv.indexOf('--mode');
 const isSkipSearchBuild = modeArgIndex >= 0 && process.argv[modeArgIndex + 1] === 'skip-search';
 const outDir = process.env.ASTRO_OUT_DIR;
 const isBuildTimingEnabled = process.env.BUILD_TIMING === '1';
+const incrementalRequested = process.env.ASPIRE_INCREMENTAL_BUILD === '1';
+const isIncrementalBuild =
+  hybridApiDocs &&
+  incrementalRequested &&
+  process.argv.includes('build');
+if (incrementalRequested && process.argv.includes('build') && !hybridApiDocs) {
+  throw new Error('Incremental builds require the hybrid API documentation architecture.');
+}
+const mode = modeArgIndex >= 0 ? process.argv[modeArgIndex + 1] : 'production';
+const incremental = isIncrementalBuild
+  ? await loadIncrementalBuildSettings(new URL('.', import.meta.url), mode)
+  : undefined;
 const siteDescription = aspireProject.description;
 
 // Under `aspire run` the frontend dev server (Vite) and StaticHost are separate
@@ -58,7 +72,11 @@ const buildConcurrency = Number(process.env.ASPIRE_BUILD_CONCURRENCY) || 4;
 
 // https://astro.build/config
 export default defineConfig({
-  cacheDir: hybridApiDocs ? './node_modules/.astro-hybrid' : './node_modules/.astro',
+  cacheDir: incremental
+    ? fileURLToPath(incremental.cacheDir)
+    : hybridApiDocs
+      ? './node_modules/.astro-hybrid'
+      : './node_modules/.astro',
   ...(hybridApiDocs
     ? {
         outDir: hybridOutputDirectory(process.cwd(), outDir),
@@ -67,12 +85,18 @@ export default defineConfig({
         ...hybridApiCacheConfig(),
       }
     : outDir ? { outDir } : {}),
+  ...(incremental ? { experimental: { incrementalBuild: true } } : {}),
   vite: {
     define: {
       // Resolve filesystem-backed redirects before prerender modules are bundled.
       __ASPIRE_REDIRECT_PATHS__: JSON.stringify(Object.keys(redirects)),
       __ASPIRE_HYBRID_API_DOCS__: JSON.stringify(hybridApiDocs),
     },
+    ...(incremental
+      ? {
+          plugins: [incremental.privateIdentityPlugin],
+        }
+      : {}),
     ...(staticHostUrl
       ? {
           server: {
@@ -253,6 +277,7 @@ export default defineConfig({
     ...(isBuildTimingEnabled ? [buildTiming()] : []),
     aspireVersionPlaceholdersIntegration(),
     ...(hybridApiDocs ? [hybridApiDocsIntegration(redirects)] : []),
+    ...(incremental ? [incremental.integration] : []),
   ],
   build: {
     concurrency: buildConcurrency,
