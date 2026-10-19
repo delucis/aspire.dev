@@ -46,7 +46,7 @@ it('leaves unrelated requests and their options unchanged', async () => {
   expect(fallback).toHaveBeenCalledWith(other, options);
 });
 
-it('preloads recorded inputs and fails even when a dependency catches a missing input', async () => {
+it('preloads recorded inputs and only fails for missing qualification inputs', async () => {
   const directory = await mkdtemp(join(tmpdir(), 'aspire-replay-'));
   const path = join(directory, 'snapshot.json');
   await writeFile(path, JSON.stringify({ [url]: { body: 'fixture', contentType: 'text/plain' } }));
@@ -80,6 +80,17 @@ it('preloads recorded inputs and fails even when a dependency catches a missing 
       options
     );
     expect(failure.status).toBe(1);
+    const unrelatedFailure = spawnSync(
+      process.execPath,
+      [
+        '--import',
+        preload,
+        '-e',
+        `fetch('invalid://unavailable').catch(() => process.exit(0))`,
+      ],
+      options
+    );
+    expect(unrelatedFailure.status).toBe(0);
   } finally {
     await rm(directory, { recursive: true, force: true });
   }

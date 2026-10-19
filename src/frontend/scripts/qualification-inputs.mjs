@@ -53,12 +53,16 @@ export function replayQualificationInputs(snapshot, fallback) {
 if (process.env.ASPIRE_QUALIFICATION_INPUTS) {
   if (process.env.CI !== 'true') throw new Error('Input replay is CI-only.');
   const snapshot = JSON.parse(await readFile(process.env.ASPIRE_QUALIFICATION_INPUTS, 'utf8'));
-  const replay = replayQualificationInputs(snapshot, globalThis.fetch);
+  const fallback = globalThis.fetch;
+  const replay = replayQualificationInputs(snapshot, fallback);
   let failed = false;
   process.on('exit', () => {
     if (failed) process.exitCode = 1;
   });
   globalThis.fetch = async (...args) => {
+    const input = args[0];
+    const url = new URL(input instanceof Request ? input.url : String(input));
+    if (!isQualificationInput(url)) return fallback(...args);
     try {
       return await replay(...args);
     } catch (error) {
