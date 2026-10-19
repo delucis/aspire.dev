@@ -1,5 +1,4 @@
 import type { APIRoute } from 'astro';
-import { apiCacheKey } from '@utils/api-build-cache';
 
 import { markdownResponse } from '@utils/api-markdown-shared';
 import { renderTypeScriptItemMarkdown } from '@utils/typescript-api-markdown';
@@ -20,7 +19,6 @@ type RouteProps = {
 };
 
 type StaticPath = {
-  cacheKey?: string;
   params: { item: string; module: string };
   props: RouteProps;
 };
@@ -41,7 +39,6 @@ export async function getStaticPaths(): Promise<StaticPath[]> {
       }
 
       paths.push({
-        cacheKey: apiCacheKey(pkg),
         params: {
           item: itemSlug,
           module: pkgSlug,
@@ -61,7 +58,6 @@ export async function getStaticPaths(): Promise<StaticPath[]> {
       }
 
       paths.push({
-        cacheKey: apiCacheKey(pkg),
         params: {
           item: itemSlug,
           module: pkgSlug,
@@ -81,7 +77,6 @@ export async function getStaticPaths(): Promise<StaticPath[]> {
       }
 
       paths.push({
-        cacheKey: apiCacheKey(pkg),
         params: {
           item: itemSlug,
           module: pkgSlug,
@@ -101,7 +96,6 @@ export async function getStaticPaths(): Promise<StaticPath[]> {
       }
 
       paths.push({
-        cacheKey: apiCacheKey(pkg),
         params: {
           item: itemSlug,
           module: pkgSlug,

@@ -8,6 +8,7 @@ import { SAXParser } from 'parse5-sax-parser';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
   commitPlaceholder,
+  generatedApiDataDigest,
   generatedIconDigest,
   incrementalBuildSettings,
   incrementalCompatibility,
@@ -25,7 +26,6 @@ import {
   restoredPaths,
   restoredRouteCounts,
 } from '../../scripts/test-incremental-builds.mjs';
-import { apiCacheKey } from '../../src/utils/api-build-cache';
 
 const commit = '0123456789abcdef0123456789abcdef01234567';
 const roots: string[] = [];
@@ -51,7 +51,7 @@ describe('incremental prerender metadata scope', () => {
   function rendererFixture() {
     const api: RouteData = {
       route: '/api/[slug]',
-      component: 'src/pages/api/[slug].astro',
+      component: 'src/pages/reference/api/[slug].astro',
       params: ['slug'],
       distURL: [],
       pattern: /^\/api\/[^/]+\/?$/,
@@ -65,7 +65,7 @@ describe('incremental prerender metadata scope', () => {
     const docs: RouteData = { ...api, component: 'starlight/route.astro' };
     const markdown: RouteData = {
       ...api,
-      component: 'src/pages/api/[slug].md.ts',
+      component: 'src/pages/reference/api/[slug].md.ts',
       type: 'endpoint',
     };
     const paths = [
@@ -98,8 +98,13 @@ describe('incremental prerender metadata scope', () => {
 
   it('retains metadata for keyed HTML and Markdown without changing responses or static paths', async () => {
     const { api, markdown, paths, result, delegate } = rendererFixture();
-    const scoped = scopeIncrementalMetadata(delegate);
-    expect(await scoped.getStaticPaths()).toBe(paths);
+    const scoped = scopeIncrementalMetadata(delegate, 'a'.repeat(64));
+    const cacheablePaths = await scoped.getStaticPaths();
+    expect(cacheablePaths).not.toBe(paths);
+    expect(cacheablePaths.slice(0, 2)).toEqual(paths.slice(0, 2));
+    expect(cacheablePaths.slice(2).every(({ cacheKey }) => /^[a-f\d]{64}$/.test(cacheKey))).toBe(
+      true
+    );
     for (const routeData of [api, markdown]) {
       const request = new Request('https://example.com/base/api/encoded%20path/');
       const options = { routeData, collectMetadata: true };
@@ -109,9 +114,9 @@ describe('incremental prerender metadata scope', () => {
     }
   });
 
-  it('bypasses uncached components while conservatively tracking mixed components', async () => {
+  it('tracks metadata for every prerendered hybrid component', async () => {
     const { api, docs, delegate } = rendererFixture();
-    const scoped = scopeIncrementalMetadata(delegate);
+    const scoped = scopeIncrementalMetadata(delegate, 'a'.repeat(64));
     await scoped.getStaticPaths();
     for (const routeData of [docs, api]) {
       const request = new Request('https://example.com/uncached/');
@@ -119,7 +124,7 @@ describe('incremental prerender metadata scope', () => {
       await scoped.render(request, options);
       expect(delegate.render).toHaveBeenLastCalledWith(request, {
         routeData,
-        collectMetadata: routeData === api,
+        collectMetadata: true,
       });
       expect(options.collectMetadata).toBe(true);
     }
@@ -127,7 +132,7 @@ describe('incremental prerender metadata scope', () => {
     try {
       await scoped.teardown?.();
       expect(log).toHaveBeenCalledWith(
-        '[incremental-build] prerender metadata {"trackedPages":1,"bypassedPages":1}'
+        '[incremental-build] prerender metadata {"trackedPages":2,"bypassedPages":0}'
       );
     } finally {
       log.mockRestore();
@@ -138,7 +143,7 @@ describe('incremental prerender metadata scope', () => {
     'does not enable unrequested metadata collection (%s)',
     async (collectMetadata) => {
       const { api, delegate } = rendererFixture();
-      const scoped = scopeIncrementalMetadata(delegate);
+      const scoped = scopeIncrementalMetadata(delegate, 'a'.repeat(64));
       await scoped.getStaticPaths();
       const request = new Request('https://example.com/api/test/');
       await scoped.render(request, { routeData: api, collectMetadata });
@@ -148,7 +153,7 @@ describe('incremental prerender metadata scope', () => {
 
   it('forwards setup, image collection and teardown with the original receiver', async () => {
     const { images, delegate } = rendererFixture();
-    const scoped = scopeIncrementalMetadata(delegate);
+    const scoped = scopeIncrementalMetadata(delegate, 'a'.repeat(64));
     const log = vi.spyOn(console, 'log').mockImplementation(() => {});
     try {
       await scoped.setup?.();
@@ -163,25 +168,37 @@ describe('incremental prerender metadata scope', () => {
     }
   });
 
-  it('refreshes the scope when static paths are enumerated again', async () => {
+  it('refreshes generated cache keys when static paths are enumerated again', async () => {
     const { api, paths, delegate } = rendererFixture();
-    const scoped = scopeIncrementalMetadata(delegate);
-    await scoped.getStaticPaths();
+    const scoped = scopeIncrementalMetadata(delegate, 'a'.repeat(64));
+    const first = await scoped.getStaticPaths();
     delegate.getStaticPaths.mockResolvedValue(
       paths.map(({ pathname, route }) => ({ pathname, route }))
     );
-    await scoped.getStaticPaths();
+    const second = await scoped.getStaticPaths();
+    expect(second.slice(2).map(({ cacheKey }) => cacheKey)).toEqual(
+      first.slice(2).map(({ cacheKey }) => cacheKey)
+    );
     const request = new Request('https://example.com/api/test/');
     await scoped.render(request, { routeData: api, collectMetadata: true });
     expect(delegate.render).toHaveBeenLastCalledWith(request, {
       routeData: api,
-      collectMetadata: false,
+      collectMetadata: true,
     });
+  });
+
+  it('invalidates default API landing keys without evicting unrelated static routes', async () => {
+    const { paths, delegate } = rendererFixture();
+    const first = await scopeIncrementalMetadata(delegate, 'a'.repeat(64)).getStaticPaths();
+    delegate.getStaticPaths.mockResolvedValue(paths);
+    const second = await scopeIncrementalMetadata(delegate, 'b'.repeat(64)).getStaticPaths();
+    expect(first[2].cacheKey).toBe(second[2].cacheKey);
+    expect(first[3].cacheKey).not.toBe(second[3].cacheKey);
   });
 
   it('propagates delegate failures instead of falling back to an untracked render', async () => {
     const { api, delegate } = rendererFixture();
-    const scoped = scopeIncrementalMetadata(delegate);
+    const scoped = scopeIncrementalMetadata(delegate, 'a'.repeat(64));
     const error = new Error('prerender failure');
     delegate.getStaticPaths.mockRejectedValueOnce(error);
     await expect(scoped.getStaticPaths()).rejects.toBe(error);
@@ -206,7 +223,8 @@ describe('incremental prerender metadata scope', () => {
     });
     const setPrerenderer = vi.fn();
     settings.integration.hooks['astro:build:start']({ setPrerenderer });
-    expect(setPrerenderer).toHaveBeenCalledWith(scopeIncrementalMetadata);
+    expect(setPrerenderer).toHaveBeenCalledOnce();
+    expect(setPrerenderer.mock.calls[0][0]).toEqual(expect.any(Function));
   });
 });
 
@@ -314,7 +332,7 @@ describe('incremental build identity', () => {
     expect(() => stampBuildIdentity(source, commit)).toThrow('Unstamped');
   });
 
-  it('substitutes private fallback before Astro can inline the changing SHA', () => {
+  it('substitutes prerender identity without changing the on-demand server source', () => {
     const source =
       'const commit = import.meta.env.PUBLIC_GIT_COMMIT_ID || import.meta.env.GIT_COMMIT_ID || "";';
     for (const path of [
@@ -322,20 +340,25 @@ describe('incremental build identity', () => {
       'starlight/Footer.astro',
       'MicrosoftFooter.astro',
     ]) {
-      const result = replacePrivateBuildIdentity(source, `/project/src/components/${path}`, true);
+      const result = replacePrivateBuildIdentity(source, `/project/src/components/${path}`, {
+        PUBLIC_GIT_COMMIT_ID: commit,
+        GIT_COMMIT_ID: commit,
+      });
       expect(result?.code).toContain(JSON.stringify(commitPlaceholder));
       expect(result?.code).not.toContain('import.meta.env.GIT_COMMIT_ID');
-      expect(result?.code).toContain('import.meta.env.PUBLIC_GIT_COMMIT_ID');
+      expect(result?.code).not.toContain('import.meta.env.PUBLIC_GIT_COMMIT_ID');
     }
     expect(
       replacePrivateBuildIdentity(
         source,
         'C:\\project\\src\\components\\starlight\\Head.astro',
-        false
+        {}
       )?.code
     ).not.toContain(commitPlaceholder);
     expect(
-      replacePrivateBuildIdentity(source, '/project/src/scripts/unrelated.ts', true)
+      replacePrivateBuildIdentity(source, '/project/src/scripts/unrelated.ts', {
+        GIT_COMMIT_ID: commit,
+      })
     ).toBeUndefined();
   });
 
@@ -363,14 +386,12 @@ describe('incremental build identity', () => {
       mode: 'production',
       env: { GIT_COMMIT_ID: commit },
     });
-    expect(settings.define['import.meta.env.PUBLIC_GIT_COMMIT_ID']).toBe('""');
-    expect(settings.define['import.meta.env.GIT_COMMIT_ID']).toBe(
-      JSON.stringify(commitPlaceholder)
-    );
     expect(settings.privateIdentityPlugin).toMatchObject({
       enforce: 'pre',
       transform: { order: 'pre' },
     });
+    expect(settings.privateIdentityPlugin.applyToEnvironment({ name: 'prerender' })).toBe(true);
+    expect(settings.privateIdentityPlugin.applyToEnvironment({ name: 'ssr' })).toBe(false);
     expect(() => incrementalBuildSettings({ root, mode: 'production', env: {} })).toThrow(
       'commit identity is missing'
     );
@@ -571,6 +592,8 @@ describe('incremental compatibility and package keys', () => {
           cacheDir: astroConfig.cacheDir.href,
           incremental: astroConfig.experimental.incrementalBuild,
           concurrency: astroConfig.build.concurrency,
+          outDir: astroConfig.outDir.href,
+          output: astroConfig.output,
         }));
       `,
         ],
@@ -578,6 +601,7 @@ describe('incremental compatibility and package keys', () => {
           cwd: fileURLToPath(new URL('../../', import.meta.url)),
           env: {
             ...process.env,
+            ASPIRE_HYBRID_API_DOCS: '1',
             ASPIRE_INCREMENTAL_BUILD: '1',
             ASPIRE_BUILD_CONCURRENCY: '4',
             ASTRO_TELEMETRY_DISABLED: '1',
@@ -588,45 +612,16 @@ describe('incremental compatibility and package keys', () => {
         }
       );
       expect(JSON.parse(output.trim())).toEqual({
-        cacheDir: expect.stringContaining(`/node_modules/.astro-incremental/${mode}/api-v1-`),
+        cacheDir: expect.stringContaining(
+          `/node_modules/.astro-incremental/${mode}/hybrid-v1-`
+        ),
         incremental: true,
         concurrency: 4,
+        outDir: expect.stringContaining('/dist-hybrid/'),
+        output: 'static',
       });
     }
   );
-
-  it('does not opt any route in during normal builds', () => {
-    vi.stubEnv('ASPIRE_INCREMENTAL_BUILD', '0');
-    expect(apiCacheKey({ types: [] })).toBeUndefined();
-  });
-
-  it('does not affect the development server even if the opt-in variable is set', () => {
-    vi.stubEnv('PROD', false);
-    vi.stubEnv('ASPIRE_INCREMENTAL_BUILD', '1');
-    expect(apiCacheKey({ types: [] })).toBeUndefined();
-  });
-
-  it('keys complete package data, including siblings, and memoizes immutable data', () => {
-    vi.stubEnv('PROD', true);
-    vi.stubEnv('ASPIRE_INCREMENTAL_BUILD', '1');
-    vi.stubEnv('ASPIRE_INCREMENTAL_ICON_DIGEST', '0'.repeat(64));
-    const data = { types: [{ name: 'First' }] };
-    const key = apiCacheKey(data);
-    expect(key).toMatch(/^[a-f\d]{64}$/);
-    expect(apiCacheKey(data)).toBe(key);
-    expect(apiCacheKey(structuredClone(data))).toBe(key);
-    expect(apiCacheKey({ types: [...data.types, { name: 'Sibling' }] })).not.toBe(key);
-    expect(apiCacheKey({ types: [] })).not.toBe(key);
-    vi.stubEnv('ASPIRE_INCREMENTAL_ICON_DIGEST', '1'.repeat(64));
-    expect(apiCacheKey(data)).not.toBe(key);
-  });
-
-  it('rejects a missing generated-input digest', () => {
-    vi.stubEnv('PROD', true);
-    vi.stubEnv('ASPIRE_INCREMENTAL_BUILD', '1');
-    vi.stubEnv('ASPIRE_INCREMENTAL_ICON_DIGEST', '');
-    expect(() => apiCacheKey({})).toThrow('not captured');
-  });
 
   it('captures icon changes after Starlight setup rather than trusting the early cache partition', async () => {
     const root = await fixture();
@@ -636,6 +631,7 @@ describe('incremental compatibility and package keys', () => {
       mode: 'production',
       env: { PUBLIC_GIT_COMMIT_ID: commit },
     });
+
     const before = generatedIconDigest(root);
     await put(root, '.starlight-icons/material-icons.json', '{"icon":"after"}');
     const after = generatedIconDigest(root);
@@ -645,6 +641,15 @@ describe('incremental compatibility and package keys', () => {
     expect(updateConfig).toHaveBeenCalledWith({
       vite: { define: { 'import.meta.env.ASPIRE_INCREMENTAL_ICON_DIGEST': JSON.stringify(after) } },
     });
+  });
+
+  it('captures all generated API data used by prerendered landing pages', async () => {
+    const root = await fixture();
+    await put(root, 'src/data/pkgs/test.json', '{"types":[]}');
+    await put(root, 'src/data/ts-modules/test.json', '{"functions":[]}');
+    const before = generatedApiDataDigest(root);
+    await put(root, 'src/data/pkgs/test.json', '{"types":[1]}');
+    expect(generatedApiDataDigest(root)).not.toBe(before);
   });
 
   it('isolates modes and global inputs while allowing API-only and identity-only reuse', async () => {
@@ -758,20 +763,23 @@ describe('whole-output equivalence', () => {
     ).toEqual(['/reference/api/csharp/test/index.html', '/reference/api/csharp/test.md']);
   });
 
-  it('accepts Astro endpoint trailing slashes while keeping reuse restricted to API and OG routes', () => {
+  it('counts restored prerendered hybrid routes across docs, endpoints, and OG images', () => {
     expect(
       restoredRouteCounts(
         [
           '/reference/api/csharp/test/index.html (restored)',
           '/reference/api/typescript/test.md (restored)',
+          '/docs/index.html (restored)',
           '/og/app-host/configuration.png/ (restored)',
           '/og/reference/samples/example.png (cached)',
         ].join('\n')
       )
-    ).toEqual({ htmlRestored: 1, markdownRestored: 1, ogRestored: 2 });
-    for (const path of ['/docs/index.html', '/og/index.html', '/og/image.png/other']) {
-      expect(() => restoredRouteCounts(`${path} (restored)`)).toThrow('outside the API/OG pilot');
-    }
+    ).toEqual({
+      htmlRestored: 2,
+      markdownRestored: 1,
+      ogRestored: 2,
+      totalRestored: 5,
+    });
   });
 
   it('reports changed route and module dependency records without flooding CI logs', () => {

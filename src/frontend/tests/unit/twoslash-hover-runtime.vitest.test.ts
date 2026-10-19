@@ -76,15 +76,13 @@ describe('two-slash site-owned popup runtime', () => {
 
   test('concurrent SDK blocks retain typed hovers without sharing sample declarations', async () => {
     const renderer = await createRenderer(ecConfig);
-    const rendered = await Promise.all(
-      ['Redis', 'Postgres'].map((resource) =>
-        renderer.ec.render({
-          code: `import { createBuilder } from './.aspire/modules/aspire.mjs';\nconst builder = await createBuilder();\nconst resource = await builder.add${resource}('resource');`,
-          language: 'typescript',
-          meta: 'twoslash',
-        })
-      )
-    );
+    const rendered = await Promise.all(['Redis', 'Postgres'].map((resource) =>
+      renderer.ec.render({
+        code: `import { createBuilder } from './.aspire/modules/aspire.mjs';\nconst builder = await createBuilder();\nconst resource = await builder.add${resource}('resource');`,
+        language: 'typescript',
+        meta: 'twoslash',
+      }),
+    ));
     for (const result of rendered) {
       expect(selectAll('.twoslash-hover', result.renderedGroupAst).length).toBeGreaterThan(0);
       expect(selectAll('.twoslash-error-box', result.renderedGroupAst)).toEqual([]);

@@ -44,9 +44,13 @@ jobs:
 
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
-          node-version: "24.21.0"
+          node-version: 24.x
           cache: pnpm
           cache-dependency-path: src/frontend/pnpm-lock.yaml
+
+      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          global-json-file: global.json
 
       - run: pnpm install --frozen-lockfile --prefer-offline
       - name: Prepare build inputs and shared reproducible clock
@@ -64,9 +68,9 @@ jobs:
         uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ${{ steps.cache.outputs.path }}
-          key: astro-api-pilot-${{ runner.os }}-${{ runner.arch }}-${{ steps.cache.outputs.key }}-${{ github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
+          key: astro-hybrid-pilot-${{ runner.os }}-${{ runner.arch }}-${{ steps.cache.outputs.key }}-${{ github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
           restore-keys: |
-            astro-api-pilot-${{ runner.os }}-${{ runner.arch }}-${{ steps.cache.outputs.key }}-
+            astro-hybrid-pilot-${{ runner.os }}-${{ runner.arch }}-${{ steps.cache.outputs.key }}-
 
       - name: Report restore result
         env:
@@ -92,9 +96,12 @@ jobs:
 
       - run: pnpm lint
       - run: pnpm test:unit
-      - run: pnpm exec playwright install --with-deps chromium
-      - name: Run all built-site browser projects
-        run: pnpm exec playwright test
+      - name: Build StaticHost for hybrid browser verification
+        run: dotnet build ../statichost/StaticHost/StaticHost.csproj -c Release --nologo
+      - name: Verify the combined hybrid artifact and browser behavior
+        env:
+          HYBRID_TEST_BROWSER: '1'
+        run: node scripts/test-hybrid-host.mjs
 
       # This namespace is never read by deployment or ordinary PR builds. Only
       # a successful default-branch run may populate it; PR code never writes it.
@@ -103,7 +110,7 @@ jobs:
         uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ${{ steps.cache.outputs.path }}
-          key: astro-api-pilot-${{ runner.os }}-${{ runner.arch }}-${{ steps.cache.outputs.key }}-${{ github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
+          key: astro-hybrid-pilot-${{ runner.os }}-${{ runner.arch }}-${{ steps.cache.outputs.key }}-${{ github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
 
       # Diagnostic PR cache only: this unique namespace is never restored by
       # production, default-branch qualification, or another pilot run.
@@ -126,7 +133,7 @@ jobs:
           if (!process.env.CACHE_PATH) throw new Error('Missing cache probe path.');
           const parent = await realpath('node_modules/.astro-incremental/production');
           const target = await realpath(process.env.CACHE_PATH);
-          if (dirname(target) !== parent || !/^api-v1-[a-f0-9]{64}$/.test(basename(target))) {
+          if (dirname(target) !== parent || !/^hybrid-v1-[a-f0-9]{64}$/.test(basename(target))) {
             throw new Error('Refusing to remove a path outside the isolated probe cache.');
           }
           await rm(target, { recursive: true });
@@ -163,6 +170,6 @@ jobs:
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: incremental-pilot-dist-${{ matrix.scenario }}
-          path: src/frontend/dist
+          path: src/frontend/dist-hybrid
           if-no-files-found: warn
           retention-days: 7

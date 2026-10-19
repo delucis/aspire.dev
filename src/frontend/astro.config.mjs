@@ -36,10 +36,14 @@ const modeArgIndex = process.argv.indexOf('--mode');
 const isSkipSearchBuild = modeArgIndex >= 0 && process.argv[modeArgIndex + 1] === 'skip-search';
 const outDir = process.env.ASTRO_OUT_DIR;
 const isBuildTimingEnabled = process.env.BUILD_TIMING === '1';
+const incrementalRequested = process.env.ASPIRE_INCREMENTAL_BUILD === '1';
 const isIncrementalBuild =
-  !hybridApiDocs &&
-  process.env.ASPIRE_INCREMENTAL_BUILD === '1' &&
+  hybridApiDocs &&
+  incrementalRequested &&
   process.argv.includes('build');
+if (incrementalRequested && process.argv.includes('build') && !hybridApiDocs) {
+  throw new Error('Incremental builds require the hybrid API documentation architecture.');
+}
 const mode = modeArgIndex >= 0 ? process.argv[modeArgIndex + 1] : 'production';
 const incremental = isIncrementalBuild
   ? await loadIncrementalBuildSettings(new URL('.', import.meta.url), mode)
@@ -69,10 +73,10 @@ const buildConcurrency = Number(process.env.ASPIRE_BUILD_CONCURRENCY) || 4;
 
 // https://astro.build/config
 export default defineConfig({
-  cacheDir: hybridApiDocs
-    ? './node_modules/.astro-hybrid'
-    : incremental
-      ? fileURLToPath(incremental.cacheDir)
+  cacheDir: incremental
+    ? fileURLToPath(incremental.cacheDir)
+    : hybridApiDocs
+      ? './node_modules/.astro-hybrid'
       : './node_modules/.astro',
   ...(hybridApiDocs
     ? {
@@ -88,7 +92,6 @@ export default defineConfig({
       // Resolve filesystem-backed redirects before prerender modules are bundled.
       __ASPIRE_REDIRECT_PATHS__: JSON.stringify(Object.keys(redirects)),
       __ASPIRE_HYBRID_API_DOCS__: JSON.stringify(hybridApiDocs),
-      ...(incremental?.define ?? {}),
     },
     ...(incremental
       ? {

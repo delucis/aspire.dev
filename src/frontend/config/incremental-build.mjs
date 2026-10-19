@@ -10,7 +10,7 @@ export const commitPlaceholder = 'ASPRSHA_INCREMENTAL_BUILD_IDENTITY_TOKEN';
 const shortCommitPlaceholder = commitPlaceholder.slice(0, 7);
 const commitPlaceholderBytes = Buffer.from(commitPlaceholder);
 const shortCommitPlaceholderBytes = Buffer.from(shortCommitPlaceholder);
-const cacheEpoch = 'api-v1';
+const cacheEpoch = 'hybrid-v1';
 const assetPlaceholders = [
   /__ASTRO_ASSET_IMAGE__([\w$]+)__(?:_(.*?)__)?/g,
   /__VITE_ASSET__([\w$]+)__(?:\$_(.*?)__)?/g,
@@ -81,9 +81,10 @@ function dependencyDiagnosticsPlugin(root, cacheDir) {
 
 /**
  * @param {import('astro').AstroPrerenderer} prerenderer
+ * @param {string} apiDataDigest
  * @returns {import('astro').AstroPrerenderer}
  */
-export function scopeIncrementalMetadata(prerenderer) {
+export function scopeIncrementalMetadata(prerenderer, apiDataDigest) {
   /** @type {Set<string>} */
   const cacheableComponents = new Set();
   let trackedPages = 0;
@@ -96,10 +97,27 @@ export function scopeIncrementalMetadata(prerenderer) {
     async getStaticPaths() {
       const paths = await prerenderer.getStaticPaths();
       cacheableComponents.clear();
-      for (const { route, cacheKey } of paths) {
-        if (cacheKey !== undefined) cacheableComponents.add(route.component);
-      }
-      return paths;
+      const cacheablePaths = paths.map((path) => {
+        const component = path.route.component.replaceAll('\\', '/');
+        // The compatibility partition covers all ordinary static inputs. API data
+        // stays independently keyed so only its prerendered landing pages expire.
+        const cacheKey =
+          path.cacheKey ??
+          createHash('sha256')
+            .update('hybrid-route-v1\0')
+            .update(component)
+            .update('\0')
+            .update(path.pathname)
+            .update(
+              /(?:^|\/)src\/pages\/reference\/api\//.test(component)
+                ? `\0${apiDataDigest}`
+                : ''
+            )
+            .digest('hex');
+        cacheableComponents.add(path.route.component);
+        return path.cacheKey === undefined ? { ...path, cacheKey } : path;
+      });
+      return cacheablePaths;
     },
     render(request, options) {
       // Astro otherwise collects metadata even for components that never cache.
@@ -199,7 +217,8 @@ export function incrementalCompatibility(root, mode, publicEnv) {
       node: process.version,
       platform: process.platform,
       arch: process.arch,
-      outDir: process.env.ASTRO_OUT_DIR || 'dist',
+      architecture: 'hybrid-api-docs',
+      outDir: process.env.ASTRO_OUT_DIR || 'dist-hybrid',
       publicEnv: Object.fromEntries(
         Object.entries(publicEnv)
           .filter(([key]) => key !== 'PUBLIC_GIT_COMMIT_ID')
@@ -218,8 +237,8 @@ export function incrementalCompatibility(root, mode, publicEnv) {
   ];
   for (const path of inputs.sort()) {
     const name = relative(root, path).replaceAll('\\', '/');
-    // Only package data is independently keyed. MDX can change global virtual
-    // CSS and imported assets, so documentation edits conservatively evict APIs.
+    // API data is independently keyed for its prerendered landing pages and is
+    // always rebuilt into the renderer. Other source changes partition the cache.
     if (/^src\/data\/(?:pkgs|ts-modules)\//.test(name)) continue;
     hash.update(name);
     hash.update('\0');
@@ -237,6 +256,20 @@ export function generatedIconDigest(root) {
     hash.update('\0');
     hash.update(readFileSync(path));
     hash.update('\0');
+  }
+  return hash.digest('hex');
+}
+
+/** @param {string} root */
+export function generatedApiDataDigest(root) {
+  const hash = createHash('sha256');
+  for (const directory of ['src/data/pkgs', 'src/data/ts-modules']) {
+    for (const path of files(join(root, directory))) {
+      hash.update(relative(root, path).replaceAll('\\', '/'));
+      hash.update('\0');
+      hash.update(readFileSync(path));
+      hash.update('\0');
+    }
   }
   return hash.digest('hex');
 }
@@ -341,15 +374,21 @@ export function stampBuildIdentityBytes(html, commit, rangeCache) {
 /**
  * @param {string} source
  * @param {string} id
- * @param {boolean} hasCommit
+ * @param {Record<string, string>} env
  */
-export function replacePrivateBuildIdentity(source, id, hasCommit) {
+export function replacePrivateBuildIdentity(source, id, env) {
   const consumer = /\/src\/components\/(?:starlight\/(?:Head|Footer)|MicrosoftFooter)\.astro$/;
   if (!consumer.test(id.replaceAll('\\', '/'))) return undefined;
-  const reference = 'import.meta.env.GIT_COMMIT_ID';
-  if (!source.includes(reference)) return undefined;
+  let code = source;
+  for (const [reference, present] of [
+    ['import.meta.env.PUBLIC_GIT_COMMIT_ID', Boolean(env.PUBLIC_GIT_COMMIT_ID)],
+    ['import.meta.env.GIT_COMMIT_ID', Boolean(env.GIT_COMMIT_ID)],
+  ]) {
+    code = code.replaceAll(reference, JSON.stringify(present ? commitPlaceholder : ''));
+  }
+  if (code === source) return undefined;
   return {
-    code: source.replaceAll(reference, JSON.stringify(hasCommit ? commitPlaceholder : '')),
+    code,
     map: null,
   };
 }
@@ -371,6 +410,7 @@ export function incrementalBuildSettings({ root, mode, env, force = false }) {
   );
   const compatibility = incrementalCompatibility(directory, mode, publicEnv);
   const cacheDir = new URL(`node_modules/.astro-incremental/${mode}/${compatibility}/`, root);
+  const apiDataDigest = generatedApiDataDigest(directory);
   const dependencyDiagnostics =
     process.env.ASPIRE_INCREMENTAL_DIAGNOSTICS === '1'
       ? dependencyDiagnosticsPlugin(directory, cacheDir)
@@ -378,12 +418,15 @@ export function incrementalBuildSettings({ root, mode, env, force = false }) {
   /** @type {import('vite').Plugin} */
   const privateIdentityPlugin = {
     name: 'aspire-incremental-private-identity',
+    applyToEnvironment(environment) {
+      return environment.name === 'prerender';
+    },
     enforce: 'pre',
     transform: {
       // Astro substitutes private env values before vite:define runs.
       order: 'pre',
       handler(source, id) {
-        return replacePrivateBuildIdentity(source, id, Boolean(env.GIT_COMMIT_ID));
+        return replacePrivateBuildIdentity(source, id, env);
       },
     },
   };
@@ -392,17 +435,13 @@ export function incrementalBuildSettings({ root, mode, env, force = false }) {
     dependencyDiagnostics,
     privateIdentityPlugin,
     cacheDir,
-    define: {
-      'import.meta.env.PUBLIC_GIT_COMMIT_ID': JSON.stringify(
-        env.PUBLIC_GIT_COMMIT_ID ? commitPlaceholder : ''
-      ),
-      'import.meta.env.GIT_COMMIT_ID': JSON.stringify(env.GIT_COMMIT_ID ? commitPlaceholder : ''),
-    },
     integration: {
       name: 'aspire-incremental-build-identity',
       hooks: {
         'astro:build:start': ({ setPrerenderer }) => {
-          setPrerenderer(scopeIncrementalMetadata);
+          setPrerenderer((prerenderer) =>
+            scopeIncrementalMetadata(prerenderer, apiDataDigest)
+          );
         },
         'astro:config:setup': ({ updateConfig }) => {
           // Icons refresh during Starlight setup, after the outer config was

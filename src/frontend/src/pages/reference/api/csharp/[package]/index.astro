@@ -9,7 +9,6 @@
 import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
 import { genericArity, typeDisplayName, groupTypesByNamespace, typeHref, nugetHref, packageSlug, getPackages } from '@utils/packages';
 import { apiSearchIndexUrl, buildCSharpPackageSearchIndex } from '@utils/api-search-index';
-import { apiCacheKey } from '@utils/api-build-cache';
 import { getApiReferenceSidebar } from '@utils/api-sidebar';
 import InpageSearch from '@components/api-reference/InpageSearch.astro';
 import Expand from '@components/Expand.astro';
@@ -22,7 +21,6 @@ import { resolveCSharpApiRoute } from '@utils/api-route-data';
 export async function getStaticPaths() {
   const packages = await getPackages();
   return packages.map(pkg => ({
-    cacheKey: apiCacheKey(pkg.data),
     params: { package: packageSlug(pkg.data.package.name) },
     props: { pkg: pkg.data },
   }));

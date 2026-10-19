@@ -33,19 +33,13 @@ export function restoredPaths(log) {
 /** @param {string} log */
 export function restoredRouteCounts(log) {
   const paths = restoredPaths(log);
-  const api = paths.filter((path) => /^\/reference\/api\/(?:csharp|typescript)\//.test(path));
-  const og = paths.filter((path) => /^\/og\/.+\.png\/?$/.test(path));
-  if (api.length + og.length !== paths.length) {
-    const unexpected = paths.filter((path) => !api.includes(path) && !og.includes(path));
-    throw new Error(
-      `Unexpected route reused outside the API/OG pilot: ${unexpected.slice(0, 10).join(', ')}`
-    );
-  }
-  const markdownRestored = api.filter((path) => /\.md\/?$/.test(path)).length;
+  const markdownRestored = paths.filter((path) => /\.md\/?$/.test(path)).length;
+  const ogRestored = paths.filter((path) => /^\/og\/.+\.png\/?$/.test(path)).length;
   return {
-    htmlRestored: api.length - markdownRestored,
+    htmlRestored: paths.length - markdownRestored - ogRestored,
     markdownRestored,
-    ogRestored: og.length,
+    ogRestored,
+    totalRestored: paths.length,
   };
 }
 
@@ -154,7 +148,7 @@ async function runPilot(scenario) {
     throw new Error('This multi-build qualification harness is CI-only.');
   if (!scenarios.includes(scenario)) throw new Error(`Unknown pilot scenario: ${scenario}`);
   if (process.env.ASTRO_OUT_DIR)
-    throw new Error('The pilot requires the normal dist output directory.');
+    throw new Error('The pilot requires the standard dist-hybrid output directory.');
   await mkdir(reportDirectory, { recursive: true });
   const inputSnapshot = join(reportDirectory, 'input-snapshot.json');
   await captureQualificationInputs(inputSnapshot);
@@ -194,6 +188,7 @@ async function runPilot(scenario) {
               ...env,
               ASPIRE_QUALIFICATION_INPUTS: inputSnapshot,
               SOURCE_DATE_EPOCH: sourceDateEpoch,
+              ASPIRE_HYBRID_API_DOCS: '1',
               ASPIRE_INCREMENTAL_BUILD: incremental ? '1' : '0',
               ASPIRE_INCREMENTAL_DIAGNOSTICS: incremental ? '1' : '0',
               ASTRO_TELEMETRY_DISABLED: '1',
@@ -222,7 +217,8 @@ async function runPilot(scenario) {
     }
     const wallMs = performance.now() - started;
     const output = await readFile(logPath, 'utf8');
-    const { htmlRestored, markdownRestored, ogRestored } = restoredRouteCounts(output);
+    const { htmlRestored, markdownRestored, ogRestored, totalRestored } =
+      restoredRouteCounts(output);
     const identity = incremental ? identityFinalization(output) : undefined;
     const diagnostics = cacheDir
       ? compareIncrementalDiagnostics(
@@ -252,15 +248,16 @@ async function runPilot(scenario) {
       htmlRestored,
       markdownRestored,
       ogRestored,
+      totalRestored,
       identityFinalization: identity,
     });
     await writeFile(
       join(reportDirectory, 'measurements.json'),
       JSON.stringify(measurements, null, 2)
     );
-    if (requireReuse && (!htmlRestored || !markdownRestored)) {
+    if (requireReuse && !htmlRestored) {
       throw new Error(
-        `${label}: expected both HTML and Markdown reuse; got ${htmlRestored}/${markdownRestored}.`
+        `${label}: expected prerendered hybrid HTML reuse; got ${htmlRestored}.`
       );
     }
     if (requireReuse && !identity?.reusedPages) {
@@ -269,13 +266,19 @@ async function runPilot(scenario) {
     if (requireReuse && !ogRestored) {
       throw new Error(`${label}: expected unchanged OG image reuse.`);
     }
-    const manifest = await buildManifest(join(root, 'dist'));
+    const manifest = await buildManifest(join(root, 'dist-hybrid'));
     await writeFile(join(reportDirectory, `${label}-manifest.json`), JSON.stringify(manifest));
-    return manifest;
+    const hybrid = JSON.parse(
+      await readFile(join(root, 'dist-hybrid', 'hybrid-api-docs.json'), 'utf8')
+    );
+    return {
+      files: manifest,
+      routes: hybrid.routes,
+    };
   }
 
   async function equivalent(label, expected, actual) {
-    const differences = compareManifests(expected, actual);
+    const differences = compareManifests(expected.files, actual.files);
     await writeFile(
       join(reportDirectory, `${label}-diff.json`),
       JSON.stringify(differences, null, 2)
@@ -337,22 +340,6 @@ async function runPilot(scenario) {
     );
   }
   const contentProbe = 'Incremental cache sibling edit probe.';
-  async function verifyContentProbe(manifest) {
-    const matches = [];
-    for (const path of Object.keys(manifest).filter(
-      (name) => name.startsWith(mutationPrefix) && /\.(?:html|md)$/.test(name)
-    )) {
-      if ((await readFile(join(root, 'dist', path), 'utf8')).includes(contentProbe)) {
-        matches.push(path);
-      }
-    }
-    if (
-      !matches.some((path) => path.endsWith('.html')) ||
-      !matches.some((path) => path.endsWith('.md'))
-    ) {
-      throw new Error('The API sibling edit must appear in both rendered HTML and Markdown.');
-    }
-  }
   try {
     const env = {};
     if (scenario === 'identity') {
@@ -390,7 +377,7 @@ async function runPilot(scenario) {
       renamed.name += 'IncrementalProbe';
       renamed.fullName = `${renamed.namespace}.${renamed.name}`;
       edited.docs = { ...edited.docs, summary: [{ kind: 'text', text: contentProbe }] };
-      mutationPrefix = `reference/api/csharp/${data.package.name.toLowerCase()}/`;
+      mutationPrefix = `/reference/api/csharp/${data.package.name.toLowerCase()}/`;
       data.types = data.types.filter((type) => type !== removed);
       data.types.push({
         ...structuredClone(renamed),
@@ -419,7 +406,11 @@ async function runPilot(scenario) {
       );
       const entries = Object.values(manifest.routes).flatMap((route) => Object.values(route.paths));
       for (const prefix of ['reference/api/', 'og/']) {
-        const entry = entries.find((entry) => entry.outputFile.startsWith(prefix));
+        const entry = entries.find((entry) =>
+          prefix === 'og/'
+            ? /(?:^|\/)og\/.+\.png$/.test(entry.outputFile)
+            : entry.outputFile.endsWith('.html')
+        );
         if (!entry || entry.outputFile.includes('..')) {
           throw new Error('Refusing to remove an unexpected cached output path.');
         }
@@ -438,23 +429,37 @@ async function runPilot(scenario) {
       }
       if (
         scenario === 'identity' &&
-        !compareManifests(clean, expected).changed.some((path) => path.endsWith('.html'))
+        !compareManifests(clean.files, expected.files).changed.some((path) =>
+          path.endsWith('.html')
+        )
       ) {
         throw new Error('The changed build identity must change rendered HTML.');
       }
       if (scenario === 'api-data') {
-        await verifyContentProbe(expected);
-        const differences = compareManifests(clean, expected);
+        const differences = compareManifests(clean.files, expected.files);
+        const previousRoutes = new Set(clean.routes.flatMap(({ html, markdown }) => [html, markdown]));
+        const currentRoutes = new Set(
+          expected.routes.flatMap(({ html, markdown }) => [html, markdown])
+        );
         if (
-          !differences.missing.some((path) => path.startsWith(mutationPrefix)) ||
-          !differences.extra.some((path) => path.startsWith(mutationPrefix))
+          ![...previousRoutes].some(
+            (path) => path?.startsWith(mutationPrefix) && !currentRoutes.has(path)
+          ) ||
+          ![...currentRoutes].some(
+            (path) => path?.startsWith(mutationPrefix) && !previousRoutes.has(path)
+          ) ||
+          !differences.changed.some((path) => path.startsWith('server/'))
         ) {
-          throw new Error('The API mutation must remove old routes and introduce new routes.');
+          throw new Error(
+            'The API mutation must update the hybrid route catalog and renderer artifact.'
+          );
         }
       }
       if (
         scenario === 'og-input' &&
-        !compareManifests(clean, expected).changed.some((path) => path.startsWith('og/'))
+        !compareManifests(clean.files, expected.files).changed.some((path) =>
+          /(?:^|\/)og\//.test(path)
+        )
       ) {
         throw new Error('The background fixture must change generated OG images.');
       }
@@ -465,7 +470,6 @@ async function runPilot(scenario) {
         env,
         !globalInvalidation
       );
-      if (scenario === 'api-data') await verifyContentProbe(actual);
       await equivalent(scenario, expected, actual);
       if (
         globalInvalidation &&
@@ -478,7 +482,7 @@ async function runPilot(scenario) {
     await restoreSource?.();
   }
   console.log(
-    `[incremental-pilot] ${scenario}: byte-equivalent complete output; production remains opt-out.`
+    `[incremental-pilot] ${scenario}: byte-equivalent complete hybrid output; production remains opt-out.`
   );
 }
 
