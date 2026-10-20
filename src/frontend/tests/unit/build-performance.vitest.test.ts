@@ -50,9 +50,9 @@ test('frontend workflow keeps validation parallel and every shard required', asy
   const workflow = (await readFile(new URL('../../../../.github/workflows/frontend-build.yml', import.meta.url), 'utf8')).replace(/\r\n/g, '\n');
   const job = (name: string) => workflow.match(new RegExp(`\\n  ${name}:\\n([\\s\\S]*?)(?=\\n  [\\w-]+:\\n|$)`))?.[1] ?? '';
   expect(job('validation')).not.toMatch(/^\s+needs:/m);
-  expect(job('validation')).toContain('pnpm lint');
-  expect(job('validation')).toContain('pnpm test:unit');
-  expect(job('build')).not.toContain('pnpm test:unit');
+  expect(job('validation')).toContain('bun run lint');
+  expect(job('validation')).toContain('bun run test:unit');
+  expect(job('build')).not.toContain('bun run test:unit');
   expect(job('e2e')).toMatch(/needs: build/);
   expect(job('e2e')).toContain('shard: [1, 2]');
   for (const project of ['desktop-chromium', 'tablet-chromium', 'mobile-chromium']) {
@@ -71,6 +71,16 @@ test('frontend workflow keeps validation parallel and every shard required', asy
   expect(job('build')).toContain('./node_modules/astro/bin/astro.mjs build --mode production');
 });
 
+test('build job restores Astro incremental state keyed on the Bun lockfile', async () => {
+  const workflow = (await readFile(new URL('../../../../.github/workflows/frontend-build.yml', import.meta.url), 'utf8')).replace(/\r\n/g, '\n');
+  const cacheStep = workflow.match(/- name: Cache Astro build state\n([\s\S]*?)(?=\n {6}- name:)/)?.[1];
+  expect(cacheStep).toBeDefined();
+  expect(cacheStep).toContain('path: src/frontend/node_modules/.astro');
+  expect(cacheStep).toContain("hashFiles('src/frontend/bun.lock', 'src/frontend/astro.config.mjs', 'src/frontend/patches/*.patch')");
+  expect(cacheStep).toContain('-${{ github.sha }}');
+  expect(cacheStep).toMatch(/restore-keys: \|\n\s+astro-build-\$\{\{ runner\.os \}\}-/);
+});
+
 test('CPU, timing, output inventories and diagnostic uploads are opt-in only', async () => {
   const workflow = (await readFile(new URL('../../../../.github/workflows/frontend-build.yml', import.meta.url), 'utf8')).replace(/\r\n/g, '\n');
   const caller = await readFile(new URL('../../../../.github/workflows/ci.yml', import.meta.url), 'utf8');
@@ -78,7 +88,7 @@ test('CPU, timing, output inventories and diagnostic uploads are opt-in only', a
   expect(caller).toContain("contains(github.event.pull_request.labels.*.name, 'build-profile')");
   expect(workflow).toContain("BUILD_TIMING: ${{ inputs.profile_build && '1' || '0' }}");
   expect(workflow).toMatch(/if \[\[ "\$PROFILE_BUILD" == "true" \]\]; then\n\s+mkdir -p/);
-  expect(workflow).toMatch(/else\n\s+pnpm build:production\n\s+fi/);
+  expect(workflow).toMatch(/else\n\s+bun run build:production\n\s+fi/);
   expect(workflow).toContain('name: Measure frontend output\n        if: ${{ inputs.profile_build }}');
   expect(workflow).toContain('name: Upload build diagnostics\n        if: ${{ always() && inputs.profile_build }}');
 });
