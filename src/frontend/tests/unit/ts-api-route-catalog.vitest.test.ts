@@ -75,13 +75,14 @@ test('every catalog HTML item/member path has a Markdown peer and legacy exports
           legacyCount++;
         }
       }
-      // Astro's keyed static-path cache resolves duplicate paths to the last entry.
-      for (const [url, item] of legacyItems) {
-        if (!sameData(itemProps.get(url), item)) legacyMismatches.push(url);
-      }
-      for (const [url, method] of legacyMembers) {
-        if (!sameData(memberProps.get(url), method)) legacyMismatches.push(url);
-      }
+    }
+    // Astro's keyed static-path cache resolves duplicate paths to the last entry.
+    // Compare once per module: content equality is too costly to repeat for every handle.
+    for (const [url, item] of legacyItems) {
+      if (!sameData(itemProps.get(url), item)) legacyMismatches.push(url);
+    }
+    for (const [url, method] of legacyMembers) {
+      if (!sameData(memberProps.get(url), method)) legacyMismatches.push(url);
     }
     expect(legacyMismatches).toEqual([]);
   }
