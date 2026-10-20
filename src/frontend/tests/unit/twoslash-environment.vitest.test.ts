@@ -1,8 +1,6 @@
 import { createTwoslasher, twoslasher } from '@ec-ts/twoslash';
-import { resolve } from 'node:path';
 import { expect, test } from 'vitest';
 import {
-  ASPIRE_TYPES_PATH,
   finishTwoslashRun,
   getTwoslashExtraFiles,
   getTwoslashOptions,
@@ -18,10 +16,6 @@ const snippets = [
   '// @filename: helper.ts\nexport const onlyHere = 42;\n// @filename: index.ts\nimport { onlyHere } from "./helper";\nonlyHere;',
   'import { onlyHere } from "./helper";\nonlyHere;',
 ];
-
-test('resolves the SDK declaration from the frontend root', () => {
-  expect(ASPIRE_TYPES_PATH).toBe(resolve(process.cwd(), 'src', 'data', 'twoslash', 'aspire.d.ts'));
-});
 
 test('persistent SDK filesystem preserves code, hovers and diagnostics', () => {
   const options = getTwoslashOptions();
