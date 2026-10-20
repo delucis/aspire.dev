@@ -201,18 +201,21 @@ test("rejects unrelated loopback origins for all fetch surfaces", async () => {
 });
 
 test("an oversized HTML page still loads metadata and the browse document", async () => {
-    const oversized = 7 * 1024 * 1024;
-    const document = Buffer.concat([
-        Buffer.from(
-            '<!doctype html><head><title>Huge page</title><meta property="og:image" content="/huge.png">' +
-                '<script src="/external.js"></script></head><body>',
-        ),
-        Buffer.alloc(oversized, "<p>filler</p>"),
-    ]);
+    const oversized = 7 * 1024 * 1024; // over the 6 MiB metadata and resource cap
+    const beyondBrowse = 17 * 1024 * 1024; // over the 16 MiB browse document cap
+    const head =
+        '<!doctype html><head><title>Huge page</title><meta property="og:image" content="/huge.png">' +
+        '<script src="/external.js"></script></head><body>';
+    const page = (size) =>
+        Buffer.concat([Buffer.from(head), Buffer.alloc(size, "<p>filler</p>"), Buffer.from('<footer id="tail">end</footer></body>')]);
+    const document = page(oversized);
+    const unbounded = page(beyondBrowse);
     const hugeTarget = createServer((req, res) => {
-        const isDocument = req.url === "/";
-        res.setHeader("Content-Type", isDocument ? "text/html" : req.url === "/big.pdf" ? "application/pdf" : "text/javascript");
-        res.end(isDocument ? document : Buffer.alloc(oversized, "x"));
+        const isHtml = req.url === "/" || req.url === "/unbounded";
+        res.setHeader("Content-Type", isHtml ? "text/html" : req.url === "/big.pdf" ? "application/pdf" : "text/javascript");
+        if (req.url === "/") return res.end(document);
+        if (req.url === "/unbounded") return res.end(unbounded);
+        res.end(Buffer.alloc(req.url === "/big.pdf" ? beyondBrowse : oversized, "x"));
     });
     hugeTarget.listen(0, "127.0.0.1");
     await once(hugeTarget, "listening");
@@ -226,7 +229,13 @@ test("an oversized HTML page still loads metadata and the browse document", asyn
 
         const html = await (await fetch(api("/api/proxy?u=" + encodeURIComponent(origin)))).text();
         assert.match(html, /<title>Huge page<\/title>/);
+        assert.match(html, /<footer id="tail">/, "a document under the browse cap is served whole");
         assert.doesNotMatch(html, /Couldn't load this page/);
+
+        const cut = await (await fetch(api("/api/proxy?u=" + encodeURIComponent(`${origin}/unbounded`)))).text();
+        assert.match(cut, /<title>Huge page<\/title>/);
+        assert.doesNotMatch(cut, /<footer id="tail">/, "a document over the browse cap is cut, not rejected");
+        assert.doesNotMatch(cut, /Couldn't load this page/);
 
         const script = new URL(resourceUrl(html).href.replace("/external.js", "/big.js"));
         assert.equal((await fetch(script)).status, 502, "oversized subresources are rejected, not truncated");

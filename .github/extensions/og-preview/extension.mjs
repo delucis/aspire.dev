@@ -41,6 +41,11 @@ function githubBlobToRaw(value) {
     return value;
 }
 
+// The browse frame runs the whole document, so it gets more room than a metadata
+// read: API reference pages inline several MB of search data ahead of their
+// interactive content, which a 6 MiB cut would drop.
+const BROWSE_DOC_MAX_BYTES = 16 * 1024 * 1024;
+
 const CONTENT_TYPES = {
     ".html": "text/html; charset=utf-8",
     ".css": "text/css; charset=utf-8",
@@ -668,6 +673,7 @@ async function handleRequest(entry, req, res) {
                 ...policy,
                 accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
                 timeoutMs: 15000,
+                maxBytes: BROWSE_DOC_MAX_BYTES,
                 onLimit: "truncate",
             });
             const ct = r.contentType || "";
