@@ -1,6 +1,4 @@
 var builder = DistributedApplication.CreateBuilder(args);
-var hybridApiDocs = HybridApiDocsExtensions.IsHybridApiDocsEnabled(
-    builder.Configuration["ASPIRE_HYBRID_API_DOCS"]);
 // For deployment: We want to pick AppService as the environment to publish to.
 var production = builder.AddAzureAppServiceEnvironment("production")
     .WithDashboard(false);
@@ -23,8 +21,9 @@ var staticHostWebsite = builder.AddProject<Projects.StaticHost>("aspiredev")
     });
 
 var frontDoor = builder.AddAzureFrontDoor(staticHostWebsite);
-if (hybridApiDocs)
+if (builder.ExecutionContext.IsPublishMode)
 {
+    // Published sites always serve the prebuilt hybrid website and its renderers.
     staticHostWebsite.WithHybridApiDocs(builder, Path.GetFullPath("../../frontend", builder.AppHostDirectory));
 }
 
@@ -36,14 +35,13 @@ if (builder.ExecutionContext.IsRunMode)
     // The live-status client calls same-origin /api/live[/stream]; inject StaticHost's
     // origin so the Vite dev server can proxy those to the API (see astro.config.mjs).
     // Without this, /api/live 404s against the Vite origin under `aspire run`.
-    if (!hybridApiDocs)
-    {
-        builder.AddViteApp("frontend", "../../frontend")
-           .WithPnpm()
-           .WithEnvironment("ASPIRE_STATICHOST_URL", staticHostWebsite.GetEndpoint("https"))
-           .WithUrlForEndpoint("http", static url => url.DisplayText = "aspire.dev (Local)")
-           .WithExternalHttpEndpoints();
-    }
+    // Vite serves the website, so StaticHost may start without a hybrid artifact.
+    staticHostWebsite.WithEnvironment("HybridApiDocs__WebsiteServedByDevServer", "true");
+    builder.AddViteApp("frontend", "../../frontend")
+       .WithPnpm()
+       .WithEnvironment("ASPIRE_STATICHOST_URL", staticHostWebsite.GetEndpoint("https"))
+       .WithUrlForEndpoint("http", static url => url.DisplayText = "aspire.dev (Local)")
+       .WithExternalHttpEndpoints();
 }
 else
 {

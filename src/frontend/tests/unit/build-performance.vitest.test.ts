@@ -67,8 +67,10 @@ test('frontend workflow keeps validation parallel and every shard required', asy
   expect(job('frontend-gate')).toContain('exit 1');
   expect(job('report')).toContain('pattern: frontend-blob-report-*');
   expect(job('build')).toContain('name: frontend-dist');
-  expect(job('build')).toContain('path: src/frontend/dist');
+  expect(job('build')).toContain('path: src/frontend/dist-hybrid\n          include-hidden-files: true');
   expect(job('build')).toContain('./node_modules/astro/bin/astro.mjs build --mode production');
+  expect(job('e2e')).toContain('path: src/frontend/dist-hybrid');
+  expect(job('e2e')).toContain('dotnet build ../statichost/StaticHost/StaticHost.csproj -c Release');
 });
 
 test('CPU, timing, output inventories and diagnostic uploads are opt-in only', async () => {

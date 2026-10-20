@@ -22,7 +22,6 @@ const result = spawnSync(
     cwd: root,
     env: {
       ...process.env,
-      ASPIRE_HYBRID_API_DOCS: '1',
       ASPIRE_INCREMENTAL_BUILD: '1',
     },
     stdio: 'inherit',

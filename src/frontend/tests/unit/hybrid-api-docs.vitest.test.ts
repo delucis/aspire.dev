@@ -4,27 +4,21 @@ import { resolve } from 'node:path';
 import { mkdtemp, mkdir, readFile, readdir, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { pathToFileURL } from 'node:url';
-import { describe, expect, it } from 'vitest';
-import { hybridApiDocsIntegration, hybridOutputDirectory, isApiRouteComponent, isHybridApiDocs, hybridApiCacheConfig } from '../../config/hybrid-api-docs.mjs';
+import { describe, expect, it, vi } from 'vitest';
+import { hybridApiDocsIntegration, hybridOutputDirectory, isApiRouteComponent, hybridApiCacheConfig } from '../../config/hybrid-api-docs.mjs';
 import { buildApiRouteCatalog, getCSharpRouteEntries, getTypeScriptRouteEntries } from '@utils/api-route-catalog';
 import type { PackageApiDocument } from '@utils/packages';
 import type { TsApiDocument } from '@utils/ts-modules';
 import { onRequest } from '../../src/middleware';
 import { verifyHybridOutput } from '../../scripts/verify-hybrid-output.mjs';
 
-describe('build-time hybrid opt-in', () => {
-  it('uses the official native in-memory provider in hybrid mode', () => {
+describe('hybrid API documentation build', () => {
+  it('uses the official native in-memory provider', () => {
     const config = hybridApiCacheConfig();
     expect(config.cache?.provider).toMatchObject({
       entrypoint: 'astro/cache/memory',
       config: { max: 128, query: { exclude: [] } },
     });
-  });
-
-  it('requires an explicit supported flag value', () => {
-    expect(isHybridApiDocs('0')).toBe(false);
-    expect(isHybridApiDocs('1')).toBe(true);
-    expect(() => isHybridApiDocs('true')).toThrow('ASPIRE_HYBRID_API_DOCS');
   });
 
   it('only opts API HTML and Markdown entrypoints out of prerendering', async () => {
@@ -117,16 +111,23 @@ describe('build-time hybrid opt-in', () => {
     }
   });
 
-  it('keeps hybrid Markdown URLs extension-based without changing normal prerendered endpoints', async () => {
+  it('serves built API Markdown by extension, keeps the dev redirect and leaves prerendered endpoints alone', async () => {
     const url = 'https://aspire.dev/reference/api/typescript/aspire.hosting/item.md';
-    const response: Response = await Reflect.apply(onRequest, undefined, [{
-      request: new Request(url), isPrerendered: false, cache: { enabled: false },
-    }, () => Promise.resolve(new Response('Markdown endpoint'))]);
-    expect(response.status).toBe(isHybridApiDocs() ? 200 : 308);
-    const staticResponse: Response = await Reflect.apply(onRequest, undefined, [{
-      request: new Request(url), isPrerendered: true,
-    }, () => Promise.resolve(new Response('Markdown endpoint'))]);
-    expect(staticResponse.status).toBe(200);
+    const render = async (isPrerendered: boolean): Promise<Response> => {
+      const response: Response = await Reflect.apply(onRequest, undefined, [{
+        request: new Request(url), isPrerendered, cache: { enabled: false },
+      }, () => Promise.resolve(new Response('Markdown endpoint'))]);
+      return response;
+    };
+    try {
+      vi.stubEnv('DEV', false);
+      expect((await render(false)).status).toBe(200);
+      vi.stubEnv('DEV', true);
+      expect((await render(false)).status).toBe(308);
+    } finally {
+      vi.unstubAllEnvs();
+    }
+    expect((await render(true)).status).toBe(200);
   });
 });
 
@@ -134,26 +135,18 @@ describe('API route catalogue', () => {
   it('checks emitted output rather than merely trusting route prerender flags', async () => {
     const directory = await mkdtemp(resolve(tmpdir(), 'aspire-hybrid-output-'));
     try {
-      const baseline = resolve(directory, 'static');
       const hybrid = resolve(directory, 'hybrid');
-      await mkdir(resolve(baseline, 'reference/api/csharp/package'), { recursive: true });
       await mkdir(resolve(hybrid, 'client'), { recursive: true });
       await mkdir(resolve(hybrid, 'server'), { recursive: true });
-      await writeFile(resolve(baseline, 'reference/api/csharp/package/index.html'), 'API');
-      await mkdir(resolve(baseline, 'reference/api-search'), { recursive: true });
       await mkdir(resolve(hybrid, 'client/reference/api-search'), { recursive: true });
-      await writeFile(resolve(baseline, 'reference/api-search/typescript.json'), '[]');
       await writeFile(resolve(hybrid, 'client/reference/api-search/typescript.json'), '[]');
       await mkdir(resolve(hybrid, 'client/reference/api/csharp'), { recursive: true });
       await mkdir(resolve(hybrid, 'client/reference/api/typescript'), { recursive: true });
-      await mkdir(resolve(baseline, 'reference/api/typescript'), { recursive: true });
       const landings = ['csharp/index.html', 'typescript/index.html', 'csharp.md', 'typescript.md'];
       for (const landing of landings) {
-        await writeFile(resolve(baseline, 'reference/api', landing), 'landing');
         await writeFile(resolve(hybrid, 'client/reference/api', landing), 'landing');
       }
       for (const file of ['index.html', '404.html', 'llms.txt', 'sitemap-index.xml']) {
-        await writeFile(resolve(baseline, file), 'static');
         await writeFile(resolve(hybrid, 'client', file), 'static');
       }
       await writeFile(resolve(hybrid, 'server/entry.mjs'), 'renderer');
@@ -163,18 +156,16 @@ describe('API route catalogue', () => {
         mode: 'hybrid-api-docs', schemaVersion: 1, buildId: 'test', client: 'client', site: 'https://aspire.dev',
         routes: [{ html: '/reference/api/csharp/package/', markdown: '/reference/api/csharp/package.md' }], redirects: [],
       }));
-      expect((await verifyHybridOutput(baseline, hybrid)).staticApiFilesAvoided).toBe(1);
+      expect((await verifyHybridOutput(hybrid)).apiRoutes).toBe(1);
       await mkdir(resolve(hybrid, 'client/reference/api/csharp/package'), { recursive: true });
       await writeFile(resolve(hybrid, 'client/reference/api/csharp/package/index.html'), 'unexpected API');
-      await expect(verifyHybridOutput(baseline, hybrid)).rejects.toThrow('API HTML/Markdown was prerendered.');
+      await expect(verifyHybridOutput(hybrid)).rejects.toThrow('API HTML/Markdown was prerendered.');
       await rm(resolve(hybrid, 'client/reference/api/csharp/package/index.html'));
       await rm(resolve(hybrid, 'client/reference/api/typescript.md'));
-      await rm(resolve(baseline, 'reference/api/typescript.md'));
-      await expect(verifyHybridOutput(baseline, hybrid)).rejects.toThrow('The API landing pages must stay prerendered');
+      await expect(verifyHybridOutput(hybrid)).rejects.toThrow('The API landing pages must stay prerendered');
       await writeFile(resolve(hybrid, 'client/reference/api/typescript.md'), 'landing');
-      await writeFile(resolve(baseline, 'reference/api/typescript.md'), 'landing');
       await rm(resolve(hybrid, 'client/reference/api-search/typescript.json'));
-      await expect(verifyHybridOutput(baseline, hybrid)).rejects.toThrow('Missing API search index.');
+      await expect(verifyHybridOutput(hybrid)).rejects.toThrow('Missing API search index.');
     } finally {
       await rm(directory, { recursive: true, force: true });
     }

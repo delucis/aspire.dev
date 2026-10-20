@@ -4,7 +4,9 @@ using System.Text.Json;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using StaticHost.AgentReadiness;
 using StaticHost.HybridApiDocs;
@@ -427,6 +429,39 @@ public sealed class HybridApiDocsTests
             "https://aspire.dev", [], [], OperatingSystem.IsWindows() ? "win32" : "linux"), new JsonSerializerOptions(JsonSerializerDefaults.Web)));
         Assert.Throws<InvalidOperationException>(() => HybridApiDocsArtifact.Load(Path.Combine(root.Path, "hybrid.json")));
     }
+
+    [Theory]
+    [InlineData("Production", null)]
+    [InlineData("Production", "true")]
+    [InlineData("Development", null)]
+    [InlineData("Development", "false")]
+    public void RequiresTheArtifactUnlessAViteDevServerServesTheWebsite(string environment, string? devServer)
+        => Assert.Throws<InvalidOperationException>(
+            () => HostEnvironment(environment).RequireArtifact(DevServerConfiguration(devServer), null));
+
+    [Fact]
+    public void AllowsApiOnlyStartupForADevelopmentRunServedByVite()
+        => HostEnvironment("Development").RequireArtifact(DevServerConfiguration("true"), null);
+
+    [Fact]
+    public void StartsWithAnArtifactInAnyEnvironment()
+    {
+        using var root = new TempWebRoot();
+        root.WriteFile("client/index.html", "home");
+        root.WriteFile("hybrid.json", JsonSerializer.Serialize(new HybridApiManifest(
+            1, "hybrid-api-docs", new string('a', 64), "client", "server/entry.mjs", "https://aspire.dev",
+            [], [], OperatingSystem.IsWindows() ? "win32" : "linux"), new JsonSerializerOptions(JsonSerializerDefaults.Web)));
+        var artifact = HybridApiDocsArtifact.Load(Path.Combine(root.Path, "hybrid.json"));
+        HostEnvironment("Production").RequireArtifact(DevServerConfiguration(null), artifact);
+    }
+
+    private static IHostEnvironment HostEnvironment(string name) => Host
+        .CreateApplicationBuilder(new HostApplicationBuilderSettings { EnvironmentName = name, DisableDefaults = true })
+        .Environment;
+
+    private static IConfiguration DevServerConfiguration(string? value) => new ConfigurationBuilder()
+        .AddInMemoryCollection(value is null ? [] : [new(HybridApiDocsExtensions.DevServerSetting, value)])
+        .Build();
 }
 
 internal sealed class HybridHost : IAsyncDisposable

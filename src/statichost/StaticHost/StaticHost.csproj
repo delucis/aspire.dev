@@ -7,8 +7,6 @@
     <PublishAot>false</PublishAot>
     <InvariantGlobalization>true</InvariantGlobalization>
     <ContainerFamily>noble-chiseled</ContainerFamily>
-    <IntermediateOutputPath Condition="'$(ASPIRE_HYBRID_API_DOCS)' == '1'">obj/$(Configuration)/hybrid/</IntermediateOutputPath>
-    <DefineConstants Condition="'$(ASPIRE_HYBRID_API_DOCS)' == '1'">$(DefineConstants);HYBRID_API_DOCS_BUILD</DefineConstants>
     <HybridApiDocsArtifactDirectory Condition="'$(HybridApiDocsArtifactDirectory)' == ''">$(MSBuildProjectDirectory)/../../frontend/dist-hybrid</HybridApiDocsArtifactDirectory>
 
     <!-- Disable default compression formats to specify only brotli. -->
@@ -39,27 +37,24 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Remove="wwwroot\**" Condition="'$(ASPIRE_HYBRID_API_DOCS)' == '1'" />
+    <!--
+      The website is the prebuilt hybrid client (`pnpm build` in src/frontend), which is
+      published next to its manifest. wwwroot only supplies local development files.
+    -->
+    <Content Remove="wwwroot\**" />
     <Content Include="$(HybridApiDocsArtifactDirectory)/client/**/*"
              Link="hybrid/client/%(RecursiveDir)%(Filename)%(Extension)"
-             CopyToPublishDirectory="PreserveNewest"
-             Condition="'$(ASPIRE_HYBRID_API_DOCS)' == '1'" />
+             CopyToPublishDirectory="PreserveNewest" />
     <Content Include="$(HybridApiDocsArtifactDirectory)/hybrid-api-docs.json"
              Link="hybrid/hybrid-api-docs.json"
-             CopyToPublishDirectory="PreserveNewest"
-             Condition="'$(ASPIRE_HYBRID_API_DOCS)' == '1'" />
-    <!--
-      The frontend ESProj produces wwwroot static assets at build time.
-      PrivateAssets="all" prevents MSBuild from propagating its output (the
-      `dist/` directory, which appears as a directory-shaped metadata
-      reference) to downstream consumers like test projects. Without this,
-      `dotnet build` of any project that transitively references StaticHost
-      fails with `error CS0006: Metadata file '.../frontend/dist' could not
-      be found` unless the frontend has already been built.
-    -->
-    <ProjectReference Include="../../frontend/frontend.esproj" PrivateAssets="all"
-                      Condition="'$(ASPIRE_HYBRID_API_DOCS)' != '1'" />
+             CopyToPublishDirectory="PreserveNewest" />
   </ItemGroup>
+
+  <!-- Building does not need the artifact, but a published StaticHost without it would have no website. -->
+  <Target Name="RequireHybridApiDocsArtifact" BeforeTargets="PrepareForPublish;ComputeResolvedFilesToPublishList">
+    <Error Condition="!Exists('$(HybridApiDocsArtifactDirectory)/hybrid-api-docs.json') Or !Exists('$(HybridApiDocsArtifactDirectory)/client/index.html')"
+           Text="Publishing StaticHost requires the hybrid website artifact. Run 'pnpm build' in src/frontend, or download the CI artifact, so that '$(HybridApiDocsArtifactDirectory)' contains hybrid-api-docs.json and client/index.html." />
+  </Target>
 
   <Import Project="Caching.targets" />
 </Project>

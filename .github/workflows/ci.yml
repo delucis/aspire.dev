@@ -144,7 +144,7 @@ jobs:
           echo "apphost-build result: $APPHOST_RESULT"
           echo "release-sync-tests result: $RELEASE_SYNC_RESULT"
           if [[ "$HYBRID_REQUESTED" == "true" && "$HYBRID_RESULT" != "success" ]]; then
-            echo "The opted-in hybrid API POC checks must succeed."
+            echo "The hybrid API docs acceptance checks must succeed."
             exit 1
           fi
 

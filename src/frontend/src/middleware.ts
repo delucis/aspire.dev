@@ -2,8 +2,6 @@ import { defineMiddleware } from 'astro:middleware';
 import { stripApiReferenceLocale } from './utils/api-reference-routes';
 import { withHybridApiCache } from './utils/hybrid-api-cache';
 
-declare const __ASPIRE_HYBRID_API_DOCS__: boolean;
-
 const nestedApiMarkdownPattern =
   /^\/reference\/(?:api\/(?:csharp|typescript)|samples)\/.+\.md$/;
 const cliConfigSchemaPattern = /^\/reference\/cli\/configuration\/schema\/[^/]+\.json$/;
@@ -16,6 +14,10 @@ function redirect(location: string, status = 308): Response {
 }
 
 export const onRequest = defineMiddleware((context, next) => {
+  // Built output is always hybrid, so its on-demand renderers serve API Markdown
+  // directly. `astro dev` keeps the canonicalizing `.md` -> `.md/` redirect.
+  const hybridBuild = !import.meta.env.DEV;
+
   // These canonicalizing redirects are only meant for on-demand (SSR/dev)
   // requests. Since Astro 7.1 the middleware also runs while the `.md`/`.json`
   // API and schema endpoints are prerendered at build time; returning a
@@ -31,14 +33,14 @@ export const onRequest = defineMiddleware((context, next) => {
       return redirect(`${canonicalApiPath}${search}`);
     }
 
-    const hybridApiMarkdown = __ASPIRE_HYBRID_API_DOCS__ && pathname.startsWith('/reference/api/');
+    const hybridApiMarkdown = hybridBuild && pathname.startsWith('/reference/api/');
     if ((!hybridApiMarkdown && nestedApiMarkdownPattern.test(pathname)) || cliConfigSchemaPattern.test(pathname)) {
       return redirect(`${pathname}/${search}`);
     }
   }
 
   const pathname = context.url?.pathname ?? new URL(context.request.url).pathname;
-  return __ASPIRE_HYBRID_API_DOCS__ && !context.isPrerendered &&
+  return hybridBuild && !context.isPrerendered &&
     (pathname.startsWith('/reference/api/') || pathname === '/_image' || pathname === '/_image/')
     ? withHybridApiCache(context, next) : next();
 });

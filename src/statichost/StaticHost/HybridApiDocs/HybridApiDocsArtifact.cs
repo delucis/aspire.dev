@@ -78,7 +78,7 @@ internal sealed class HybridApiDocsArtifact
     public static HybridApiDocsArtifact Load(string path)
     {
         if (!File.Exists(path))
-            throw new InvalidOperationException($"Build or download the opted-in CI artifact before starting StaticHost: {path}");
+            throw new InvalidOperationException($"Build the hybrid website with 'pnpm build' in src/frontend, or download the CI artifact, before starting StaticHost: {path}");
         var manifest = JsonSerializer.Deserialize<HybridApiManifest>(
             File.ReadAllText(path), new JsonSerializerOptions(JsonSerializerDefaults.Web))
             ?? throw new InvalidOperationException("Empty hybrid API documentation manifest.");

@@ -6,12 +6,6 @@ import { fileURLToPath } from 'node:url';
 import { memoryCache } from 'astro/config';
 import { buildApiRouteCatalog } from '../src/utils/api-route-catalog.ts';
 
-export function isHybridApiDocs(value = process.env.ASPIRE_HYBRID_API_DOCS) {
-  if (value === undefined || value === '0') return false;
-  if (value === '1') return true;
-  throw new Error('ASPIRE_HYBRID_API_DOCS must be unset, 0, or 1.');
-}
-
 /** @returns {Pick<import('astro').AstroUserConfig, 'cache'>} */
 export function hybridApiCacheConfig() {
   return {

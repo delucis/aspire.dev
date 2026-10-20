@@ -1,4 +1,4 @@
-name: Hybrid API docs POC
+name: Hybrid API docs acceptance
 
 on:
   workflow_call:
@@ -47,13 +47,10 @@ jobs:
         env:
           ASTRO_TELEMETRY_DISABLED: '1'
           NODE_OPTIONS: --max-old-space-size=8192
-          ASPIRE_HYBRID_API_DOCS: '1'
         run: pnpm build:production
       - name: Verify Windows StaticHost contracts
-        env:
-          ASPIRE_HYBRID_API_DOCS: '1'
         run: dotnet test ../../tests/StaticHost.Tests/StaticHost.Tests.csproj --filter 'FullyQualifiedName~HybridApiDocs' --nologo
-      - name: Upload Windows POC artifact
+      - name: Upload Windows hybrid artifact
         if: success()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
@@ -102,7 +99,7 @@ jobs:
           path: src/frontend/dist-hybrid
           github-token: ${{ github.token }}
           run-id: ${{ inputs.artifact_run_id }}
-      - name: Verify POC unit contracts
+      - name: Verify hybrid unit contracts
         env:
           ASTRO_TELEMETRY_DISABLED: '1'
         run: |
@@ -111,33 +108,20 @@ jobs:
           pnpm exec vitest run --config vitest.config.ts tests/unit/hybrid-api-docs.vitest.test.ts tests/unit/hybrid-native-cache.vitest.test.ts tests/unit/api-markdown.vitest.test.ts tests/unit/ts-api-route-catalog.vitest.test.ts tests/unit/build-performance.vitest.test.ts
           dotnet test ../../tests/StaticHost.Tests/StaticHost.Tests.csproj --filter 'FullyQualifiedName~HybridApiDocs' --nologo
           dotnet test ../../tests/Aspire.Dev.AppHost.Tests/Aspire.Dev.AppHost.Tests.csproj --filter 'FullyQualifiedName~HybridApiDocs' --nologo
-      - name: Build static baseline
+      - name: Build hybrid artifact
         if: ${{ inputs.artifact_run_id == '' }}
         env:
           ASTRO_TELEMETRY_DISABLED: '1'
           NODE_OPTIONS: --max-old-space-size=8192
-          BUILD_TIMING: '1'
-          BUILD_TIMING_OUT: ${{ runner.temp }}/hybrid-poc/static-timing.jsonl
-        run: |
-          mkdir -p "$RUNNER_TEMP/hybrid-poc"
-          /usr/bin/time -v -o "$RUNNER_TEMP/hybrid-poc/static-resources.txt" pnpm build:production
-      - name: Build opted-in hybrid artifact
-        if: ${{ inputs.artifact_run_id == '' }}
-        env:
-          ASTRO_TELEMETRY_DISABLED: '1'
-          NODE_OPTIONS: --max-old-space-size=8192
-          ASPIRE_HYBRID_API_DOCS: '1'
           BUILD_TIMING: '1'
           BUILD_TIMING_OUT: ${{ runner.temp }}/hybrid-poc/hybrid-timing.jsonl
-        run: /usr/bin/time -v -o "$RUNNER_TEMP/hybrid-poc/hybrid-resources.txt" pnpm build:production
-      - name: Verify output and non-API parity
-        if: ${{ inputs.artifact_run_id == '' }}
         run: |
-          node scripts/verify-hybrid-output.mjs
-          rm -r dist
+          mkdir -p "$RUNNER_TEMP/hybrid-poc"
+          /usr/bin/time -v -o "$RUNNER_TEMP/hybrid-poc/hybrid-resources.txt" pnpm build:production
+      - name: Verify hybrid output
+        if: ${{ inputs.artifact_run_id == '' }}
+        run: node scripts/verify-hybrid-output.mjs
       - name: Build independent StaticHost and Astro images
-        env:
-          ASPIRE_HYBRID_API_DOCS: '1'
         run: |
           dotnet publish ../statichost/StaticHost/StaticHost.csproj -c Release --os linux --arch x64 \
             -t:PublishContainer -p:ContainerRepository=hybrid-poc-host -p:ContainerImageTag=test --nologo
@@ -148,7 +132,7 @@ jobs:
           HYBRID_TEST_BROWSER: '1'
           HYBRID_TEST_CONTAINERS: '1'
         run: node scripts/test-hybrid-host.mjs
-      - name: Upload private POC artifact
+      - name: Upload private hybrid artifact
         if: ${{ always() && inputs.artifact_run_id == '' }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
@@ -157,7 +141,7 @@ jobs:
           include-hidden-files: true
           if-no-files-found: warn
           retention-days: 7
-      - name: Upload POC measurements
+      - name: Upload hybrid measurements
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:

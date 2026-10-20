@@ -5,6 +5,21 @@ namespace StaticHost.HybridApiDocs;
 
 internal static class HybridApiDocsExtensions
 {
+    public const string DevServerSetting = "HybridApiDocs:WebsiteServedByDevServer";
+
+    /// <summary>
+    /// The website is the prebuilt hybrid artifact, so StaticHost cannot start without one. The only exception is a
+    /// Development run where the AppHost serves the website from the Vite dev server and StaticHost is API-only.
+    /// </summary>
+    public static void RequireArtifact(this IHostEnvironment environment, IConfiguration configuration,
+        HybridApiDocsArtifact? artifact)
+    {
+        if (artifact is not null) return;
+        if (environment.IsDevelopment() && configuration.GetValue<bool>(DevServerSetting)) return;
+        throw new InvalidOperationException(
+            "StaticHost requires the hybrid website artifact. Set HybridApiDocs:ArtifactPath to its hybrid-api-docs.json " +
+            $"(only a Development run with {DevServerSetting}=true, as under the AppHost's Vite dev server, may omit it).");
+    }
     public static void AddHybridApiDocs(this IServiceCollection services,
         HybridApiDocsArtifact artifact, string? rendererUrl)
         => services.AddHybridApiDocs(artifact, [rendererUrl ?? ""]);

@@ -567,10 +567,9 @@ describe('incremental build identity', () => {
 });
 
 describe('incremental compatibility and package keys', () => {
-  it.each(['production', 'skip-search'])(
-    'validates the actual opt-in Astro config in %s mode without building',
-    (mode) => {
-      const output = execFileSync(
+  const resolveBuildConfig = (mode: string, env: Record<string, string>): unknown =>
+    JSON.parse(
+      execFileSync(
         process.execPath,
         [
           '--input-type=module',
@@ -580,6 +579,7 @@ describe('incremental compatibility and package keys', () => {
         process.argv.push('build', '--mode', ${JSON.stringify(mode)});
         const { astroConfig } = await resolveConfig({ mode: ${JSON.stringify(mode)} }, 'build');
         console.log(JSON.stringify({
+          adapter: astroConfig.adapter?.name,
           cacheDir: astroConfig.cacheDir.href,
           incremental: astroConfig.experimental.incrementalBuild,
           concurrency: astroConfig.build.concurrency,
@@ -592,8 +592,7 @@ describe('incremental compatibility and package keys', () => {
           cwd: fileURLToPath(new URL('../../', import.meta.url)),
           env: {
             ...process.env,
-            ASPIRE_HYBRID_API_DOCS: '1',
-            ASPIRE_INCREMENTAL_BUILD: '1',
+            ...env,
             ASPIRE_BUILD_CONCURRENCY: '4',
             ASTRO_TELEMETRY_DISABLED: '1',
             PUBLIC_GIT_COMMIT_ID: commit,
@@ -601,8 +600,14 @@ describe('incremental compatibility and package keys', () => {
           encoding: 'utf8',
           timeout: 30_000,
         }
-      );
-      expect(JSON.parse(output.trim())).toEqual({
+      ).trim()
+    );
+
+  it.each(['production', 'skip-search'])(
+    'validates the actual incremental Astro config in %s mode without building',
+    (mode) => {
+      expect(resolveBuildConfig(mode, { ASPIRE_INCREMENTAL_BUILD: '1' })).toEqual({
+        adapter: '@astrojs/node',
         cacheDir: expect.stringContaining(
           `/node_modules/.astro-incremental/${mode}/hybrid-v1-`
         ),
@@ -613,6 +618,17 @@ describe('incremental compatibility and package keys', () => {
       });
     }
   );
+
+  it('builds the hybrid architecture by default and ignores the retired opt-in flag', () => {
+    expect(resolveBuildConfig('production', { ASPIRE_HYBRID_API_DOCS: '0' })).toEqual({
+      adapter: '@astrojs/node',
+      cacheDir: expect.stringMatching(/\/node_modules\/\.astro\/$/),
+      incremental: false,
+      concurrency: 4,
+      outDir: expect.stringContaining('/dist-hybrid/'),
+      output: 'static',
+    });
+  });
 
   it('captures icon changes after Starlight setup rather than trusting the early cache partition', async () => {
     const root = await fixture();

@@ -7,55 +7,23 @@ namespace Aspire.Dev.AppHost.Tests;
 public sealed class HybridApiDocsConfigurationTests
 {
     [Theory]
-    [InlineData(null, false)]
-    [InlineData("0", false)]
-    [InlineData("1", true)]
-    public void BuildModeRequiresExplicitOptIn(string? value, bool expected)
-        => Assert.Equal(expected, HybridApiDocsExtensions.IsHybridApiDocsEnabled(value));
-
-    [Fact]
-    public void InvalidBuildModeFailsClearly()
-        => Assert.Throws<InvalidOperationException>(() => HybridApiDocsExtensions.IsHybridApiDocsEnabled("true"));
-
-    [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
-    public async Task LocalGraphUsesTwoPrivateWorkersAndEndpointReferences(bool externalArtifact)
+    [InlineData(null)]
+    [InlineData("""{"mode":"static","platform":"linux"}""")]
+    [InlineData("""{"mode":"hybrid-api-docs","platform":"win32"}""")]
+    public void PublishRejectsAMissingOrIncompatibleArtifact(string? manifest)
     {
-        var directory = Path.Combine(Path.GetTempPath(), $"aspire-hybrid-graph-{Guid.NewGuid():N}");
-        var artifactDirectory = Path.Combine(directory, externalArtifact ? "artifact-windows" : "dist-hybrid");
-        Directory.CreateDirectory(artifactDirectory);
+        var directory = Path.Combine(Path.GetTempPath(), $"aspire-hybrid-invalid-{Guid.NewGuid():N}");
+        Directory.CreateDirectory(Path.Combine(directory, "dist-hybrid"));
         try
         {
-            File.WriteAllText(Path.Combine(artifactDirectory, "hybrid-api-docs.json"),
-                $$"""{"mode":"hybrid-api-docs","platform":"{{(OperatingSystem.IsWindows() ? "win32" : "linux")}}"}""");
+            if (manifest is not null)
+                File.WriteAllText(Path.Combine(directory, "dist-hybrid", "hybrid-api-docs.json"), manifest);
             var builder = DistributedApplication.CreateBuilder(new DistributedApplicationOptions
             {
-                DisableDashboard = true,
+                Args = ["--publisher", "manifest"], DisableDashboard = true,
             });
-            if (externalArtifact) builder.Configuration["HybridApiDocsArtifactDirectory"] = artifactDirectory;
             var website = builder.AddProject<Projects.StaticHost>("aspiredev");
-            website.WithHybridApiDocs(builder, directory);
-            await using var app = builder.Build();
-            var workers = builder.Resources.OfType<Aspire.Hosting.JavaScript.NodeAppResource>().ToArray();
-            Assert.Equal(2, workers.Length);
-            Assert.Equal(["api-docs", "api-docs-standby"], workers.Select(worker => worker.Name).ToArray());
-            foreach (var worker in workers)
-                Assert.All(worker.Annotations.OfType<Aspire.Hosting.ApplicationModel.EndpointAnnotation>(),
-                    endpoint => Assert.False(endpoint.IsExternal));
-
-            var environment = new Dictionary<string, object>();
-            var context = new Aspire.Hosting.ApplicationModel.EnvironmentCallbackContext(
-                builder.ExecutionContext, website.Resource, environment, CancellationToken.None);
-            foreach (var annotation in website.Resource.Annotations
-                .OfType<Aspire.Hosting.ApplicationModel.EnvironmentCallbackAnnotation>())
-            {
-                await annotation.Callback(context);
-            }
-            Assert.IsType<Aspire.Hosting.ApplicationModel.EndpointReference>(environment["HybridApiDocs__RendererUrls__0"]);
-            Assert.IsType<Aspire.Hosting.ApplicationModel.EndpointReference>(environment["HybridApiDocs__RendererUrls__1"]);
-            Assert.Equal(Path.Combine(artifactDirectory, "hybrid-api-docs.json"),
-                environment["HybridApiDocs__ArtifactPath"]);
+            Assert.Throws<InvalidOperationException>(() => website.WithHybridApiDocs(builder, directory));
         }
         finally
         {
