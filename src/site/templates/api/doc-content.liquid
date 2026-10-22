@@ -21,7 +21,7 @@
 {%- for node in content -%}
   {%- comment -%} needsSpaceBefore {%- endcomment -%}
   {%- assign sp = false -%}
-  {%- if dc_prev -%}
+  {%- unless forloop.first -%}
     {%- assign sp = true -%}
     {%- case node.kind -%}
       {%- when "para", "list", "note", "codeblock" -%}{%- assign sp = false -%}
@@ -39,17 +39,17 @@
         {%- if dc_l != "" -%}{%- assign sp = true -%}{%- endif -%}
       {%- endif -%}
     {%- endif -%}
-  {%- endif -%}
+  {%- endunless -%}
   {%- assign dc_prev = node -%}
   {%- case node.kind -%}
-    {%- when "text" -%}{% if sp %} {% endif %}{{ node.text }}
-    {%- when "code" -%}{% if sp %} {% endif %}<code class="doc-inline-code">{{ node.text }}</code>
+    {%- when "text" -%}{% if sp %}{{ " " }}{% endif %}{{ node.text }}
+    {%- when "code" -%}{% if sp %}{{ " " }}{% endif %}<code class="doc-inline-code">{{ node.text }}</code>
     {%- when "codeblock" -%}<div class="doc-codeblock-wrap">{% render 'api/code-block', code: node.text, lang: node.language %}</div>
-    {%- when "cref" -%}{% if sp %} {% endif %}{% render 'api/cref', cref: node.value %}
+    {%- when "cref" -%}{% if sp %}{{ " " }}{% endif %}{% render 'api/cref', cref: node.value %}
     {%- when "href" -%}<a href="{{ node.value }}" class="doc-href" target="_blank" rel="noopener noreferrer">{{ node.text | default: node.value }}</a>
-    {%- when "langword" -%}{% if sp %} {% endif %}<code class="doc-langword">{{ node.value }}</code>
-    {%- when "paramref" -%}{% if sp %} {% endif %}<code class="doc-paramref">{{ node.value }}</code>
-    {%- when "typeparamref" -%}{% if sp %} {% endif %}<code class="doc-typeparamref">{{ node.value }}</code>
+    {%- when "langword" -%}{% if sp %}{{ " " }}{% endif %}<code class="doc-langword">{{ node.value }}</code>
+    {%- when "paramref" -%}{% if sp %}{{ " " }}{% endif %}<code class="doc-paramref">{{ node.value }}</code>
+    {%- when "typeparamref" -%}{% if sp %}{{ " " }}{% endif %}<code class="doc-typeparamref">{{ node.value }}</code>
     {%- when "para" -%}<p class="doc-para">{% if node.children %}{% render 'api/doc-content', content: node.children, tag: "span" %}{% endif %}</p>
     {%- when "note" -%}
       {%- assign dc_note = node.value | default: "note" -%}
