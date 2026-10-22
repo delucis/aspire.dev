@@ -22,9 +22,9 @@ Resources can include:
 - **Projects**: C# projects, Node.js applications, Python services, and more.
 - **Storage**: Blob storage, file systems, and cloud storage services.
 
-<IconAside type="tip" icon="puzzle" title="Explore Integrations">
+{% raw %}<IconAside type="tip" icon="puzzle" title="Explore Integrations">
   Resources are modeled in _hosting integrations_, which are reusable components that define how your app interacts with external services. Aspire provides a rich set of [built-in integrations for common services](../../integrations/gallery/?search=hosting), and you can easily create custom integrations to suit your needs.
-</IconAside>
+</IconAside>{% endraw %}
 
 ## Resource dependencies
 

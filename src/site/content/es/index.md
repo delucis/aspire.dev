@@ -28,4 +28,4 @@ hero:
 
 import HomePage from '@components/home/HomePage.astro';
 
-<HomePage />
+{% raw %}<HomePage />{% endraw %}

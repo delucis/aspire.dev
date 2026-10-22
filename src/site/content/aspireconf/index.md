@@ -26,7 +26,7 @@ hero:
 
 {% youtube_embed video_id: "6j61K9Sna2M", title: "Replay the Full Aspire Conf 2026 Livestream" %}
 
-{sessions.length > 0 && (
+{% raw %}{sessions.length > 0 && (
   
   <>
     <h2>Connect with us</h2>
@@ -36,4 +36,4 @@ hero:
     
     <SessionGrid sessions={sessions} />
   </>
-)}
+)}{% endraw %}

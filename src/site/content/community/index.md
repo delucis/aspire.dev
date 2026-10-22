@@ -101,7 +101,7 @@ Catch up on the latest videos from the Aspire team and community. From deep-dive
 {% youtube_embed video_id: "6j61K9Sna2M", title: nil %}
 {% endtab %}
 {% tab "Twitch", value: "twitch", icon: "twitch" %}
-<TwitchEmbed channel="aspiredotdev" title={null /* hide title */} />
+{% raw %}<TwitchEmbed channel="aspiredotdev" title={null /* hide title */} />{% endraw %}
 {% endtab %}
 {% endtabs %}
 

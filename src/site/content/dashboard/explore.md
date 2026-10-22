@@ -383,7 +383,7 @@ The Aspire dashboard provides a specialized dialog for viewing GenAI (Generative
 
 The following is an animation demonstrating the GenAI telemetry visualizer in action:
 
-<LoopingImage light={dashboardGeniVisualizerLight} dark={dashboardGeniVisualizerDark} alt="An animated screenshot of the Aspire dashboard GenAI telemetry visualizer in action." />
+{% raw %}<LoopingImage light={dashboardGeniVisualizerLight} dark={dashboardGeniVisualizerDark} alt="An animated screenshot of the Aspire dashboard GenAI telemetry visualizer in action." />{% endraw %}
 
 The GenAI telemetry visualizer works best when message content is recorded to telemetry. Without message content, the dialog displays a note and provides a link to documentation about how to enable this feature.
 

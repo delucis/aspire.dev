@@ -70,6 +70,11 @@ Text with %ASPIRE_VERSION%.
     assert.equal(body(src), src);
   });
 
+  test('a byte order mark is dropped and does not shift positions', () => {
+    const out = body('\uFEFF---\ntitle: Bom\n---\n\nimport LearnMore from "@components/LearnMore.astro";\n\n<LearnMore>\n  See [x](/x/).\n</LearnMore>\n\n```bash\nls\n```\n');
+    assert.equal(out, '---\ntitle: Bom\n---\n\n{% learnmore %}\nSee [x](/x/).\n{% endlearnmore %}\n\n```bash\nls\n```\n');
+  });
+
   test('md mode keeps the file byte for byte (CLI partials, glossary terms)', () => {
     const src = `---\ntitle: Option\n---\n\n**\`--wait\`**\n\n    indented code\n\nText <b>html</b> {braces}\n`;
     const r = convertSource(src, { mode: 'md' });
@@ -628,7 +633,14 @@ describe('problems', () => {
       r.problems.map((p) => [p.kind, p.line]),
       [['unknown-component', 4]],
     );
-    assert.equal(r.output, `import HomePage from '@components/home/HomePage.astro';\n\n<HomePage />\n\n{% badge "x" %}\n`);
+    assert.equal(r.output, `import HomePage from '@components/home/HomePage.astro';\n\n{% raw %}<HomePage />{% endraw %}\n\n{% badge "x" %}\n`);
+  });
+
+  test('leftover JSX is wrapped in raw so its braces are not Liquid', () => {
+    const r = mdx(`import Hero from '@components/Hero.astro';\n\n<Hero cta={{ label: 'Go', href: '/x/' }} />\n`);
+    assert.deepEqual(r.problems.map((p) => p.kind), ['unknown-component']);
+    assert.equal(r.output, `import Hero from '@components/Hero.astro';\n\n{% raw %}<Hero cta={{ label: 'Go', href: '/x/' }} />{% endraw %}\n`);
+    assertIdempotent(r.output);
   });
 
   test('every problem kind is reported', () => {

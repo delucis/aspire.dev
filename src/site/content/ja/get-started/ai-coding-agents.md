@@ -140,7 +140,7 @@ MCP サーバーは、実行中の Aspire アプリケーションに対する�
 
 {% tabs %}
 {% tab "VS Code", id: "demo-vscode" %}
-<LoopingVideo
+{% raw %}<LoopingVideo
       aria-label="Aspire MCP を使ってリソース一覧を取得する GitHub Copilot と VS Code"
       controls={true}
       sources={[
@@ -150,7 +150,7 @@ MCP サーバーは、実行中の Aspire アプリケーションに対する�
           title: 'GitHub Copilot と統合した Aspire MCP を示す VS Code のデモ',
         },
       ]}
-    />
+    />{% endraw %}
 {% endtab %}
 {% tab "Claude Code", id: "demo-claude" %}
 <p>

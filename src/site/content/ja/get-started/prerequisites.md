@@ -48,7 +48,7 @@ C# AppHost には .NET 10.0 SDK が必要です。ただし、Aspire は .NET 8.
 
 1. #### OCI 準拠のコンテナー ランタイムをインストール
 
-    <ContainerRuntimeChoices
+    {% raw %}<ContainerRuntimeChoices
       ariaLabel="コンテナー ランタイムの選択肢"
       intro="ローカル コンテナー サポート用に 1 つのランタイムを選択します。ほとんどの Aspire 開発者には Docker Desktop が推奨されるデフォルトです。"
       choices={[
@@ -86,7 +86,7 @@ C# AppHost には .NET 10.0 SDK が必要です。ただし、Aspire は .NET 8.
         bashTitle: 'Podman ランタイムを設定',
         powershellTitle: 'Podman ランタイムを設定',
       }}
-    />
+    />{% endraw %}
 
     :::tip[1 つのランタイムを選択]{icon='approve-check-circle'}
     上のタブから 1 つのオプションだけをインストールしてください。ほとんどのユーザーは **Docker Desktop** を選択します。Podman または Rancher Desktop を使いたいという理由がある場合を除き、それらをインストールしないでください。
@@ -123,4 +123,4 @@ Aspire は次の IDE でもよく動作します:
 
 Aspire チームは、すぐに開始できるように、事前設定されている Dev Container を備えた GitHub Codespaces 設定を保守しています:
 
-<CodespacesButton owner='microsoft' repo='aspire-devcontainer' />
+{% raw %}<CodespacesButton owner='microsoft' repo='aspire-devcontainer' />{% endraw %}

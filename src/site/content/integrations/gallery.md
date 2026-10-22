@@ -10,9 +10,9 @@ pageActions: false
 
 import Integrations from '@components/Integrations.astro';
 
-<Integrations
+{% raw %}<Integrations
   integrations={integrationJson.filter(
     (integration) => !['Aspire.Hosting', 'Aspire.Hosting.Azure'].includes(integration.title),
   )}
   availableDocs={integrationDocsJson}
-/>
+/>{% endraw %}

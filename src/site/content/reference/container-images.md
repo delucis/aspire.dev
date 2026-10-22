@@ -14,4 +14,4 @@ Every Aspire hosting integration that runs a container declares its default imag
 source. This page catalogs all of them in one place — grouped by integration category — so you can see
 exactly what Aspire pulls, from which registry, and which AppHost API introduces each image.
 
-<ContainerImageCatalog />
+{% raw %}<ContainerImageCatalog />{% endraw %}

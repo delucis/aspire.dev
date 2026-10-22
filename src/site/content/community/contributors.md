@@ -68,4 +68,4 @@ The [Distributed Component Platform (DCP)](/architecture/overview/#developer-con
 
 Made with 💜 at Microsoft...
 
-<AspireMap />
+{% raw %}<AspireMap />{% endraw %}

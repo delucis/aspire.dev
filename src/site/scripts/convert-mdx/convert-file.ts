@@ -84,7 +84,9 @@ const countNewlines = (s: string) => {
   return n;
 };
 
-export function convertSource(source: string, options: ConvertOptions): ConvertResult {
+export function convertSource(original: string, options: ConvertOptions): ConvertResult {
+  // A byte order mark hides the front matter and shifts every offset micromark reports (it skips the mark): drop it.
+  const source = original.startsWith('\uFEFF') ? original.slice(1) : original;
   const fm = FRONT_MATTER.exec(source);
   const header = fm ? fm[0] : '';
   const frontMatter = fm ? fm[1] : null;
@@ -105,7 +107,8 @@ export function convertSource(source: string, options: ConvertOptions): ConvertR
     if (newHeader) newBody = '\n' + newBody;
   }
   const output = newHeader + newBody;
-  return { output, changed: output !== source, problems: c.problems, counts: c.counts };
+  if (source !== original) c.counts['bom-removed'] = 1;
+  return { output, changed: output !== original, problems: c.problems, counts: c.counts };
 }
 
 class FileConverter {
@@ -492,6 +495,15 @@ class FileConverter {
 
   // ---------------------------------------------------------------- specials
 
+  /**
+   * JSX left for the manual queue, wrapped in raw: its `{{`/`{%` (object literals, expressions) must not be read as
+   * Liquid, so the page still builds and shows the JSX as text until it is converted by hand.
+   */
+  private keepRaw(n: any): string {
+    this.count('kept-raw');
+    return `{% raw %}${this.src.slice(start(n), end(n))}{% endraw %}`;
+  }
+
   private emitIndentedRoot(n: any): Emitted {
     this.count('dedent:root');
     return { text: this.emitSlice(start(n), end(n), this.gatherSpecials(n), n.position.start.column - 1) };
@@ -534,7 +546,7 @@ class FileConverter {
           }
         }
         this.problem('expression-child', n, `expression {${String(n.value).trim().slice(0, 60)}} kept as is`);
-        return { text: this.src.slice(start(n), end(n)) };
+        return { text: this.keepRaw(n) };
       }
       case 'inlineCode':
       case 'text':
@@ -574,7 +586,7 @@ class FileConverter {
     const spec = SPECS[name];
     if (!spec) {
       this.problem('unknown-component', el, `<${el.name}> has no mapping; kept as JSX`);
-      return { text: this.src.slice(start(el), end(el)) };
+      return { text: this.keepRaw(el) };
     }
     return this.emitSpec(el, name, spec);
   }
@@ -795,7 +807,7 @@ class FileConverter {
     const rel = attrs.find((a) => a.name === 'relativePath')?.value;
     if (typeof rel !== 'string') {
       this.problem('expression-attribute', el, '<Include> without a literal relativePath');
-      return { text: this.src.slice(start(el), end(el)) };
+      return { text: this.keepRaw(el) };
     }
     const others = attrs.filter((a) => a.name !== 'relativePath');
     const args = [liquidString(rel).text, ...others.map((a) => `${snakeCase(a.name)}: ${this.liquid(a.value, 'include_markdown', snakeCase(a.name), a.node)}`)];
@@ -841,7 +853,7 @@ class FileConverter {
     const code = attrs.find((a) => a.name === 'code');
     if (!code || typeof code.value !== 'string') {
       if (!code && !el.attributes.some((a: any) => a.name === 'code')) this.problem('expression-attribute', el, '<Code> without a code attribute');
-      return { text: this.src.slice(start(el), end(el)) };
+      return { text: this.keepRaw(el) };
     }
     this.count('Code');
     const content = code.value.replace(/\n$/, '');

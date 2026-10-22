@@ -49,7 +49,7 @@ Follow the [installation instructions](https://dotnet.microsoft.com/download/dot
 
 1. ## Install an OCI-compliant container runtime
 
-    <ContainerRuntimeChoices
+    {% raw %}<ContainerRuntimeChoices
       ariaLabel="Container runtime choices"
       intro="Choose one runtime for local container support. Docker Desktop is the recommended default for most Aspire developers."
       choices={[
@@ -87,7 +87,7 @@ Follow the [installation instructions](https://dotnet.microsoft.com/download/dot
         bashTitle: 'Set Podman runtime',
         powershellTitle: 'Set Podman runtime',
       }}
-    />
+    />{% endraw %}
 
     :::tip[Choose one runtime]{icon='approve-check-circle'}
     Install one option from the tabs above. For most users, choose **Docker Desktop**; don't install Podman or Rancher Desktop unless you specifically want to use one of them instead.
@@ -124,4 +124,4 @@ If you prefer not to install the prerequisites on your local machine, you can de
 
 The Aspire team maintains a GitHub Codespaces (with preconfigured Dev Container) configuration to help you get started quickly:
 
-<CodespacesButton owner='microsoft' repo='aspire-devcontainer'  />
+{% raw %}<CodespacesButton owner='microsoft' repo='aspire-devcontainer'  />{% endraw %}

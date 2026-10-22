@@ -25,7 +25,7 @@ hero:
 
 {% youtube_embed video_id: "6j61K9Sna2M", title: "Aspire Conf 2026 ライブ配信のアーカイブを視聴する" %}
 
-{sessions.length > 0 && (
+{% raw %}{sessions.length > 0 && (
 
   <>
     <h2>つながりましょう</h2>
@@ -35,4 +35,4 @@ hero:
     
     <SessionGrid sessions={sessions} />
   </>
-)}
+)}{% endraw %}

@@ -106,7 +106,7 @@ For a worked investigation using the same evidence in the dashboard and CLI, see
 
 {% tabs %}
 {% tab "VS Code", id: "demo-vscode" %}
-<LoopingVideo
+{% raw %}<LoopingVideo
       aria-label="VS Code with GitHub Copilot using Aspire MCP to list resources"
       controls={true}
       sources={[
@@ -117,7 +117,7 @@ For a worked investigation using the same evidence in the dashboard and CLI, see
             'VS Code demonstrating Aspire MCP integration with GitHub Copilot',
         },
       ]}
-    />
+    />{% endraw %}
 {% endtab %}
 {% tab "Claude Code", id: "demo-claude" %}
 {% asciinema_player src: "/casts/mcp-claudecode-cli.cast", poster: "npt:0:27", auto_play: false, preload: false, loop: false, cols: 256, rows: 28 %}

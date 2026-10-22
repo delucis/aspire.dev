@@ -156,7 +156,7 @@ import TerminalShowcase from '@components/TerminalShowcase.astro';
 
 The `aspire` CLI is a cross-platform, interactive-first tool that manages the full lifecycle of your distributed applications — from scaffolding to deployment.
 
-<TerminalShowcase
+{% raw %}<TerminalShowcase
   title="Create, run, and deploy"
   highlight="from one tool."
   description="The aspire CLI scaffolds projects from templates, orchestrates multi-service apps, publishes deployment artifacts, and deploys to cloud environments — all with a single, intuitive command-line experience."
@@ -165,7 +165,7 @@ The `aspire` CLI is a cross-platform, interactive-first tool that manages the fu
   rows={12}
   speed={0.5}
   cta={{ label: 'View full CLI reference', href: '/reference/cli/overview/' }}
-/>
+/>{% endraw %}
 
 ## Core commands
 

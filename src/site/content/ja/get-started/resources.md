@@ -21,13 +21,13 @@ Rリソースには、次のようなものがあります:
 - **プロジェクト**: C# プロジェクト、Node.js アプリケーション、Python サービス、その他
 - **ストレージ**: Blob Storage、ファイル システム、クラウド ストレージ サービス
 
-<IconAside type="tip" icon="puzzle" title="連携機能を探す">
+{% raw %}<IconAside type="tip" icon="puzzle" title="連携機能を探す">
   リソースは _ホスティング連携_
   としてモデル化されており、これは外部サービスとのやり取り方法を定義する再利用可能なコンポーネントです。
   Aspire には豊富な[一般的なサービス向けの
   組み込み連携](/ja/integrations/gallery/?search=hosting)
   が用意されており、要件に応じてカスタム連携を簡単に作成することもできます。
-</IconAside>
+</IconAside>{% endraw %}
 
 ## リソースの依存関係
 

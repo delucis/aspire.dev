@@ -39,7 +39,7 @@ If you haven't noticed the **Edit page** button, scroll to the bottom of this pa
 
 To avoid local setup, you can use [GitHub Codespaces](/get-started/github-codespaces/) for a fully configured development environment in the cloud. This is ideal for larger contributions or if you prefer not to set up a local environment.
 
-<CodespacesButton owner='microsoft' repo='aspire.dev' />
+{% raw %}<CodespacesButton owner='microsoft' repo='aspire.dev' />{% endraw %}
 
 :::note
 If you choose to use Codespaces, please still refer to the rest of this guide for information on writing style, code quality, and the contribution workflow. Continue reading at the [Writing style section below](#️-writing-style-guide).
@@ -765,7 +765,7 @@ Do not give your password to anyone.
 
 To use custom components available in `aspire.dev`, import them at the top of your MDX file. Custom component imports rely on configured aliases—have a look at the `tsconfig.json` file for more information:
 
-<Code code={tsConfig} lang="json" title="tsconfig.json" mark={8} />
+{% raw %}<Code code={tsConfig} lang="json" title="tsconfig.json" mark={8} />{% endraw %}
 
 By using the `@components` alias, you can easily import any custom component from the `frontend/src/components/` directory. For example, to import the `LearnMore` component used in this guide:
 

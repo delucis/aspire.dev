@@ -49,7 +49,7 @@ props:
 import HeroSection from '@components/HeroSection.astro';
 import QuickStartJourney from '@components/QuickStartJourney.astro';
 
-<HeroSection
+{% raw %}<HeroSection
   title="あなたに合った Aspire の始め方を選びましょう"
   highlight="あなたのスタックに合わせて。"
   subtitle="Aspire は、分散アプリケーション向けのコードファーストなオーケストレーション兼オブザーバビリティ レイヤーです。あなたのリポジトリ、ランタイム、ワークフローに合ったルートから始めましょう。"
@@ -62,11 +62,11 @@ import QuickStartJourney from '@components/QuickStartJourney.astro';
     label: 'Aspire とは？',
     href: '/ja/get-started/what-is-aspire/',
   }}
-/>
+/>{% endraw %}
 
 ## あなたに合った道を選ぶ
 
-<QuickStartJourney
+{% raw %}<QuickStartJourney
   steps={[
     {
       icon: 'seti:json',
@@ -101,7 +101,7 @@ import QuickStartJourney from '@components/QuickStartJourney.astro';
       label: 'エージェントを活用する',
     },
   ]}
-/>
+/>{% endraw %}
 
 ## 主要なコンセプトを理解する
 

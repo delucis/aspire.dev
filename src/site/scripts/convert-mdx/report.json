@@ -12,7 +12,7 @@
     "Aside:directive": 987,
     "import": 608,
     "LearnMore": 596,
-    "blank-line-added": 503,
+    "blank-line-added": 466,
     "Include": 422,
     "Image": 369,
     "Steps": 316,
@@ -31,6 +31,7 @@
     "LicenseBadge": 49,
     "FileTree": 43,
     "LinkCard": 38,
+    "kept-raw": 37,
     "ContainerImages": 35,
     "InstallPackage": 29,
     "expression:number-literal-kept": 22,
@@ -55,6 +56,7 @@
     "AsciinemaPlayer": 4,
     "ImageShowcase": 4,
     "YouTubeEmbed": 3,
+    "bom-removed": 2,
     "export-const": 1,
     "liquid-raw": 1
   },
@@ -861,6 +863,7 @@
       "counts": {
         "import": 1,
         "YouTubeEmbed": 1,
+        "kept-raw": 1,
         "frontmatter:layout": 1,
         "frontmatter:asset": 1
       },
@@ -871,6 +874,7 @@
       "output": "src/site/content/community/contributor-guide.md",
       "counts": {
         "ThemeImage": 2,
+        "kept-raw": 2,
         "Steps": 3,
         "Tabs": 1,
         "TabItem": 2,
@@ -893,6 +897,7 @@
         "props": 1,
         "GitHubRepoStats": 5,
         "blank-line-added": 5,
+        "kept-raw": 1,
         "frontmatter:lastUpdated": 1
       },
       "problems": 1
@@ -907,6 +912,7 @@
         "Tabs": 1,
         "TabItem": 2,
         "YouTubeEmbed": 1,
+        "kept-raw": 1,
         "FeatureShowcase": 1,
         "CTABanner": 1
       },
@@ -948,6 +954,7 @@
       "path": "docs/community/videos.mdx",
       "output": "src/site/content/community/videos.md",
       "counts": {
+        "kept-raw": 1,
         "frontmatter:lastUpdated": 1
       },
       "problems": 1
@@ -956,6 +963,7 @@
       "path": "docs/da/index.mdx",
       "output": "src/site/content/da/index.md",
       "counts": {
+        "kept-raw": 1,
         "frontmatter:layout": 1,
         "frontmatter:asset": 1
       },
@@ -1055,6 +1063,7 @@
         "Aside:directive": 8,
         "LearnMore": 1,
         "ApiReference": 2,
+        "kept-raw": 1,
         "OsAwareTabs": 1
       },
       "problems": 1
@@ -1200,6 +1209,7 @@
       "path": "docs/de/index.mdx",
       "output": "src/site/content/de/index.md",
       "counts": {
+        "kept-raw": 1,
         "frontmatter:layout": 1,
         "frontmatter:asset": 1
       },
@@ -1401,6 +1411,7 @@
       "counts": {
         "TopicHero": 1,
         "props": 7,
+        "kept-raw": 1,
         "CapabilityGrid": 1,
         "FeatureShowcase": 1,
         "CTABanner": 1
@@ -2265,6 +2276,7 @@
       "path": "docs/es/index.mdx",
       "output": "src/site/content/es/index.md",
       "counts": {
+        "kept-raw": 1,
         "frontmatter:layout": 1,
         "frontmatter:asset": 1
       },
@@ -2312,6 +2324,7 @@
       "path": "docs/fr/index.mdx",
       "output": "src/site/content/fr/index.md",
       "counts": {
+        "kept-raw": 1,
         "frontmatter:layout": 1,
         "frontmatter:asset": 1
       },
@@ -2508,6 +2521,7 @@
         "Aside:directive": 2,
         "Tabs": 1,
         "TabItem": 4,
+        "kept-raw": 1,
         "AsciinemaPlayer": 3
       },
       "problems": 1
@@ -2717,6 +2731,7 @@
         "TabItem": 4,
         "Aside": 1,
         "Aside:directive": 1,
+        "kept-raw": 2,
         "frontmatter:lastUpdated": 1
       },
       "problems": 2
@@ -2740,6 +2755,7 @@
       "path": "docs/get-started/resources.mdx",
       "output": "src/site/content/get-started/resources.md",
       "counts": {
+        "kept-raw": 1,
         "Steps": 2,
         "LearnMore": 2,
         "frontmatter:lastUpdated": 1
@@ -2783,6 +2799,7 @@
       "path": "docs/hi/index.mdx",
       "output": "src/site/content/hi/index.md",
       "counts": {
+        "kept-raw": 1,
         "frontmatter:layout": 1,
         "frontmatter:asset": 1
       },
@@ -2792,6 +2809,7 @@
       "path": "docs/id/index.mdx",
       "output": "src/site/content/id/index.md",
       "counts": {
+        "kept-raw": 1,
         "frontmatter:layout": 1,
         "frontmatter:asset": 1
       },
@@ -3295,12 +3313,12 @@
       "counts": {
         "import": 1,
         "Image": 1,
-        "blank-line-added": 8,
         "Tabs": 1,
         "TabItem": 4,
         "InstallDotNetPackage": 2,
         "Aside": 2,
-        "Aside:directive": 2
+        "Aside:directive": 2,
+        "bom-removed": 1
       },
       "problems": 0
     },
@@ -3322,14 +3340,14 @@
         "reorder:typescript-first": 11,
         "import": 1,
         "Image": 1,
-        "blank-line-added": 29,
         "Tabs": 11,
         "TabItem": 22,
         "LearnMore": 2,
         "Aside": 2,
         "ApiReference": 9,
         "Aside:directive": 2,
-        "ContainerImages": 1
+        "ContainerImages": 1,
+        "bom-removed": 1
       },
       "problems": 0
     },
@@ -6048,6 +6066,7 @@
       "path": "docs/integrations/gallery.mdx",
       "output": "src/site/content/integrations/gallery.md",
       "counts": {
+        "kept-raw": 1,
         "frontmatter:lastUpdated": 1
       },
       "problems": 1
@@ -6336,6 +6355,7 @@
       "path": "docs/it/index.mdx",
       "output": "src/site/content/it/index.md",
       "counts": {
+        "kept-raw": 1,
         "frontmatter:layout": 1,
         "frontmatter:asset": 1
       },
@@ -6592,6 +6612,7 @@
       "counts": {
         "import": 1,
         "YouTubeEmbed": 1,
+        "kept-raw": 1,
         "frontmatter:layout": 1,
         "frontmatter:asset": 1
       },
@@ -6618,6 +6639,7 @@
       "path": "docs/ja/docs.mdx",
       "output": "src/site/content/ja/docs.md",
       "counts": {
+        "kept-raw": 2,
         "FeatureShowcase": 1,
         "props": 3,
         "CTABanner": 1
@@ -6809,7 +6831,8 @@
         "Aside": 2,
         "Aside:directive": 2,
         "Tabs": 1,
-        "TabItem": 4
+        "TabItem": 4,
+        "kept-raw": 1
       },
       "problems": 1
     },
@@ -6956,6 +6979,7 @@
         "TabItem": 4,
         "Aside": 1,
         "Aside:directive": 1,
+        "kept-raw": 2,
         "frontmatter:lastUpdated": 1
       },
       "problems": 2
@@ -6978,6 +7002,7 @@
       "path": "docs/ja/get-started/resources.mdx",
       "output": "src/site/content/ja/get-started/resources.md",
       "counts": {
+        "kept-raw": 1,
         "Steps": 2,
         "LearnMore": 2,
         "frontmatter:lastUpdated": 1
@@ -7021,6 +7046,7 @@
       "path": "docs/ja/index.mdx",
       "output": "src/site/content/ja/index.md",
       "counts": {
+        "kept-raw": 1,
         "frontmatter:layout": 1,
         "frontmatter:asset": 1
       },
@@ -7175,6 +7201,7 @@
       "path": "docs/ko/index.mdx",
       "output": "src/site/content/ko/index.md",
       "counts": {
+        "kept-raw": 1,
         "frontmatter:layout": 1,
         "frontmatter:asset": 1
       },
@@ -7196,6 +7223,7 @@
       "path": "docs/pt-br/index.mdx",
       "output": "src/site/content/pt-br/index.md",
       "counts": {
+        "kept-raw": 1,
         "frontmatter:layout": 1,
         "frontmatter:asset": 1
       },
@@ -7944,6 +7972,7 @@
       "path": "docs/reference/container-images.mdx",
       "output": "src/site/content/reference/container-images.md",
       "counts": {
+        "kept-raw": 1,
         "frontmatter:lastUpdated": 1
       },
       "problems": 1
@@ -7954,6 +7983,7 @@
       "counts": {
         "TopicHero": 1,
         "props": 11,
+        "kept-raw": 1,
         "CapabilityGrid": 4,
         "Aside": 1,
         "Aside:shortcode": 1,
@@ -7966,6 +7996,7 @@
       "path": "docs/reference/samples.mdx",
       "output": "src/site/content/reference/samples.md",
       "counts": {
+        "kept-raw": 1,
         "frontmatter:lastUpdated": 1
       },
       "problems": 1
@@ -7974,6 +8005,7 @@
       "path": "docs/ru/index.mdx",
       "output": "src/site/content/ru/index.md",
       "counts": {
+        "kept-raw": 1,
         "frontmatter:layout": 1,
         "frontmatter:asset": 1
       },
@@ -8054,6 +8086,7 @@
       "path": "docs/tr/index.mdx",
       "output": "src/site/content/tr/index.md",
       "counts": {
+        "kept-raw": 1,
         "frontmatter:layout": 1,
         "frontmatter:asset": 1
       },
@@ -8063,6 +8096,7 @@
       "path": "docs/uk/index.mdx",
       "output": "src/site/content/uk/index.md",
       "counts": {
+        "kept-raw": 1,
         "frontmatter:layout": 1,
         "frontmatter:asset": 1
       },
@@ -8305,6 +8339,7 @@
       "path": "docs/zh-cn/index.mdx",
       "output": "src/site/content/zh-cn/index.md",
       "counts": {
+        "kept-raw": 1,
         "frontmatter:layout": 1,
         "frontmatter:asset": 1
       },

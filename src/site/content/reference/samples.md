@@ -13,4 +13,4 @@ import SampleGrid from '@components/SampleGrid.astro';
 Explore a curated collection of official Aspire sample projects. Each sample is a fully functional application
 you can clone and run to learn patterns for databases, messaging, cloud services, and more.
 
-<SampleGrid samples={samplesJson} />
+{% raw %}<SampleGrid samples={samplesJson} />{% endraw %}

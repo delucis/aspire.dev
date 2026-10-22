@@ -75,7 +75,7 @@ import QuickStartJourney from '@components/QuickStartJourney.astro';
 
 Aspire's deployment model is built on two complementary commands that keep your workflow clean, secure, and extensible.
 
-<QuickStartJourney
+{% raw %}<QuickStartJourney
   steps={[
     {
       icon: 'seti:powershell',
@@ -102,7 +102,7 @@ Aspire's deployment model is built on two complementary commands that keep your 
       label: 'Custom pipelines',
     },
   ]}
-/>
+/>{% endraw %}
 
 ## Deploy anywhere
 
