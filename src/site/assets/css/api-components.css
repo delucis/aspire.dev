@@ -1224,6 +1224,12 @@
   padding: 0;
   font-size: var(--api-text-sm);
 }
+/* The Douze templates link return types of other packages, which the Astro site wrote as text with <wbr> hints: the
+   link wraps like that text instead of keeping .api-type-link's single line, which overflowed narrow screens. */
+.mc-return-inline:where(.cid-api-reference-member-card, .cid-api-reference-member-card *) .api-type-link {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
 
 /* ---------- Exceptions ---------- */
 .mc-exceptions:where(.cid-api-reference-member-card, .cid-api-reference-member-card *) {
