@@ -18,7 +18,8 @@
     {%- assign vf_inv = 99999 | minus: vf_num | prepend: "0000" | slice: -5, 5 -%}
     {%- assign vf_key = vf_key | append: vf_inv -%}
   {%- endfor -%}
-  {%- assign vf_keys = vf_keys | append: vf_key | append: vf_pre | append: "§" | append: v | append: "¦" -%}
+  {%- assign vf_entry = vf_key | append: vf_pre | append: "§" | append: v -%}
+  {%- if vf_keys == "" -%}{%- assign vf_keys = vf_entry -%}{%- else -%}{%- assign vf_keys = vf_keys | append: "¦" | append: vf_entry -%}{%- endif -%}
 {%- endfor -%}
 {%- assign vf_sorted_keys = vf_keys | split: "¦" | sort -%}
 {%- assign vf_list = "" -%}

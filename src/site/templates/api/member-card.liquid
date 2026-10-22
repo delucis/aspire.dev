@@ -10,9 +10,10 @@
 {%- assign fa_name = "Experimental" -%}{%- include 'api/find-attr' -%}{%- assign mc_experimental = fa_out -%}
 {%- comment -%} the primary anchor is the first alias (other than the exact anchor), the others are hidden spans {%- endcomment -%}
 {%- assign mc_aliases = "" -%}
-{%- for a in aliases -%}{%- if a != anchor -%}{%- assign mc_aliases = mc_aliases | append: a | append: "¦" -%}{%- endif -%}{%- endfor -%}
+{%- for a in aliases -%}{%- if a != anchor -%}{%- if mc_aliases == "" -%}{%- assign mc_aliases = a -%}{%- else -%}{%- assign mc_aliases = mc_aliases | append: "¦" | append: a -%}{%- endif -%}{%- endif -%}{%- endfor -%}
 {%- assign mc_alias_list = mc_aliases | split: "¦" -%}
-{%- assign mc_primary = mc_alias_list[0] | default: anchor -%}
+{%- assign mc_primary = anchor -%}
+{%- if mc_aliases != "" -%}{%- assign mc_primary = mc_alias_list[0] -%}{%- endif -%}
 <div class="mc not-content{% if mc_obsolete %} mc-obsolete{% endif %} cid-api-reference-member-card" id="{{ mc_primary }}">
 {%- if mc_primary != anchor -%}
 <span id="{{ anchor }}" class="mc-exact-anchor" aria-hidden="true"></span>

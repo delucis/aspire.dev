@@ -3,7 +3,7 @@
   examples), with a language title when they mix languages. Input: examples. Root class: cid-api-reference-examples.
 {%- endcomment -%}
 {%- assign ex_langs = "" -%}
-{%- for ex in examples -%}{%- if ex.code -%}{%- assign ex_lang = ex.language | default: "csharp" -%}{%- assign ex_langs = ex_langs | append: ex_lang | append: "¦" -%}{%- endif -%}{%- endfor -%}
+{%- for ex in examples -%}{%- if ex.code -%}{%- assign ex_lang = ex.language | default: "csharp" -%}{%- if ex_langs == "" -%}{%- assign ex_langs = ex_lang -%}{%- else -%}{%- assign ex_langs = ex_langs | append: "¦" | append: ex_lang -%}{%- endif -%}{%- endif -%}{%- endfor -%}
 {%- if ex_langs != "" -%}
 {%- assign ex_lang_count = ex_langs | split: "¦" | uniq | size -%}
 <div class="ex-container not-content cid-api-reference-examples">

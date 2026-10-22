@@ -17,8 +17,11 @@
 <title>{{ title }} | Aspire</title>
 <link rel="canonical" href="{{ site.url }}{{ api_canonical }}">
 <meta name="description" content="{{ description }}">
-<meta property="og:title" content="{{ title }}">
-<meta property="og:description" content="{{ description }}">
+<meta property="og:title" content="{{ title }} · Aspire">
+<meta property="og:type" content="article">
+<meta property="og:url" content="{{ site.url }}{{ api_canonical }}">
+<meta property="og:description" content="{{ description | strip | truncate: 200, '…' }}">
+<meta property="og:image" content="{{ site.url }}/og-image.png">
 <link rel="stylesheet" href="/assets/css/site.css">
 <link rel="stylesheet" href="/assets/css/api-components.css">
 </head>

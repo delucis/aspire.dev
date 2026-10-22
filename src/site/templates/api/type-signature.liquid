@@ -9,9 +9,10 @@
 {%- assign tsg_generic = "" -%}
 {%- if type.isGeneric and type.genericParameters.size > 0 -%}{%- assign tsg_generic = type.genericParameters | map: "name" | join: ", " -%}{%- endif -%}
 {%- assign tsg_bases = "" -%}
-{%- if type.baseType -%}{%- assign tsg_bases = type.baseType | append: "¦" -%}{%- endif -%}
-{%- for i in type.interfaces -%}{%- assign tsg_bases = tsg_bases | append: i | append: "¦" -%}{%- endfor -%}
+{%- if type.baseType -%}{%- assign tsg_bases = type.baseType -%}{%- endif -%}
+{%- for i in type.interfaces -%}{%- if tsg_bases == "" -%}{%- assign tsg_bases = i -%}{%- else -%}{%- assign tsg_bases = tsg_bases | append: "¦" | append: i -%}{%- endif -%}{%- endfor -%}
 {%- assign tsg_base_list = tsg_bases | split: "¦" -%}
+{%- if tsg_bases == "" -%}{%- assign tsg_base_count = 0 -%}{%- else -%}{%- assign tsg_base_count = tsg_base_list.size -%}{%- endif -%}
 {%- capture tsg_sig -%}
 {%- if type.namespace -%}namespace {{ type.namespace }};{{ nl }}{{ nl }}{%- endif -%}
 {{- type.accessibility | default: "public" -}}
@@ -21,7 +22,7 @@
 {%- if type.delegateParameters.size > 0 -%}({%- for p in type.delegateParameters -%}{{ nl }}    {{ p.type }} {{ p.name }}{% unless forloop.last %},{% endunless %}{%- endfor -%}){%- else -%}(){%- endif -%}
 {%- else -%}
 {{ " " }}{{ type.kind }} {{ type.name }}{% if tsg_generic != "" %}&lt;{{ tsg_generic }}&gt;{% endif -%}
-{%- if tsg_base_list.size > 0 -%}{{ nl }}    : {% for b in tsg_base_list %}{% unless forloop.first %},{{ nl }}      {% endunless %}{{ b }}{% endfor %}{%- endif -%}
+{%- if tsg_base_count > 0 -%}{{ nl }}    : {% for b in tsg_base_list %}{% unless forloop.first %},{{ nl }}      {% endunless %}{{ b }}{% endfor %}{%- endif -%}
 {%- endif -%}
 {%- for gp in type.genericParameters -%}
   {%- if gp.constraints.size > 0 -%}{{ nl }}    where {{ gp.name }} : {% for c in gp.constraints %}{% unless forloop.first %}, {% endunless %}{% render 'api/short-type', t: c %}{% endfor %}{%- endif -%}
@@ -42,7 +43,7 @@
 {%- endfor -%}
 </div>
 {%- endif -%}
-{%- if tsg_base_list.size > 0 -%}
+{%- if tsg_base_count > 0 -%}
 <div class="ts-bases">
 {%- for b in tsg_base_list -%}
   {%- capture tsg_href %}{% render 'api/type-href', t: b, exact: true %}{% endcapture -%}

@@ -25,10 +25,10 @@ params: [short_name, omit_package_reference, cli_only]
 {%- assign ip_prompt_code = "Select an integration to add:" | append: ip_newline | append: ip_newline | append: "> " | append: ip_short | append: " (" | append: package | append: ")" | append: ip_newline | append: "> Other results listed as selectable options..." -%}
 {%- assign ip_ref_code = '<PackageReference Include="' | append: package | append: '" Version="*" />' -%}
 {%- assign ip_note = "aside.note" | t -%}
-<starlight-tabs class="cid-sl-tabs cid-install-package" data-sync-key="aspire-install"><div class="tablist-wrapper not-content"><ul role="tablist"></ul></div><div role="tabpanel" data-label="Aspire CLI"><pre data-lang="bash" data-meta="{{ ip_cli_meta | escape }}"><code class="language-bash">aspire add {{ ip_short | escape }}</code></pre>
+{%- capture sc_tabs_body -%}<div role="tabpanel" data-label="Aspire CLI"><pre data-lang="bash" data-meta="{{ ip_cli_meta | escape }}"><code class="language-bash">aspire add {{ ip_short | escape }}</code></pre>
 <p>{{ "package.interactiveCli" | t }}</p>
 <pre data-lang="bash" data-meta="{{ ip_prompt_meta | escape }}"><code class="language-bash">{{ ip_prompt_code | escape }}</code></pre>
 <aside aria-label="{{ ip_note | escape }}" class="starlight-aside starlight-aside--note cid-sl-aside"><p class="starlight-aside__title" aria-hidden="true">{% icon "information", class: "starlight-aside__icon" %}{{ ip_note | escape }}</p><div class="starlight-aside__content">{{ "package.autoCliSelection" | t }}</div></aside></div>
 {%- unless cli_only -%}<div role="tabpanel" data-label="apphost.cs (C# file-based app)"><pre data-lang="csharp" data-meta="title=&quot;C# — AppHost.cs&quot;"><code class="language-csharp">#:package {{ package | escape }}@*</code></pre></div>{%- endunless -%}
 {%- unless cli_only or omit_package_reference -%}<div role="tabpanel" data-label="PackageReference (*.csproj)"><pre data-lang="xml" data-meta="{{ ip_ref_meta | escape }}"><code class="language-xml">{{ ip_ref_code | escape }}</code></pre></div>{%- endunless -%}
-<starlight-tabs-restore></starlight-tabs-restore></starlight-tabs>
+{%- endcapture -%}{% include "partials/tabs-markup", body: sc_tabs_body, sync: "aspire-install", tabs_class: "cid-install-package", tabs_attrs: nil %}

@@ -164,7 +164,7 @@ await builder.build().run();
 {%- assign sac_cs_code = sac_csharp | remove_first: sac_nl -%}
 {%- if sac_typescript -%}
 {%- assign sac_ts_code = sac_typescript | remove_first: sac_nl -%}
-<starlight-tabs class="cid-sl-tabs cid-simple-app-host-code" data-sync-key="aspire-lang"><div class="tablist-wrapper not-content"><ul role="tablist"></ul></div><div role="tabpanel" data-label="TypeScript"><pre data-lang="ts" data-meta="{{ sac_meta_ts | escape }}"><code class="language-ts">{{ sac_ts_code | escape }}</code></pre>{{ sac_slot_ts | strip | raw }}</div><div role="tabpanel" data-label="C#"><pre data-lang="cs" data-meta="{{ sac_meta_cs | escape }}"><code class="language-cs">{{ sac_cs_code | escape }}</code></pre>{{ sac_slot_cs | strip | raw }}</div><starlight-tabs-restore></starlight-tabs-restore></starlight-tabs>{{ sac_default | strip | raw }}
+{%- capture sc_tabs_body -%}<div role="tabpanel" data-label="TypeScript"><pre data-lang="ts" data-meta="{{ sac_meta_ts | escape }}"><code class="language-ts">{{ sac_ts_code | escape }}</code></pre>{{ sac_slot_ts | strip | raw }}</div><div role="tabpanel" data-label="C#"><pre data-lang="cs" data-meta="{{ sac_meta_cs | escape }}"><code class="language-cs">{{ sac_cs_code | escape }}</code></pre>{{ sac_slot_cs | strip | raw }}</div>{%- endcapture -%}{% include "partials/tabs-markup", body: sc_tabs_body, sync: "aspire-lang", tabs_class: "cid-simple-app-host-code", tabs_attrs: nil %}{{ sac_default | strip | raw }}
 {%- else -%}
 <pre data-lang="cs" data-meta="{{ sac_meta_cs | escape }}"><code class="language-cs">{{ sac_cs_code | escape }}</code></pre>{{ sac_default | strip | raw }}
 {%- endif -%}
