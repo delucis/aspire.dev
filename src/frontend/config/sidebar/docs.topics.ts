@@ -1050,6 +1050,20 @@ export const docsTopics = {
               label: 'TypeScript',
               slug: 'app-host/typescript-apphost',
             },
+            {
+              label: 'Go',
+              collapsed: false,
+              items: [
+                {
+                  label: 'Get started',
+                  slug: 'app-host/go-apphost',
+                },
+                {
+                  label: 'API conventions',
+                  slug: 'app-host/go-apphost-conventions',
+                },
+              ],
+            },
           ],
         },
         {
