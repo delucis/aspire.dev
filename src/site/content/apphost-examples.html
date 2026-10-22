@@ -5,6 +5,7 @@
 # copies of the fallback are empty: every home page fetches this one.
 permalink: "/_astro/apphost-examples.{{ build.commit | slice: 0, 16 | default: 'local' }}.html"
 layout: false
+localize: false
 pagefind: false
 ---
 {%- unless fallback -%}
