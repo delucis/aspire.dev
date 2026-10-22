@@ -1,0 +1,71 @@
+{
+  "csharp": {
+    "index": 1,
+    "packages": 178,
+    "types": 1810,
+    "members": 2829
+  },
+  "typescript": {
+    "index": 1,
+    "modules": 140,
+    "items": 8466,
+    "members": 10634,
+    "legacyMd": 37
+  },
+  "html": 24059,
+  "md": 24096,
+  "landing": {
+    "csharp": {
+      "packages": 178,
+      "types": 1810,
+      "members": 9845,
+      "kinds": [
+        "class",
+        "constructor",
+        "delegate",
+        "enum",
+        "field",
+        "indexer",
+        "interface",
+        "method",
+        "property",
+        "record",
+        "struct"
+      ],
+      "versions": [
+        "13.6.0-preview.1.26478.8",
+        "13.6.0",
+        "13.3.0",
+        "1.22.0-preview.260918.1",
+        "13.7.2",
+        "13.5.3",
+        "0.116.0",
+        "13.5.0",
+        "13.0.0",
+        "13.5.1-beta.895",
+        "9.7.2"
+      ],
+      "statsText": "1,810 types and 9,845 members across 178 packages"
+    },
+    "typescript": {
+      "modules": 140,
+      "kinds": [
+        "enum",
+        "handle",
+        "interface",
+        "method",
+        "property",
+        "type"
+      ],
+      "versions": [
+        "13.6.0",
+        "13.7.2",
+        "13.6.0-preview.1.26478.8",
+        "13.5.3",
+        "13.5.0",
+        "13.5.1-beta.895"
+      ],
+      "statsText": "27,598 capabilities and 4,097 types across 140 modules"
+    }
+  }
+}

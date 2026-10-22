@@ -1,0 +1,5 @@
+_out/
+.douze/
+data/api/pkgs/
+data/api/ts-modules/
+assets/js/
