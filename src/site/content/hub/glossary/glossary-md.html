@@ -4,7 +4,8 @@
 # hub/hub-md.html); the folder's layout and tag are overridden.
 pagination: { data: glossary_md_pages, size: 1, alias: glossary_md_page }
 glossary_md_pages: [glossary]
-permalink: "{% if glossary_md_page %}{% if fallback %}{{ locale }}/{% endif %}hub/glossary.md{% else %}hub/glossary/_glossary-md/{% endif %}"
+permalink: hub/glossary.md
+localize: false
 layout: false
 tags: []
 markdown: false

@@ -1,10 +1,12 @@
 ---
 # The Markdown twin of the hub landing page, /hub.md (src/frontend/src/pages/hub.md.ts), from dev_hub. A one-page
-# pagination keeps the template out of the collections: collect runs before pagination, on the template's own path
-# (hub/_hub-md/, not Markdown); the page gets its .md path from its permalink. Not rendered as Markdown, no layout.
+# pagination keeps the template out of the collections: collect runs before pagination, while the template keeps
+# its default path (hub/hub-md/, not Markdown); the page gets its .md path from its permalink. Not localized (no
+# locale copies), not rendered as Markdown, no layout.
 pagination: { data: hub_md_pages, size: 1, alias: hub_md_page }
 hub_md_pages: [hub]
-permalink: "{% if hub_md_page %}{% if fallback %}{{ locale }}/{% endif %}hub.md{% else %}hub/_hub-md/{% endif %}"
+permalink: hub.md
+localize: false
 layout: false
 markdown: false
 twin: true

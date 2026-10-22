@@ -1,10 +1,11 @@
 ---
 # A sample's Markdown twin, /reference/samples/<slug>.md (src/frontend/src/pages/reference/samples/[sample].md.ts,
 # utils/samples.ts buildSampleMarkdown): source, AppHost and tags, then the upstream README (readmeRaw) with its
-# relative images pointing at GitHub. Before pagination the template is at reference/samples/_sample-md/ (not
-# Markdown, so not collected).
+# relative images pointing at GitHub. Until pagination the template keeps its default path (not Markdown, so not
+# collected).
 pagination: { data: samples, size: 1, alias: sample }
-permalink: "{% if fallback %}{{ locale }}/{% endif %}reference/samples/{% if sample %}{{ sample.name | slug }}.md{% else %}_sample-md/{% endif %}"
+permalink: "reference/samples/{{ sample.name | slug }}.md"
+localize: false
 layout: false
 markdown: false
 twin: true
