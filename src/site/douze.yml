@@ -4,7 +4,8 @@
 # (the icon sprite, the client bundle and the stylesheet; they write into assets/), run
 #   douze -s src/site -o src/statichost/StaticHost/wwwroot
 # Node (src/site/node_modules, `pnpm install` in src/site) runs the code highlighting worker (scripts/code-worker.mjs:
-# Expressive Code with twoslash) and Pagefind.
+# Expressive Code) and Pagefind. The twoslash results of the TypeScript fences come from Douze's `twoslash` step
+# (TypeScript 7, which Douze downloads on first use; `douze doctor -s src/site` checks it, `douze tools install` gets it).
 
 site:
   content: content
@@ -82,7 +83,163 @@ steps:
   markdown:     { needs: not-found-twin, uses: markdown }
   # The home pages have no heading anchors (their sections are components).
   headings:     { needs: markdown, uses: headings, match: ["**/*.html", "!index.html", "!{da,de,es,fr,hi,id,it,ja,ko,pt-br,ru,tr,uk,zh-cn}/index.html"], with: { anchors: true, wrapper-class: sl-heading-wrapper, anchor-class: sl-anchor-link, anchor-label: "Section titled “{text}”", anchor-html: '<span class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span>', levels: [2, 3], skip-classes: [not-content] } }   # component headings are not the page's
-  code:         { needs: headings, run: "node scripts/code-worker.mjs", mode: worker, match: "**/*.html", sources: ["scripts/code-worker.mjs", "scripts/douze-worker.mjs", "ec.config.mjs", "data/twoslash/**", "data/i18n/*.json"], with: { cache: .douze/code-cache }, env: { NODE_NO_WARNINGS: "1" }, stderr: warn }
+  # Twoslash: the hovers of the ```ts twoslash fences, checked with TypeScript 7 against the SDK's declaration bundle
+  # (ec.config.mjs has the same compiler options) and written in their data-twoslash attribute, which the code worker
+  # renders (TWOSLASH: douze). With TWOSLASH: node, the worker compiles them with TypeScript 6 in Node instead, as
+  # the Astro site does (the reference's hover texts; minutes instead of seconds on a cold cache).
+  twoslash:     { needs: headings, uses: twoslash, match: "**/*.html",
+                  with: { files: { ".aspire/modules/aspire.mts": data/twoslash/aspire.d.ts }, compiler: { moduleResolution: bundler, module: esnext, target: esnext, strict: true },
+                          handbook: { noErrorValidation: true }, tab-width: 2 } }
+  # C# and Go hovers, opt-in: only the fences with `twoslash` in their meta (```csharp twoslash), and none has it today,
+  # so the output is the Astro site's (which has no C# or Go hovers). The Roslyn language server and gopls are installed
+  # on first use. The projects and modules are those the documentation's snippets use; most fences are fragments with
+  # errors (see Douze's docs/code-hover-steps.md), rendered as warnings. Requirements: dotnet and go on PATH. The
+  # Expressive Code twoslash plugin renders their popups as it does TypeScript's (highlighted as TypeScript, with its
+  # rewrites of TypeScript's quick info), so they wait for a renderer of their own before fences opt in.
+  csharp:
+    needs: twoslash
+    uses: csharp
+    match: "**/*.html"
+    with:
+      trigger: twoslash
+      errors: warn
+      tab-width: 2
+      projects:
+        apphost:
+          titles: [AppHost.cs]
+          patterns: ["DistributedApplication\\.", "IDistributedApplicationBuilder"]
+          context: AppHostContext
+          files: { Projects.cs: data/csharp/Projects.cs, AppHostContext.cs: data/csharp/AppHostContext.cs }
+          usings: [Aspire.Hosting, Aspire.Hosting.ApplicationModel]
+          packages:
+            aspire.hosting.apphost: "13.6.2"
+            aspire.hosting.azure: "13.6.2"
+            aspire.hosting.azure.appconfiguration: "13.6.2"
+            aspire.hosting.azure.appcontainers: "13.6.2"
+            aspire.hosting.azure.applicationinsights: "13.6.2"
+            aspire.hosting.azure.cognitiveservices: "13.6.2"
+            aspire.hosting.azure.containerregistry: "13.6.2"
+            aspire.hosting.azure.cosmosdb: "13.6.2"
+            aspire.hosting.azure.eventhubs: "13.6.2"
+            aspire.hosting.azure.keyvault: "13.6.2"
+            aspire.hosting.azure.network: "13.6.2"
+            aspire.hosting.azure.operationalinsights: "13.6.2"
+            aspire.hosting.azure.postgresql: "13.6.2"
+            aspire.hosting.azure.redis: "13.6.2"
+            aspire.hosting.azure.search: "13.6.2"
+            aspire.hosting.azure.servicebus: "13.6.2"
+            aspire.hosting.azure.signalr: "13.6.2"
+            aspire.hosting.azure.sql: "13.6.2"
+            aspire.hosting.azure.storage: "13.6.2"
+            aspire.hosting.azure.webpubsub: "13.6.2"
+            aspire.hosting.devtunnels: "13.6.2"
+            aspire.hosting.docker: "13.6.2"
+            aspire.hosting.garnet: "13.6.2"
+            aspire.hosting.javascript: "13.6.2"
+            aspire.hosting.kafka: "13.6.2"
+            aspire.hosting.milvus: "13.6.2"
+            aspire.hosting.mongodb: "13.6.2"
+            aspire.hosting.mysql: "13.6.2"
+            aspire.hosting.nats: "13.6.2"
+            aspire.hosting.openai: "13.6.2"
+            aspire.hosting.oracle: "13.6.2"
+            aspire.hosting.orleans: "13.6.2"
+            aspire.hosting.postgresql: "13.6.2"
+            aspire.hosting.python: "13.6.2"
+            aspire.hosting.qdrant: "13.6.2"
+            aspire.hosting.rabbitmq: "13.6.2"
+            aspire.hosting.redis: "13.6.2"
+            aspire.hosting.seq: "13.6.2"
+            aspire.hosting.sqlserver: "13.6.2"
+            aspire.hosting.valkey: "13.6.2"
+            aspire.hosting.yarp: "13.6.2"
+        default:
+          sdk: Microsoft.NET.Sdk.Web
+          context: WebContext
+          files: { WebContext.cs: data/csharp/WebContext.cs }
+          usings: [Microsoft.Extensions.Hosting, Microsoft.Extensions.DependencyInjection, Microsoft.Extensions.Logging]
+          packages:
+            aspire.azure.data.tables: "13.6.2"
+            aspire.azure.messaging.eventhubs: "13.6.2"
+            aspire.azure.messaging.servicebus: "13.6.2"
+            aspire.azure.messaging.webpubsub: "13.6.2"
+            aspire.azure.npgsql: "13.6.2"
+            aspire.azure.npgsql.entityframeworkcore.postgresql: "13.6.2"
+            aspire.azure.search.documents: "13.6.2"
+            aspire.azure.security.keyvault: "13.6.2"
+            aspire.azure.storage.blobs: "13.6.2"
+            aspire.azure.storage.queues: "13.6.2"
+            aspire.confluent.kafka: "13.6.2"
+            aspire.microsoft.azure.cosmos: "13.6.2"
+            aspire.microsoft.data.sqlclient: "13.6.2"
+            aspire.microsoft.entityframeworkcore.cosmos: "13.6.2"
+            aspire.microsoft.entityframeworkcore.sqlserver: "13.6.2"
+            aspire.microsoft.extensions.configuration.azureappconfiguration: "13.6.2"
+            aspire.mongodb.driver: "13.6.2"
+            aspire.mysqlconnector: "13.6.2"
+            aspire.nats.net: "13.6.2"
+            aspire.npgsql: "13.6.2"
+            aspire.npgsql.entityframeworkcore.postgresql: "13.6.2"
+            aspire.oracle.entityframeworkcore: "13.6.2"
+            aspire.pomelo.entityframeworkcore.mysql: "13.6.2"
+            aspire.qdrant.client: "13.6.2"
+            aspire.rabbitmq.client: "13.6.2"
+            aspire.seq: "13.6.2"
+            aspire.stackexchange.redis: "13.6.2"
+            aspire.stackexchange.redis.distributedcaching: "13.6.2"
+            aspire.stackexchange.redis.outputcaching: "13.6.2"
+  go:
+    needs: csharp
+    uses: go
+    match: "**/*.html"
+    with:
+      trigger: twoslash
+      errors: warn
+      ignore: [UnusedVar]
+      tab-width: 2
+      modules:
+        default:
+          requires:
+            "github.com/Azure/azure-sdk-for-go/sdk/ai/azopenai": "v0.9.0"
+            "github.com/Azure/azure-sdk-for-go/sdk/azcore": "v1.23.3"
+            "github.com/Azure/azure-sdk-for-go/sdk/azidentity": "v1.15.0"
+            "github.com/Azure/azure-sdk-for-go/sdk/data/azappconfig": "v1.2.0"
+            "github.com/Azure/azure-sdk-for-go/sdk/data/azcosmos": "v1.5.0"
+            "github.com/Azure/azure-sdk-for-go/sdk/data/aztables": "v1.4.1"
+            "github.com/Azure/azure-sdk-for-go/sdk/messaging/azeventhubs": "v1.4.0"
+            "github.com/Azure/azure-sdk-for-go/sdk/messaging/azservicebus": "v1.11.0"
+            "github.com/Azure/azure-sdk-for-go/sdk/security/keyvault/azsecrets": "v1.5.0"
+            "github.com/Azure/azure-sdk-for-go/sdk/storage/azblob": "v1.8.2"
+            "github.com/Azure/azure-sdk-for-go/sdk/storage/azqueue": "v1.0.1"
+            "github.com/ClickHouse/clickhouse-go/v2": "v2.49.0"
+            "github.com/confluentinc/confluent-kafka-go/v2": "v2.16.0"
+            "github.com/dapr/go-sdk": "v1.16.0"
+            "github.com/elastic/go-elasticsearch/v8": "v8.19.7"
+            "github.com/go-sql-driver/mysql": "v1.10.1"
+            "github.com/jackc/pgx/v4": "v4.18.3"
+            "github.com/jackc/pgx/v5": "v5.11.0"
+            "github.com/kurrent-io/KurrentDB-Client-Go": "v1.4.1"
+            "github.com/meilisearch/meilisearch-go": "v0.36.3"
+            "github.com/microsoft/go-mssqldb": "v1.11.2"
+            "github.com/milvus-io/milvus-sdk-go/v2": "v2.4.2"
+            "github.com/nats-io/nats.go": "v1.54.0"
+            "github.com/ollama/ollama": "v0.40.8"
+            "github.com/open-feature/go-sdk": "v1.19.0"
+            "github.com/open-feature/go-sdk-contrib/providers/flagd": "v0.8.0"
+            "github.com/open-feature/go-sdk-contrib/providers/go-feature-flag": "v1.1.3"
+            "github.com/openai/openai-go/v3": "v3.85.1"
+            "github.com/qdrant/go-client": "v1.20.0"
+            "github.com/rabbitmq/amqp091-go": "v1.16.0"
+            "github.com/ravendb/ravendb-go-client": "v0.0.0-20240723121956-2b87f37fe427"
+            "github.com/redis/go-redis/v9": "v9.23.0"
+            "github.com/sashabaranov/go-openai": "v1.43.0"
+            "github.com/surrealdb/surrealdb.go": "v1.7.0"
+            "go.mongodb.org/mongo-driver/v2": "v2.9.2"
+            "go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc": "v1.47.0"
+            "go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp": "v1.47.0"
+            "go.opentelemetry.io/otel/sdk": "v1.47.0"
+            "modernc.org/sqlite": "v1.61.0"
+  code:         { needs: go, run: "node scripts/code-worker.mjs", mode: worker, match: "**/*.html", sources: ["scripts/code-worker.mjs", "scripts/douze-worker.mjs", "scripts/twoslash-results.mjs", "ec.config.mjs", "data/twoslash/**", "data/i18n/*.json"], with: { cache: .douze/code-cache }, env: { NODE_NO_WARNINGS: "1", TWOSLASH: douze }, stderr: warn }
 
   # API reference: one template per route paginates its route list (size 1); the .html templates render the pages, the
   # *-md.html templates the Markdown twins (permalink: "{{ route.md }}", layout: false, rendered without HTML encoding).

@@ -36,6 +36,12 @@ export const TWOSLASH_LANGUAGES = ['ts', 'tsx', 'typescript'];
 /** Master switch: false disables twoslash without removing the wiring. */
 export const TWOSLASH_ENABLED = true;
 
+/**
+ * True when Douze's `twoslash` step computes the results (TWOSLASH=douze, set by the `code` step of douze.yml): the
+ * plugin renders them (scripts/twoslash-results.mjs), and TypeScript compiles nothing in Node.
+ */
+export const TWOSLASH_NATIVE = process.env.TWOSLASH === 'douze';
+
 // Numeric values of the TypeScript enums: ModuleResolutionKind.Bundler, ModuleKind.ESNext, ScriptTarget.ESNext.
 const TWOSLASH_COMPILER_OPTIONS = Object.freeze({ moduleResolution: 100, module: 99, target: 99, strict: true, noEmit: true });
 
@@ -94,6 +100,7 @@ function finishTwoslashRun(options, failed) {
 // The twoslash plugin with its compilations serialized: one TypeScript program at a time, as the site does today,
 // while the other fences (and the other hooks of twoslash fences) render concurrently.
 function serializedTwoslashPlugin() {
+  if (TWOSLASH_NATIVE) return nativeTwoslashPlugin();
   const options = getTwoslashOptions();
   const plugin = ecTwoSlash({
     instanceConfigs: { twoslash: { explicitTrigger: true, languages: TWOSLASH_LANGUAGES } },
@@ -129,6 +136,22 @@ function serializedTwoslashPlugin() {
       },
     },
   };
+}
+
+/** Languages of the opt-in C# and Go hovers (Douze's `csharp` and `go` steps), rendered by the same plugin. */
+const HOVER_LANGUAGES = ['csharp', 'cs', 'go', 'golang'];
+
+// The twoslash plugin rendering the results of Douze's steps: no compilation, so no serialization and no file system.
+// It also renders the C# and Go fences that the `csharp` and `go` steps gave results (their popups are highlighted as
+// TypeScript: the plugin renders every popup's signature as `ts`).
+function nativeTwoslashPlugin() {
+  const plugin = ecTwoSlash({
+    instanceConfigs: { twoslash: { explicitTrigger: true, languages: [...TWOSLASH_LANGUAGES, ...HOVER_LANGUAGES] } },
+    includeJsDoc: true,
+    tsConfigPath: TWOSLASH_TSCONFIG_PATH,
+    twoslashOptions: { compilerOptions: { ...TWOSLASH_COMPILER_OPTIONS }, handbookOptions: { ...TWOSLASH_HANDBOOK_OPTIONS } },
+  });
+  return { ...plugin, jsModules: [] };
 }
 
 // ---------------------------------------------------------------------------------------------------------------

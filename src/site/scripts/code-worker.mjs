@@ -20,6 +20,11 @@
 //   cache: <folder>   per-fence cache, relative to the source folder: every rendered block is stored under a key
 //                     of (engine version, configuration hash, language, meta, locale, code) and reused.
 //
+// Twoslash: with TWOSLASH=douze in the environment, the twoslash plugin renders the results of Douze's `twoslash`
+// step, which a fence carries in its `data-twoslash` attribute (scripts/twoslash-results.mjs stands in for
+// `@ec-ts/twoslash`), and TypeScript compiles nothing here. Otherwise the plugin compiles the snippets with the
+// TypeScript of node_modules, as the Astro site does.
+//
 // The engine's styles and scripts are not in the pages: `--assets` writes them once (the `code-assets` batch step),
 // and the layout links them. Twoslash fences are compiled one at a time (ec.config.mjs) while the others render
 // concurrently; the worker takes as many pages at once as there are CPUs.
@@ -29,6 +34,7 @@
 import { createHash } from 'node:crypto';
 import { existsSync, readFileSync } from 'node:fs';
 import { mkdir, readFile, rename, writeFile } from 'node:fs/promises';
+import { registerHooks } from 'node:module';
 import { availableParallelism } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -37,6 +43,7 @@ import { toHtml } from 'expressive-code/hast';
 import { isSpecialLang } from 'shiki/core';
 import { bundledLanguages } from 'shiki/langs';
 import { serve } from './douze-worker.mjs';
+import { addTwoslashResult } from './twoslash-results.mjs';
 
 const scriptPath = fileURLToPath(import.meta.url);
 const siteRoot = resolve(dirname(scriptPath), '..');
@@ -44,6 +51,15 @@ const configPath = join(siteRoot, 'ec.config.mjs');
 
 const assetsIndex = process.argv.indexOf('--assets');
 const assetsMode = assetsIndex !== -1;
+
+// Twoslash results from Douze's step: the plugin's twoslasher is resolved to the module that returns them.
+const nativeTwoslash = process.env.TWOSLASH === 'douze';
+if (nativeTwoslash) {
+  const results = pathToFileURL(join(dirname(scriptPath), 'twoslash-results.mjs')).href;
+  registerHooks({
+    resolve: (specifier, context, next) => (specifier === '@ec-ts/twoslash' ? { url: results, shortCircuit: true } : next(specifier, context)),
+  });
+}
 
 // Logs: protocol messages in worker mode (stdout carries the protocol, so the console must not write on it), plain
 // lines on stdout with --assets.
@@ -86,6 +102,7 @@ function computeVersions(cacheInputs) {
     hash.update(file.slice(siteRoot.length)).update('\0');
     hash.update(existsSync(file) ? readFileSync(file) : '').update('\0');
   }
+  hash.update(nativeTwoslash ? 'twoslash:douze' : 'twoslash:node');
   return { engineVersion, configHash: hash.digest('hex') };
 }
 
@@ -174,14 +191,15 @@ function decodeEntities(text) {
   });
 }
 
-const PRE_TAG = /<pre((?:\s+data-(?:lang|meta)="[^"]*")*)\s*>/y;
+const PRE_TAG = /<pre((?:\s+data-(?:lang|meta|twoslash)="[^"]*")*)\s*>/y;
 const CODE_TAG = /<code(?:\s[^>]*)?>/y;
-const PRE_ATTRIBUTE = /data-(lang|meta)="([^"]*)"/g;
+const PRE_ATTRIBUTE = /data-(lang|meta|twoslash)="([^"]*)"/g;
 const CODE_END = '</code></pre>';
 
 /**
  * The fences of a page: `<pre>` elements with only `data-lang` and `data-meta` attributes (or none) whose only child
- * is a `<code>` element holding escaped text, as Douze's `markdown` step writes them.
+ * is a `<code>` element holding escaped text, as Douze's `markdown` step writes them, and the `data-twoslash`
+ * attribute of the `twoslash` step.
  */
 function findFences(html) {
   const fences = [];
@@ -208,6 +226,7 @@ function findFences(html) {
       end: end + CODE_END.length,
       language: attributes.lang ?? '',
       meta: attributes.meta ?? '',
+      twoslash: attributes.twoslash,
       // Douze ends every line with a newline; the fence's code does not end with one.
       code: decodeEntities(text).replace(/\r?\n$/, ''),
     });
@@ -259,9 +278,13 @@ async function renderFence(state, fence, { path, locale, cacheDir, stats }) {
   const { engine, tabWidth, engineVersion, configHash } = state;
   const code = tabWidth > 0 ? fence.code.replace(/\t/g, ' '.repeat(tabWidth)) : fence.code;
 
+  // The step's result is part of the fence: a new engine or new types change the rendered hovers.
+  const twoslash = nativeTwoslash ? fence.twoslash : undefined;
+  if (twoslash !== undefined) addTwoslashResult(code, twoslash);
+
   let cacheFile;
   if (cacheDir) {
-    const key = sha256(JSON.stringify([engineVersion, configHash, fence.language, fence.meta, locale ?? '', code]));
+    const key = sha256(JSON.stringify([engineVersion, configHash, fence.language, fence.meta, locale ?? '', code, ...(twoslash !== undefined ? [twoslash] : [])]));
     cacheFile = join(cacheDir, key.slice(0, 2), `${key}.html`);
     try {
       const html = await readFile(cacheFile, 'utf8');
