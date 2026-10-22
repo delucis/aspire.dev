@@ -143,21 +143,30 @@ tonight. The rest of the failures are listed under "What is missing".
 
 | | Astro (`pnpm build` in `src/frontend`) | Douze |
 |---|---|---|
-| Clean build | 8 min 14 s | 1 min 54 s (twoslash from Douze's native step: 0.8 s for the 354 snippets; Expressive Code rendering in the worker is most of it) |
-| Clean build, Expressive Code cache warm but twoslash fences | 8 min 14 s | 52 s |
+| Clean build | 8 min 14 s | 2 min 36 s with Node twoslash (the default), 1 min 52 s with the native twoslash step |
 | Rebuild, nothing changed | 8 min 14 s | 3 s (every unit replayed from the disk cache, Pagefind's included) |
 | One article changed | 8 min 14 s | a few seconds with `douze watch` / `douze serve` (the page, its twin, the search index) |
 
-Measured on the same machine (Apple Silicon, 12 cores); the Douze rows on 2026-10-22 (site `1b7b1a42`, Douze
-`977fc16`), one run each, each started at a 1-minute load under 3. Douze's downloaded TypeScript 7 stays installed
-between builds (`douze tools install`, like `node_modules`). For comparison, the same clean build with
-`TWOSLASH: node` in the `code` step (twoslash compiled in Node with TypeScript 6, as before) takes 2 min 40 s.
+Measured on the same machine (Apple Silicon, 12 cores); the Douze rows: see "Before and after the twoslash step" below.
 
-Twoslash moved from the Node worker to Douze's `twoslash` step (TypeScript 7's language server; the worker keeps
-Expressive Code and renders the step's results). Fidelity: 291 of the 323 twoslash code blocks of the 78 English
+Twoslash can come from Douze's `twoslash` step (TypeScript 7's language server; the worker keeps Expressive Code and
+renders the step's results): one word in `douze.yml`, the `code` step's `TWOSLASH: node` (the default for now) or
+`TWOSLASH: douze`. Fidelity of the native step: 291 of the 323 twoslash code blocks of the 78 English
 twoslash pages are byte-identical to the Astro build (323 of 323 with `TWOSLASH: node`); the 32 others differ by
-TypeScript 7's quick info: a type and a const of the same name (the generated enums) shown in the other order without
-the type's documentation, union members sorted, one `Date` hover. Douze restores TypeScript 5's `(+N overloads)` at
+TypeScript 7's quick info. Of the 5,750 popups of those pages, 54 differ:
+
+| Difference | Popups |
+|---|---|
+| A type and a const of the same name (the generated enums, imported): the const's meaning first, the type's union sorted, and the const's documentation (none) instead of the type's `Enum ...` | 25 |
+| The const of such a name alone: the same documentation difference | 25 |
+| Union members in another order (`const cache: AzureManagedRedisResource \| RedisResource`, a `value?:` property) | 3 |
+| `var Date: new () => Date (+4 overloads)` where TypeScript 6 prints `var Date: DateConstructor` and `new () => Date (+3 overloads)` | 1 |
+
+The 32 fences are on 25 pages: `app-host/certificate-configuration` (4), `executable-resources` (2), `resource-lifetimes`,
+`deployment/app-lifecycle`, `azure/sandboxes` (2), `docker-compose`, `environments`, `fundamentals/external-parameters`,
+`networking-overview`, the hosting pages of Ollama, Garnet, Redis, Valkey, Azure AI Foundry (2), Azure Connector
+Namespace, Azure OpenAI, MongoDB, Postgres, Rust, `azure/customize-resources` (2), `azure/role-assignments`,
+`compute/docker` (2), and `whats-new/aspire-13-6` (2). Douze restores TypeScript 5's `(+N overloads)` at
 calls (836 hovers that differed only by it). The twoslash Playwright spec passes its hover checks on direct loads and
 fails, as before, at its client-router step. C# and Go hovers (Douze's `csharp` and `go` steps) are wired in
 `douze.yml` but opt-in per fence (`twoslash` in the meta), and no fence opts in: the reference has none, and the
@@ -176,10 +185,6 @@ numbers of the table above.
 | Douze clean (code worker's twoslash cache warm) | 42 to 60 s | 11.9 to 13.9 GB | `douze` 11.3 GB, the Node code worker 0.7 GB, Pagefind 0.24 GB |
 | Douze clean, twoslash cache cold | 4 min 9 s | 12.0 GB | twoslash in the worker is the time, not the memory |
 | Douze warm rebuild, nothing changed | 2.1 s | 1.8 GB | |
-| Native twoslash (Douze `977fc16`, quiet machine): every cache cold | 1 min 54 s | 15.0 GB | `douze` 14.0 GB, node 1.1 GB, Pagefind 0.28 GB |
-| Native twoslash: twoslash cold, the rest warm | 52 s | 15.0 GB | `douze` 14.5 GB, node 0.7 GB, tsc 0.27 GB |
-| Native twoslash: nothing changed | 3.1 s | 1.9 GB | |
-| Node twoslash (`TWOSLASH: node`), every cache cold, same machine state | 2 min 40 s | 14.4 GB | `douze` 12.5 GB, node 2.0 GB |
 
 Satori GC against the standard GC, same commit, clean Douze builds (twoslash cache warm) interleaved on a machine
 that was quiet at the start (1-minute load 2.8; it rose with the builds themselves to 19 by the last one):
@@ -199,6 +204,30 @@ native AOT build uses the Satori GC, which peaks higher than the standard GC for
 CoreCLR against 17 to 21 GB before the memory fix). The remaining holders and the planned compressed cache packs are
 tracked in the Douze repository (issue 21). Douze runs as a native AOT binary (17.7 MB + libvips);
 `dotnet run` adds the JIT warm-up. The API reference (24,059 pages, 24,096 twins) renders in 24 s cold.
+
+### Before and after the twoslash step
+
+Douze `2ed3d06` with the site at `6cbe2f79` (before) against Douze `977fc16` with the site at `e6bffaf2` (after), the
+native AOT binaries (Satori GC), into StaticHost's web root, on 2026-10-22 between 11:20 and 12:00, process-tree RSS
+sampled once per second. "Before" was re-run in the same window: its first numbers (4 min 9 s cold, 11.4 to 12.8 GB
+`douze` warm) were taken on a loaded machine and drift from today's. Cold runs started at a 1-minute load under 3;
+the shorter runs ran back to back. One or two runs per row, not a benchmark.
+
+| Build | Before: Node twoslash (`2ed3d06`) | After: Node twoslash, the default | After: native twoslash step (TypeScript 7) |
+|---|---|---|---|
+| Clean, every cache cold | 2 min 27 s; tree 11.4 GB, `douze` 9.8 GB (overnight: 4 min 9 s, 12.0 GB) | 2 min 40 s, 2 min 36 s; tree 14.4, 14.7 GB; `douze` 12.5, 14.5 GB | 1 min 54 s, 1 min 52 s; tree 15.0, 15.6 GB; `douze` 14.0, 14.7 GB |
+| Clean, twoslash cold, the rest warm | (overnight, twoslash off: 85 s) | | 52 s; tree 15.0 GB, `douze` 14.5 GB |
+| Clean, the code worker's cache warm | 22 s; tree 15.9 GB, `douze` 15.4 GB (overnight: 23.7 to 39.4 s, 11.4 to 12.8 GB) | 27 s; tree 16.3 GB, `douze` 15.7 GB | 27 s; tree 17.2 GB, `douze` 16.7 GB |
+| Rebuild, nothing changed | 2.1 s; 1.8 GB | 3.1 s; 1.7 GB | 3.1 s; 1.7 GB |
+| Clean, worker's cache warm, C# and Go hovers on every fence | | | 3 min 14 s; tree 16.9 GB, `douze` 15.2 GB, the Roslyn servers 3.6 GB, go and gopls 3.5 GB |
+
+- The native step checks the 354 twoslash snippets in 0.8 s (the step 7 s, scanning 8,326 pages). It takes about
+  45 s off a cold build: the Node worker no longer compiles them one at a time.
+- `douze` peaks vary by 2 to 5 GB between runs of the same build (the Satori GC): the before and after rows overlap.
+  The C# and Go steps are not the difference (16.7 GB without them on the same build).
+- The rebuild that changes nothing takes 1 s more after: the three code steps replay over the 8,326 pages.
+- C# and Go on every fence (not committed: no fence opts in) checks 2,432 C# snippets in 64 s with 2 Roslyn language
+  servers and 67 Go snippets in 67 s with gopls, then renders their popups through the TypeScript plugin.
 
 ### What was done in Douze
 
