@@ -24,8 +24,8 @@ hero:
     - text: Lihat Dokumentasi
       link: /id/docs/
       variant: secondary
+# The locale home page: the partials of the root index.html, in the locale's strings (i18n home.*). The body is one
+# raw region (home-page-region.liquid) that the Markdown pass keeps as it is.
+home: true
 ---
-
-import HomePage from '@components/home/HomePage.astro';
-
-{% raw %}<HomePage />{% endraw %}
+{% include "partials/home/home-page-region.liquid" %}

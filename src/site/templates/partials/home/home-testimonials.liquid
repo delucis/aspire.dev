@@ -1,7 +1,7 @@
 {%- comment -%}
   Ported from src/frontend/src/components/home/HomeTestimonials.astro. Root class (components.css scope):
-  cid-home-home-testimonials. Data: `testimonials` (data/testimonials.json); an avatar "../assets/testimonials/x.jpg"
-  is served from /assets/images/testimonials/x.jpg (Astro resized it to 56 px WebP). Needs `lp` (locale-prefix.liquid).
+  cid-home-home-testimonials. Data: `home_testimonials` (data/home_testimonials.yml); avatars are resized to 56 px WebP,
+  as Astro's <Image> did. Needs `lp` (locale-prefix.liquid).
 {%- endcomment -%}
 <section class="home-section home-testimonials cid-home-home-testimonials" aria-labelledby="home-testimonials-title">
   <div class="home-shell">
@@ -14,7 +14,7 @@
     </header>
 
     <div class="testimonial-ledger" data-home-reveal data-home-reveal-distance="major">
-      {%- for testimonial in testimonials %}
+      {%- for testimonial in home_testimonials %}
       {%- assign attribution = "" -%}
       {%- if testimonial.role and testimonial.company -%}
         {%- assign attribution = testimonial.role | append: ", " | append: testimonial.company -%}
@@ -34,7 +34,7 @@
           <p>{{ testimonial.text }}</p>
         </blockquote>
         <figcaption>
-          <img src="{{ testimonial.avatar | replace: "../assets/", "/assets/images/" }}" alt="" width="56" height="56" loading="lazy" decoding="async">
+          <img src="{{ testimonial.avatar | image_url: width: 56, format: "webp" }}" alt="" width="56" height="56" loading="lazy" decoding="async">
           <span>
             <strong>
               {%- if testimonial.link %}
