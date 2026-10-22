@@ -92,10 +92,10 @@ steps:
   twoslash:     { needs: headings, uses: twoslash, match: "**/*.html",
                   with: { files: { ".aspire/modules/aspire.mts": data/twoslash/aspire.d.ts }, compiler: { moduleResolution: bundler, module: esnext, target: esnext, strict: true },
                           handbook: { noErrorValidation: true }, tab-width: 2 } }
-  # C# and Go hovers, opt-in: only the fences with `twoslash` in their meta (```csharp twoslash), and none has it today,
-  # so the output is the Astro site's (which has no C# or Go hovers). The Roslyn language server and gopls are installed
-  # on first use. The projects and modules are those the documentation's snippets use; most fences are fragments with
-  # errors (see Douze's docs/code-hover-steps.md), rendered as warnings. Requirements: dotnet and go on PATH. The
+  # C# hovers, opt-in per fence: only the fences with `twoslash` in their meta (```csharp twoslash). The Roslyn language
+  # server is installed on first use. The projects are those the documentation's snippets use; most fences are
+  # fragments with errors (see Douze's docs/code-hover-steps.md), rendered as warnings. Requirements: dotnet on PATH.
+  # Douze also has a `go` step (gopls); the site has no Go hovers, so it isn't configured here. The
   # Expressive Code twoslash plugin renders their popups as it does TypeScript's (highlighted as TypeScript, with its
   # rewrites of TypeScript's quick info), so they wait for a renderer of their own before fences opt in.
   csharp:
@@ -190,58 +190,7 @@ steps:
             aspire.stackexchange.redis: "13.6.2"
             aspire.stackexchange.redis.distributedcaching: "13.6.2"
             aspire.stackexchange.redis.outputcaching: "13.6.2"
-  go:
-    needs: csharp
-    uses: go
-    match: "**/*.html"
-    with:
-      trigger: twoslash
-      errors: warn
-      ignore: [UnusedVar]
-      tab-width: 2
-      modules:
-        default:
-          requires:
-            "github.com/Azure/azure-sdk-for-go/sdk/ai/azopenai": "v0.9.0"
-            "github.com/Azure/azure-sdk-for-go/sdk/azcore": "v1.23.3"
-            "github.com/Azure/azure-sdk-for-go/sdk/azidentity": "v1.15.0"
-            "github.com/Azure/azure-sdk-for-go/sdk/data/azappconfig": "v1.2.0"
-            "github.com/Azure/azure-sdk-for-go/sdk/data/azcosmos": "v1.5.0"
-            "github.com/Azure/azure-sdk-for-go/sdk/data/aztables": "v1.4.1"
-            "github.com/Azure/azure-sdk-for-go/sdk/messaging/azeventhubs": "v1.4.0"
-            "github.com/Azure/azure-sdk-for-go/sdk/messaging/azservicebus": "v1.11.0"
-            "github.com/Azure/azure-sdk-for-go/sdk/security/keyvault/azsecrets": "v1.5.0"
-            "github.com/Azure/azure-sdk-for-go/sdk/storage/azblob": "v1.8.2"
-            "github.com/Azure/azure-sdk-for-go/sdk/storage/azqueue": "v1.0.1"
-            "github.com/ClickHouse/clickhouse-go/v2": "v2.49.0"
-            "github.com/confluentinc/confluent-kafka-go/v2": "v2.16.0"
-            "github.com/dapr/go-sdk": "v1.16.0"
-            "github.com/elastic/go-elasticsearch/v8": "v8.19.7"
-            "github.com/go-sql-driver/mysql": "v1.10.1"
-            "github.com/jackc/pgx/v4": "v4.18.3"
-            "github.com/jackc/pgx/v5": "v5.11.0"
-            "github.com/kurrent-io/KurrentDB-Client-Go": "v1.4.1"
-            "github.com/meilisearch/meilisearch-go": "v0.36.3"
-            "github.com/microsoft/go-mssqldb": "v1.11.2"
-            "github.com/milvus-io/milvus-sdk-go/v2": "v2.4.2"
-            "github.com/nats-io/nats.go": "v1.54.0"
-            "github.com/ollama/ollama": "v0.40.8"
-            "github.com/open-feature/go-sdk": "v1.19.0"
-            "github.com/open-feature/go-sdk-contrib/providers/flagd": "v0.8.0"
-            "github.com/open-feature/go-sdk-contrib/providers/go-feature-flag": "v1.1.3"
-            "github.com/openai/openai-go/v3": "v3.85.1"
-            "github.com/qdrant/go-client": "v1.20.0"
-            "github.com/rabbitmq/amqp091-go": "v1.16.0"
-            "github.com/ravendb/ravendb-go-client": "v0.0.0-20240723121956-2b87f37fe427"
-            "github.com/redis/go-redis/v9": "v9.23.0"
-            "github.com/sashabaranov/go-openai": "v1.43.0"
-            "github.com/surrealdb/surrealdb.go": "v1.7.0"
-            "go.mongodb.org/mongo-driver/v2": "v2.9.2"
-            "go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc": "v1.47.0"
-            "go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp": "v1.47.0"
-            "go.opentelemetry.io/otel/sdk": "v1.47.0"
-            "modernc.org/sqlite": "v1.61.0"
-  code:         { needs: go, run: "node scripts/code-worker.mjs", mode: worker, match: "**/*.html", sources: ["scripts/code-worker.mjs", "scripts/douze-worker.mjs", "scripts/twoslash-results.mjs", "ec.config.mjs", "data/twoslash/**", "data/i18n/*.json"], with: { cache: .douze/code-cache }, env: { NODE_NO_WARNINGS: "1", TWOSLASH: node }, stderr: warn }
+  code:         { needs: csharp, run: "node scripts/code-worker.mjs", mode: worker, match: "**/*.html", sources: ["scripts/code-worker.mjs", "scripts/douze-worker.mjs", "scripts/twoslash-results.mjs", "ec.config.mjs", "data/twoslash/**", "data/i18n/*.json"], with: { cache: .douze/code-cache }, env: { NODE_NO_WARNINGS: "1", TWOSLASH: node }, stderr: warn }
 
   # API reference: one template per route paginates its route list (size 1); the .html templates render the pages, the
   # *-md.html templates the Markdown twins (permalink: "{{ route.md }}", layout: false, rendered without HTML encoding).
