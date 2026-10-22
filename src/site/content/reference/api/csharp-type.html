@@ -29,12 +29,12 @@ permalink: "{{ route.url }}"
 {%- assign fa_name = "Experimental" -%}{%- include 'api/find-attr' -%}
 {%- assign diagnostics_href = nil -%}
 {%- if fa_out and fa_out.constructorArguments[0] -%}
-  {%- comment -%} resolveDiagnosticSlug: a link when the diagnostic has a page; collections.urls exists only when
-  the API pages render after the articles' collect step {%- endcomment -%}
+  {%- comment -%} resolveDiagnosticSlug: a link when the diagnostic has a page (diagnostic_pages, the `diagnostics`
+  step of douze.yml) {%- endcomment -%}
   {%- assign diag = fa_out.constructorArguments[0] | downcase -%}
   {%- assign diag_url = "/diagnostics/" | append: diag | append: "/" -%}
-  {%- if collections.urls[diag_url] -%}{%- assign diagnostics_href = diag_url -%}
-  {%- elsif diag == "aspiredotnettool" and collections.urls["/diagnostics/aspiredotnettool001/"] -%}{%- assign diagnostics_href = "/diagnostics/aspiredotnettool001/" -%}{%- endif -%}
+  {%- if diagnostic_pages.urls[diag_url] -%}{%- assign diagnostics_href = diag_url -%}
+  {%- elsif diag == "aspiredotnettool" and diagnostic_pages.urls["/diagnostics/aspiredotnettool001/"] -%}{%- assign diagnostics_href = "/diagnostics/aspiredotnettool001/" -%}{%- endif -%}
 {%- endif -%}
 {%- assign pkg_url = "/reference/api/csharp/" | append: route.packageSlug | append: "/" -%}
 {%- assign crumbs = "Docs§/docs/§docs¦Reference§/reference/overview/¦Search C# APIs§/reference/api/csharp/¦" | append: pkg.package.name | append: "§" | append: pkg_url | append: "¦" | append: type.name -%}

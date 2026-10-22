@@ -82,8 +82,12 @@ steps:
   # API reference: one template per route paginates its route list (size 1); the .html templates render the pages, the
   # *-md.html templates the Markdown twins (permalink: "{{ route.md }}", layout: false, rendered without HTML encoding).
   # Not `needs: collections`: a step needing a reduce step also receives the files it passes through, and the pages
-  # would reach `layout` twice. The "Learn more" diagnostics links of experimental types need collections.urls: later.
-  api-pages:    { inputs: "content/reference/api/**", needs: site-data, uses: frontmatter }
+  # would reach `layout` twice. The "Learn more" links of experimental types read diagnostic_pages.urls instead: a
+  # collection of the diagnostics pages alone, read from the source (nothing passes through it).
+  diagnostic-pages: { inputs: "content/diagnostics/*.md", uses: frontmatter }
+  diagnostic-urls:  { needs: diagnostic-pages, uses: permalink, with: { root: content } }
+  diagnostics:  { needs: diagnostic-urls, uses: collect, with: { name: diagnostic_pages } }
+  api-pages:    { inputs: "content/reference/api/**", needs: [site-data, diagnostics], uses: frontmatter }
   api-paginate: { needs: api-pages, uses: paginate }
   api-render:   { needs: api-paginate, uses: liquid, match: "**/*.html" }
   api-render-md: { needs: api-render, uses: liquid, match: "**/*.md", with: { encode: none } }
