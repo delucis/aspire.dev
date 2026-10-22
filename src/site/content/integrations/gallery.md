@@ -1,0 +1,18 @@
+---
+title: Integrations gallery
+seoTitle: "Aspire integrations gallery: browse all integrations"
+description: Explore the Aspire gallery of integrations and extensions to enhance your Aspire solution.
+tableOfContents: false
+editUrl: false
+giscus: false
+pageActions: false
+---
+
+import Integrations from '@components/Integrations.astro';
+
+<Integrations
+  integrations={integrationJson.filter(
+    (integration) => !['Aspire.Hosting', 'Aspire.Hosting.Azure'].includes(integration.title),
+  )}
+  availableDocs={integrationDocsJson}
+/>

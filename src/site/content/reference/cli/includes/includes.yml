@@ -1,0 +1,2 @@
+# The CLI option partials are included by {% include_markdown %}; they are not pages.
+permalink: false

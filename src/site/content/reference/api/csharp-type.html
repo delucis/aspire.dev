@@ -1,0 +1,8 @@
+---
+layout: api.liquid
+pagination: { data: api.routes.csharp-types, size: 1, alias: route }
+permalink: "{{ route.url }}"
+---
+{%- assign pkg = api.pkgs[route.file] -%}{%- assign type = pkg.types[route.type] -%}
+<p>{{ type.name }} {{ pkg.package.name }} {{ api.xref["T:Aspire.Hosting.DistributedApplication"].url }}</p>
+{% render 'api/test', node: type.docs.summary, depth: 0 %}

@@ -1,0 +1,31 @@
+---
+title: Aspire
+giscus: false
+head:
+  - tag: title
+    content: Aspire — Votre stack, simplifiée
+description: Ajoutez Aspire à votre stack et optimisez votre flux de développement avec un contrôle centré sur le code, la modularité et l'observabilité.
+layout: splash
+editUrl: false
+prev: false
+next: false
+banner:
+  content: |
+    <strong>✨ Aspire 13.6 est disponible !</strong> — <a href="/fr/whats-new/aspire-13-6/">Découvrez les nouveautés d'Aspire 13.6.</a>
+bannerAutoDismissAfterDays: 14
+hero:
+  tagline: Votre stack, simplifiée. <p>Orchestrez vos frontends, APIs, conteneurs et bases de données sans effort — sans réécriture, sans limites. Étendez Aspire pour propulser n'importe quel projet.</p>
+  image:
+    alt: Logo Aspire
+    file: /assets/images/aspire-hero.png
+  actions:
+    - text: Obtenir Aspire
+      link: /fr/get-started/install-cli/
+    - text: Voir la documentation
+      link: /fr/docs/
+      variant: secondary
+---
+
+import HomePage from '@components/home/HomePage.astro';
+
+<HomePage />
