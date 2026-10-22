@@ -89,7 +89,7 @@ steps:
   #   douze: this step checks them with TypeScript 7 against the SDK's declaration bundle (ec.config.mjs has the same
   #     compiler options) in about a second and writes data-twoslash, which the worker renders. TypeScript 7 words some
   #     hovers differently (docs/douze-migration-report.md, "Build time").
-  twoslash:     { needs: headings, uses: twoslash, match: "**/*.html",
+  twoslash:     { needs: headings, uses: hover-typescript, match: "**/*.html",
                   with: { files: { ".aspire/modules/aspire.mts": data/twoslash/aspire.d.ts }, compiler: { moduleResolution: bundler, module: esnext, target: esnext, strict: true },
                           handbook: { noErrorValidation: true }, tab-width: 2 } }
   # C# hovers, opt-in per fence: only the fences with `twoslash` in their meta (```csharp twoslash). The Roslyn language
@@ -100,7 +100,7 @@ steps:
   # rewrites of TypeScript's quick info), so they wait for a renderer of their own before fences opt in.
   csharp:
     needs: twoslash
-    uses: csharp
+    uses: hover-csharp
     match: "**/*.html"
     with:
       trigger: twoslash
