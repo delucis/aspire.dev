@@ -1,0 +1,74 @@
+# Building the site with Douze
+
+This folder is the site built with [Douze](https://github.com/sebastienros/douze), a static site generator. The
+workflow is [`douze.yml`](douze.yml); the content was converted from the Astro sources by
+[`scripts/convert-mdx`](scripts/convert-mdx). [`docs/douze-migration-report.md`](../../docs/douze-migration-report.md)
+describes what is generated, the fidelity and the build times.
+
+## Prerequisites
+
+- Node 24 and pnpm 11: the code highlighting worker, Pagefind and the asset scripts.
+- The .NET SDK 10 or later on `PATH`: the C# hovers of the code blocks (`hover-csharp` step).
+- Douze (below).
+
+## Install Douze
+
+With the install script, which downloads the native build into `~/.douze` (`%LOCALAPPDATA%\douze` on Windows) and
+adds it to the `PATH` (open a new terminal afterwards; running it again updates Douze):
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/sebastienros/douze/main/install.sh | sh -s -- --preview
+```
+
+```powershell
+& ([scriptblock]::Create((irm https://raw.githubusercontent.com/sebastienros/douze/main/install.ps1))) -Preview
+```
+
+Or as a .NET tool (also the native build):
+
+```bash
+dotnet tool install -g douze --prerelease --add-source https://f.feedz.io/sebastienros/douze/nuget/index.json
+```
+
+`douze --version` checks it. Douze's previews are published from its `main` branch.
+
+## Set up the repository once
+
+Run from the repository root:
+
+```bash
+# Node dependencies of the site, and of the Astro folder (it still holds the API index script and Playwright)
+pnpm --dir src/site install
+pnpm --dir src/frontend install --frozen-lockfile
+
+# API reference data: route index, cross references, search indexes, sidebars (again when the API data changes)
+pnpm --dir src/frontend exec tsx ../site/scripts/api/build-api-index.ts
+
+# assets: icon sprite, client bundle, stylesheet (again after a template or style change)
+(cd src/site && node scripts/icons-sprite.mjs && node scripts/build-client.mjs && node scripts/build-css.mjs)
+
+# optional: download the tools the steps need (language servers, libvips) ahead of the first build
+douze tools install -s src/site
+```
+
+## Build
+
+Into StaticHost's web root, what production serves:
+
+```bash
+douze -s src/site -o src/statichost/StaticHost/wwwroot
+```
+
+The first build takes a few minutes (most of it the TypeScript hovers of the code blocks). The disk cache in
+`src/site/.douze/` makes later builds incremental: a build with nothing changed takes a few seconds. `--no-cache`
+forces a clean build, `--timeline timeline.html` writes a timeline of the steps, `douze doctor -s src/site` checks
+the requirements without building.
+
+## Serve while editing
+
+```bash
+douze serve -s src/site --port 4321
+```
+
+Then open http://localhost:4321: Douze rebuilds what a change affects and reloads the browser. This is Douze's dev
+server, not StaticHost: no Markdown negotiation and no real redirects; build into StaticHost's web root for those.

@@ -8,10 +8,10 @@ numbers to compare against are the Astro build of the same commit of `main` (`c2
 
 ## How to build the site with Douze
 
-Prerequisites: the .NET 11 SDK of `global.json` of the Douze repository, Node 24 and pnpm 11 (for the highlighter
-worker, Pagefind, the asset scripts and Playwright), and Douze built from `origin/sebros/workflow-engine` of
-`sebastienros/douze` (its `dotnet publish Douze -c Release -o tool-out` gives a native binary `tool-out/douze`;
-`dotnet run --project Douze --` works too).
+[`src/site/README.md`](../src/site/README.md) has the instructions: installing Douze (install script or .NET tool,
+previews of its `main` branch), the one-time setup, building and serving. The commands below also cover the e2e
+suite and the parity diff against the Astro build. Prerequisites: Node 24 and pnpm 11 (for the highlighter worker,
+Pagefind, the asset scripts and Playwright), the .NET SDK 10 or later, and Douze installed as that README describes.
 
 ```bash
 # once: Node dependencies of the site (Expressive Code + twoslash, Pagefind) and of the Astro folder (the converter,
