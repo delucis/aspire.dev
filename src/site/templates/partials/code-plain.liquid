@@ -1,0 +1,8 @@
+{%- comment -%}
+  A code block for the chrome (Starlight's <Code> in the install CLI modal), in Expressive Code's markup with
+  frame="none" so the code worker's base styles and copy button script (assets/css/code.css, assets/js/code.js)
+  apply. The chrome is rendered by the `layout` step, after the code worker, so the code is not highlighted (plain
+  text in the theme's foreground colour): a deviation from the Astro build.
+  Include arguments: cp_code (text), cp_lang.
+{%- endcomment -%}
+<div class="expressive-code"><figure class="frame not-content"><figcaption class="header"></figcaption><pre data-language="{{ cp_lang }}"><code><div class="ec-line"><div class="code">{{ cp_code }}</div></div></code></pre><div class="copy"><div aria-live="polite"></div><button title="Copy to clipboard" data-copied="Copied!" data-code="{{ cp_code }}"><div></div></button></div></figure></div>
