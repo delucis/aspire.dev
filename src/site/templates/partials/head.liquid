@@ -4,8 +4,10 @@
   (src/frontend/src/components/starlight/Head.astro): Open Graph and Twitter meta (utils/page-metadata.ts), JSON-LD
   (partials/structured-data.liquid), font preloads, the pre-paint scripts (theme, preferences, kbd, tabs restore),
   the WCP consent runtime and the analytics scripts (inert until consent, see scripts/client/consent.ts).
-  Dropped with ClientRouter (plan 4.4): <ClientRouter>, deployment-guard and the git-commit-id/git-source-url meta
-  that served it.
+  <meta name="git-commit-id">: the build's commit, `build.commit` (data/build.json, written before the build by
+  scripts/write-build-info.mjs; empty when unknown). Dropped with ClientRouter (plan 4.4): <ClientRouter> and
+  deployment-guard, which compared that meta across navigations (every navigation is a full document load now), and
+  the git-source-url meta (only deployment-guard read it).
   Reads the variables set by base.liquid: sl_url, sl_lang, sl_dir, sl_is_home, sl_is_splash, sl_is_404.
   Filters: absolute_url, xml_escape (planned, Douze 3.12), t (3.6).
 {%- endcomment -%}
@@ -52,6 +54,7 @@
 {%- endcase -%}
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="git-commit-id" content="{{ build.commit }}">
 <title>{{ sl_title_tag }}</title>
 <link rel="canonical" href="{{ sl_canonical }}">
 <meta name="generator" content="Douze">

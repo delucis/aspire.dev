@@ -8,3 +8,4 @@ assets/js/
 assets/css/site.css
 assets/css/site.css.map
 node_modules/
+data/build.json

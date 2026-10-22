@@ -1,7 +1,7 @@
 {%- comment -%}
   The site's Footer override (src/frontend/src/components/starlight/Footer.astro): Starlight's footer (edit link,
   last updated, previous/next) except on the home page, then the site footer (identity, resources, legal, socials,
-  preferences, the build's commit when site.commit is set (PUBLIC_GIT_COMMIT_ID), the community map on the home
+  preferences, the build's commit when build.commit is set (data/build.json, scripts/write-build-info.mjs), the community map on the home
   page, the copyright year), then the scroll-to-top button. Scripts: footer-external-links.ts (external link
   attributes, the "opens in a new tab" label from data-opens-in-new-tab), footer-map.ts (the map disclosure).
   The copyright year is the build's (the Astro build wrote it from the browser's clock with an inline script).
@@ -19,7 +19,7 @@
 </div>
 <div class="footer-utility">{% include "partials/footer-socials" %}{% include "partials/footer-preferences" %}</div>
 <div class="footer-bottom">
-{%- if site.commit %}<a class="commit-link" href="{{ site.repo }}/commit/{{ site.commit }}" target="_blank" title="Built on commit SHA: {{ site.commit | slice: 0, 7 }}" rel="noopener noreferrer">SHA {{ site.commit | slice: 0, 7 }}</a>{% endif %}
+{%- if build.commit and build.commit != "" %}{%- assign ft_sha = build.commit | slice: 0, 7 %}<a class="commit-link" href="{{ build.repo }}/commit/{{ build.commit }}" target="_blank" title="Built on commit SHA: {{ ft_sha }}" rel="noopener noreferrer">SHA {{ ft_sha }}</a>{% endif %}
 {%- if sl_is_home %}
 <details class="footer-map-disclosure" dir="{{ sl_dir }}"><summary><span>{{ "footer.madeWithLove" | t }}</span>{% icon "right-arrow", size: "0.85rem", class: nil, label: nil, color: nil %}</summary><div class="footer-map-content">{% include "partials/aspire-map" %}</div></details>
 {%- endif %}

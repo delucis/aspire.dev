@@ -2,7 +2,7 @@
 # One stub page per entry of data/redirects.yml (`from: to`), the markup of the former Astro redirect pages, at the
 # old url; StaticHost answers real redirects from /redirects.json (content/redirects.json.liquid) before serving them.
 pagination: { data: redirects, size: 1, alias: from }
-permalink: "{{ from }}index.html"
+permalink: "{% if from %}{{ from }}{% else %}_redirects/{% endif %}index.html"   # before pagination, from is nil: a placeholder path
 layout: false
 ---
 {%- assign to = redirects[from] -%}

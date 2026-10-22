@@ -1865,3 +1865,19 @@ sl-sidebar-state-persist > span.sl-badge.small {
 :root[data-theme='light'] .pagination-links a {
   color: var(--aspire-color-purple);
 }
+
+/*
+ * The home page's reveal (HomePage.astro: [data-home-reveal] starts at opacity 0.82, 1.5 or 3.75rem down, until the
+ * script adds .home-visible) is a scoped style of HomePage, so in the Astro build it only applied to the elements
+ * HomePage renders itself: the [data-home-reveal] elements of HomeHero, HomeAgentContext, HomeEnvironment and
+ * HomeTestimonials never moved. components.css scopes HomePage's :global() rules to every descendant of
+ * .cid-home-home-page, which holds those components too, so they started faded (the environment stage label was
+ * 2.68:1 in light, below WCAG AA) and below their place until scrolled into view. Restore the Astro behavior.
+ */
+html[data-home-js='true']
+  :is(.cid-home-home-hero, .cid-home-home-agent-context, .cid-home-home-environment, .cid-home-home-testimonials)
+  [data-home-reveal][data-home-reveal] {
+  opacity: 1;
+  transform: none;
+  transition: none;
+}
