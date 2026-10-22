@@ -1,0 +1,46 @@
+{%- comment -%}
+  The API reference frame (docs/douze-migration-plan.md, section 5): a minimal page around the route templates of
+  content/reference/api/, which capture `title` and `description`. The Starlight chrome (head, page frame, page
+  title with its actions) replaces this skeleton when the API pages move onto base.liquid; until then:
+  - <head>: title, description, canonical, the stylesheets (site.css, the chrome's bundle, holds api-reference.css;
+    api-components.css holds the API components' scoped styles);
+  - the sidebar column renders templates/api/sidebar.liquid (the package or module tree of the page);
+  - <main>: Starlight's two content panels (page title, then the content and the footer), as in the Astro output;
+  - the client entry of the API search (scripts/client/api/index.js) at the end of <body>.
+{%- endcomment -%}
+{%- assign api_canonical = url | replace: "index.html", "" -%}
+<!doctype html>
+<html lang="en" dir="ltr" data-theme="dark" data-has-sidebar>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{ title }} | Aspire</title>
+<link rel="canonical" href="{{ site.url }}{{ api_canonical }}">
+<meta name="description" content="{{ description }}">
+<meta property="og:title" content="{{ title }}">
+<meta property="og:description" content="{{ description }}">
+<link rel="stylesheet" href="/assets/css/site.css">
+<link rel="stylesheet" href="/assets/css/api-components.css">
+</head>
+<body>
+<div class="page sl-flex">
+<header class="header">{% include 'partials/header' %}</header>
+<nav class="sidebar print:hidden" aria-label="Main">
+<div id="starlight__sidebar" class="sidebar-pane"><div class="sidebar-content sl-flex">
+<div class="topics-sidebar" data-api-ref data-api-lang="{% if url contains '/reference/api/typescript/' %}ts{% else %}csharp{% endif %}">
+{% include 'api/sidebar' %}
+</div>
+</div></div>
+</nav>
+<div class="main-frame"><div class="main-pane">
+<main lang="en" dir="ltr">
+<div class="content-panel"><div class="sl-container"><h1 id="_top" class="page-title">{{ title }}</h1></div></div>
+<div class="content-panel"><div class="sl-container"><div class="sl-markdown-content">{{ content }}</div>
+{% include 'partials/footer' %}
+</div></div>
+</main>
+</div></div>
+</div>
+<script type="module" src="/scripts/client/api/index.js"></script>
+</body>
+</html>

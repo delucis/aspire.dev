@@ -11,22 +11,4 @@
 block: true
 params: [sync]
 ---
-{%- assign sl_tab_counter = sl_tab_counter | default: 0 -%}
-{%- assign panels = body | strip | split: '<div role="tabpanel" data-label="' -%}
-{%- assign tab_count = panels.size | minus: 1 -%}
-<starlight-tabs class="cid-sl-tabs"{% if sync %} data-sync-key="{{ sync | escape }}"{% endif %}><div class="tablist-wrapper not-content"><ul role="tablist">
-{%- for panel in panels offset: 1 -%}
-{%- assign n = sl_tab_counter | plus: forloop.index -%}
-{%- assign label = panel | split: '"' | first -%}
-{%- assign head = panel | split: '>' | first -%}
-{%- if head contains 'data-icon="' -%}{%- assign tab_icon = head | split: 'data-icon="' | last | split: '"' | first -%}{%- else -%}{%- assign tab_icon = nil -%}{%- endif -%}
-<li role="presentation" class="tab"><a role="tab" href="#tab-panel-{{ n }}" id="tab-{{ n }}" aria-selected="{% if forloop.first %}true{% else %}false{% endif %}" tabindex="{% if forloop.first %}0{% else %}-1{% endif %}">{% if tab_icon %}{% icon tab_icon, size: "1rem", class: nil, label: nil, color: nil %}{% endif %}{{ label }}</a></li>
-{%- endfor -%}
-</ul></div>
-{%- for panel in panels offset: 1 -%}
-{%- assign n = sl_tab_counter | plus: forloop.index -%}
-<div id="tab-panel-{{ n }}" aria-labelledby="tab-{{ n }}" role="tabpanel" data-label="{{ panel | raw }}
-{%- unless forloop.first %}{% endunless -%}
-{%- endfor -%}
-{% if sync %}<starlight-tabs-restore></starlight-tabs-restore>{% endif %}</starlight-tabs>
-{%- assign sl_tab_counter = sl_tab_counter | plus: tab_count -%}
+{% include "partials/tabs-markup", body: body, sync: sync, tabs_class: nil, tabs_attrs: nil %}

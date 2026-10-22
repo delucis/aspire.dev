@@ -21,10 +21,7 @@
 <div class="dropdown-container">
 <div class="dropdown cid-page-actions-dropdown" id="dropdown-0" data-page-action-dropdown><button class="action-button cid-page-actions-button" id="dropdown-0-toggle" aria-expanded="false" aria-controls="dropdown-0-menu"><span>{{ pa_open_label }}</span>{% icon "down-caret", size: "1rem", class: nil, label: nil, color: nil %}</button>
 <div id="dropdown-0-menu" class="dropdown-menu" role="group" aria-label="{{ pa_open_label }}" hidden>
-<a href="https://chatgpt.com/?q={{ pa_q }}" class="dropdown-item" target="_blank">{% include "partials/page-actions/icon-chatgpt", pa_icon_class: "action-icon", pa_icon_id: "chatgpt" %}<span>{{ "pageActions.open.chatgpt" | t }}</span>{% icon "external", size: "1rem", class: "external-icon", label: nil, color: nil %}</a>
-<a href="https://claude.ai/new?q={{ pa_q }}" class="dropdown-item" target="_blank">{% include "partials/page-actions/icon-claude", pa_icon_class: "action-icon", pa_icon_id: "claude" %}<span>{{ "pageActions.open.claude" | t }}</span>{% icon "external", size: "1rem", class: "external-icon", label: nil, color: nil %}</a>
-<a href="https://github.com/copilot/?prompt={{ pa_q }}" class="dropdown-item" target="_blank">{% include "partials/page-actions/icon-github-copilot", pa_icon_class: "action-icon", pa_icon_id: "githubCopilot" %}<span>{{ "pageActions.open.githubCopilot" | t }}</span>{% icon "external", size: "1rem", class: "external-icon", label: nil, color: nil %}</a>
-<a href="{{ pa_path }}.md" class="dropdown-item" target="_blank">{% include "partials/page-actions/icon-markdown", pa_icon_class: "action-icon", pa_icon_id: "markdown" %}<span>{{ "pageActions.open.markdown" | t }}</span></a>
+<a href="https://chatgpt.com/?q={{ pa_q }}" class="dropdown-item" target="_blank">{% include "partials/page-actions/icon-chatgpt", pa_icon_class: "action-icon", pa_icon_id: "chatgpt" %}<span>{{ "pageActions.open.chatgpt" | t }}</span>{% icon "external", size: "1rem", class: "external-icon", label: nil, color: nil %}</a><a href="https://claude.ai/new?q={{ pa_q }}" class="dropdown-item" target="_blank">{% include "partials/page-actions/icon-claude", pa_icon_class: "action-icon", pa_icon_id: "claude" %}<span>{{ "pageActions.open.claude" | t }}</span>{% icon "external", size: "1rem", class: "external-icon", label: nil, color: nil %}</a><a href="https://github.com/copilot/?prompt={{ pa_q }}" class="dropdown-item" target="_blank">{% include "partials/page-actions/icon-github-copilot", pa_icon_class: "action-icon", pa_icon_id: "githubCopilot" %}<span>{{ "pageActions.open.githubCopilot" | t }}</span>{% icon "external", size: "1rem", class: "external-icon", label: nil, color: nil %}</a><a href="{{ pa_path }}.md" class="dropdown-item" target="_blank">{% include "partials/page-actions/icon-markdown", pa_icon_class: "action-icon", pa_icon_id: "markdown" %}<span>{{ "pageActions.open.markdown" | t }}</span></a>
 </div></div>
 <div class="dropdown cid-page-actions-dropdown" id="dropdown-1" data-page-action-dropdown><button class="action-button cid-page-actions-button" id="dropdown-1-toggle" aria-expanded="false" aria-controls="dropdown-1-menu"><span>{{ pa_share_label }}</span>{% icon "down-caret", size: "1rem", class: nil, label: nil, color: nil %}</button>
 <div id="dropdown-1-menu" class="dropdown-menu" role="group" aria-label="{{ pa_share_label }}" hidden>
@@ -42,12 +39,11 @@ telegram|https://t.me/share/url?url={{ pa_u | raw }}&text={{ pa_t | raw }}
 {%- endcapture -%}
 {%- assign pa_lines = pa_share | strip | split: "
 " -%}
-{%- for pa_line in pa_lines %}
+{%- for pa_line in pa_lines -%}
 {%- assign pa_id = pa_line | split: "|" | first | strip -%}
 {%- assign pa_href = pa_line | remove_first: pa_id | remove_first: "|" -%}
 {%- assign pa_key = "pageActions.share." | append: pa_id -%}
-{%- assign pa_icon = "partials/page-actions/icon-" | append: pa_id %}
-<a href="{{ pa_href }}" class="dropdown-item" target="_blank">{% include pa_icon, pa_icon_class: "action-icon", pa_icon_id: pa_id %}<span>{{ pa_key | t }}</span>{% icon "external", size: "1rem", class: "external-icon", label: nil, color: nil %}</a>
+{%- assign pa_icon = "partials/page-actions/icon-" | append: pa_id -%}<a href="{{ pa_href }}" class="dropdown-item" target="_blank">{% include pa_icon, pa_icon_class: "action-icon", pa_icon_id: pa_id %}<span>{{ pa_key | t }}</span>{% icon "external", size: "1rem", class: "external-icon", label: nil, color: nil %}</a>
 {%- endfor %}
 </div></div>
 </div>

@@ -12,4 +12,4 @@ block: true
 params: [sync]
 ---
 {%- assign os_sync = sync | default: "terminal" -%}
-<starlight-tabs class="cid-sl-tabs cid-os-aware-tabs" data-sync-key="{{ os_sync | escape }}" data-os-aware><div class="tablist-wrapper not-content"><ul role="tablist"></ul></div>{{ body | strip }}<starlight-tabs-restore></starlight-tabs-restore></starlight-tabs>
+{% include "partials/tabs-markup", body: body, sync: os_sync, tabs_class: "cid-os-aware-tabs", tabs_attrs: " data-os-aware" %}
