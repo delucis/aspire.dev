@@ -38,7 +38,7 @@
 {%- elsif og == false or sl_prefix != "" or sl_is_splash or sl_is_home or sl_is_404 or api_page -%}
   {%- assign sl_og_image = "/og-image.png" | absolute_url -%}
 {%- else -%}
-  {%- assign sl_og_path = "/og" | append: sl_locale_url | append: "index.png" -%}
+  {%- assign sl_og_path = "/og" | append: sl_locale_url | append: "x" | replace: "/x", ".png" -%}
   {%- assign sl_og_image = sl_og_path | absolute_url -%}
 {%- endif -%}
 {%- assign sl_og_ext = sl_og_image | split: "?" | first | split: "." | last | downcase -%}
