@@ -63,7 +63,7 @@ steps:
   render:       { needs: paginate, uses: liquid }             # pages, the hub and samples templates, the *.liquid output templates
   versions:     { needs: render, uses: replace, with: { tokens: { "%ASPIRE_VERSION%": "{{ site.versions.aspire }}", "%ASPIRE_VERSION_MAJOR_MINOR%": "{{ site.versions.majorMinor }}", "%ASPIRE_VERSION_PREVIEW%": "{{ site.versions.preview }}" } } }
   # Markdown twins at StaticHost's paths: /get-started/x/ -> /get-started/x.md, / -> /index.md, /ja/ -> /ja.md.
-  twins:        { needs: versions, uses: fork, match: ["**/*.md"], with: { permalink: "{% if url == '/index.html' %}/index.md{% else %}{{ url | replace: '/index.html', '.md' }}{% endif %}", data: { markdown: false, layout: false, twin: true }, content: "# {{ title }}\n\n{{ content }}" } }
+  twins:        { needs: versions, uses: fork, match: ["**/*.md", "!da/**", "!de/**", "!es/**", "!fr/**", "!hi/**", "!id/**", "!it/**", "!ko/**", "!pt-br/**", "!ru/**", "!tr/**", "!uk/**", "!zh-cn/**"], with: { permalink: "{% if url == '/index.html' %}/index.md{% else %}{{ url | replace: '/index.html', '.md' }}{% endif %}", data: { markdown: false, layout: false, twin: true }, content: "# {{ title }}\n\n{{ content }}" } }
   markdown:     { needs: twins, uses: markdown }
   headings:     { needs: markdown, uses: headings, with: { anchors: true, wrapper-class: sl-heading-wrapper, anchor-class: sl-anchor-link, levels: [2, 3] } }
   code:         { needs: headings, run: "node scripts/code-worker.mjs", mode: worker, match: "**/*.html", sources: ["scripts/code-worker.mjs", "scripts/douze-worker.mjs", "ec.config.mjs", "data/twoslash/**", "data/i18n/*.json"], with: { cache: .douze/code-cache }, env: { NODE_NO_WARNINGS: "1" }, stderr: warn }

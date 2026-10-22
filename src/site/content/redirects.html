@@ -1,0 +1,9 @@
+---
+# One stub page per entry of data/redirects.yml (`from: to`), the markup of the former Astro redirect pages, at the
+# old url; StaticHost answers real redirects from /redirects.json (content/redirects.json.liquid) before serving them.
+pagination: { data: redirects, size: 1, alias: from }
+permalink: "{{ from }}index.html"
+layout: false
+---
+{%- assign to = redirects[from] -%}
+<!doctype html><title>Redirecting to: {{ to }}</title><meta http-equiv="refresh" content="0;url={{ to }}"><meta name="robots" content="noindex"><link rel="canonical" href="{{ to | absolute_url }}"><body>	<a href="{{ to }}">Redirecting from <code>{{ from }}</code> to <code>{{ to }}</code></a></body>
