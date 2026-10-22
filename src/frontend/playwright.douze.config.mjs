@@ -10,7 +10,7 @@ export default defineConfig({
   ...base,
   webServer: {
     command: `dotnet run -c Release --project ../statichost/StaticHost --urls http://127.0.0.1:${e2ePort}`,
-    env: { ...process.env, ASPNETCORE_ENVIRONMENT: 'Production', DOTNET_NOLOGO: '1' },
+    env: { ...process.env, ASPNETCORE_ENVIRONMENT: 'Development', DOTNET_NOLOGO: '1', ConnectionStrings__cache: 'localhost:6379,abortConnect=false' },
     url: `http://127.0.0.1:${e2ePort}/`,
     reuseExistingServer: true,
     timeout: 180_000,
