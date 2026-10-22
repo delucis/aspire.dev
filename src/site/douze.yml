@@ -71,13 +71,16 @@ steps:
 
   # API reference: one template per route paginates its route list (size 1); the .html templates render the pages, the
   # *-md.html templates the Markdown twins (permalink: "{{ route.md }}", layout: false, rendered without HTML encoding).
-  api-pages:    { inputs: "content/reference/api/**", needs: site-data, uses: frontmatter }
+  api-pages:    { inputs: "content/reference/api/**", needs: [site-data, collections], uses: frontmatter }   # collections.urls: the diagnostics links
   api-paginate: { needs: api-pages, uses: paginate }
   api-render:   { needs: api-paginate, uses: liquid, match: "**/*.html" }
   api-render-md: { needs: api-render, uses: liquid, match: "**/*.md", with: { encode: none } }
 
   # Chrome, then the output folder; Pagefind indexes the articles after the write.
   layout:       { needs: [code, api-render-md], uses: layout, with: { includes: templates/layouts } }
-  write:        { needs: [layout, assets], uses: write }
+  # Static files of the content folder that the pages step leaves out (JSON is data there): the Mermaid icon pack
+  # (scripts/client/from-frontend/config/icon-packs.mjs loads /icons/aspire.json).
+  static:       { inputs: ["content/icons/**"], uses: permalink, with: { root: content } }
+  write:        { needs: [layout, assets, static], uses: write }
   # The CLI is lib/runner/bin.cjs (lib/index.js is the Node API and does nothing when run); --glob takes one pattern.
   search:       { needs: write, run: "node node_modules/pagefind/lib/runner/bin.cjs --site {{ site }} --glob \"{index.html,app-host/**/*.html,architecture/**/*.html,aspireconf/**/*.html,community/**/*.html,dashboard/**/*.html,deployment/**/*.html,diagnostics/**/*.html,extensibility/**/*.html,fundamentals/**/*.html,get-started/**/*.html,integrations/**/*.html,languages-and-runtimes/**/*.html,reference/**/*.html,testing/**/*.html,whats-new/**/*.html,hub/**/*.html}\"", timeout: 20m, stderr: warn }

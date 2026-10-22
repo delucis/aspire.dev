@@ -23,7 +23,7 @@
 {% include "partials/sidebar-topics" %}
 {% include "partials/sidebar-filter" %}
 </div>
-<sl-sidebar-state-persist data-hash="{{ sb_current_key }}-{{ sidebar[sb_current_key].items.size }}"><script src="/assets/js/inline/sidebar-restore.js" aria-hidden="true"></script>
+<sl-sidebar-state-persist data-hash="{{ sb_current_key }}-{{ sidebar[sb_current_key].items.size }}"><script aria-hidden="true">{% include "partials/inline/sidebar-restore" %}</script>
 {% if api_page %}
 {% include "api/sidebar" %}
 {%- else %}
@@ -32,7 +32,7 @@
 {%- endif %}
 <script src="/assets/js/inline/sidebar-scroll.js" aria-hidden="true"></script></sl-sidebar-state-persist>
 {%- else %}
-<sl-sidebar-state-persist data-hash="all"><script src="/assets/js/inline/sidebar-restore.js" aria-hidden="true"></script>
+<sl-sidebar-state-persist data-hash="all"><script aria-hidden="true">{% include "partials/inline/sidebar-restore" %}</script>
 {%- for sb_key in site.sidebar_topics %}
 {%- assign sb_tree = sidebar[sb_key].items | nav_active: url %}
 {% include "partials/sidebar-sublist", sb_list: sb_tree, sb_nested: false %}

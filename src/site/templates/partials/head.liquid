@@ -67,12 +67,13 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="description" content="{{ sl_description }}">
 {%- comment -%} hreflang alternates: every locale (Starlight lists all of them, the fallback copies exist). {%- endcomment -%}
-{% unless api_page %}
 {%- for language in site.languages %}
 <link rel="alternate" hreflang="{{ language.lang }}" href="{{ language.prefix | append: sl_locale_url | absolute_url }}">
 {%- endfor %}
 <link rel="alternate" hreflang="x-default" href="{{ sl_locale_url | absolute_url }}">
-{%- endunless %}
+{%- if api_page %}
+<link rel="stylesheet" href="/assets/css/api-components.css">
+{%- endif %}
 <link rel="sitemap" href="/sitemap-index.xml">
 <meta name="twitter:site" content="@aspiredotdev">
 {%- comment -%} config/head.attrs.ts {%- endcomment %}
@@ -113,11 +114,11 @@
   blocking like Astro's is:inline ones: the theme provider (ThemeProvider.astro), the site preferences (Head.astro:
   AppHost language, sidebar collapse state, consent state), starlight-kbd's provider and the synced tabs restore.
 {%- endcomment %}
-<script src="/assets/js/inline/theme.js"></script>
+<script>{% include "partials/inline/theme" %}</script>
 <template id="theme-icons">{% icon "sun", class: "light" %}{% icon "moon", class: "dark" %}{% icon "laptop", class: "auto" %}</template>
-<script src="/assets/js/inline/preferences.js"></script>
-<script src="/assets/js/inline/kbd.js"></script>
-<script src="/assets/js/inline/tabs-restore.js"></script>
+<script>{% include "partials/inline/preferences" %}</script>
+<script>{% include "partials/inline/kbd" %}</script>
+<script>{% include "partials/inline/tabs-restore" %}</script>
 {%- comment -%} WCP consent runtime: must be loaded live from the CDN (Microsoft WCP requirement), async. {%- endcomment %}
 <script async src="https://wcpstatic.microsoft.com/mscc/lib/v2/wcp-consent.js"></script>
 {%- comment -%} Page.astro's inline <style> is in components.css (cid-sl-page); print.css is part of site.css (@media print). {%- endcomment -%}

@@ -117,3 +117,19 @@ for (const [name, request] of Object.entries(vendorCss)) {
 
 const files = fs.readdirSync(outDir, { recursive: true }).filter((f) => !fs.statSync(path.join(outDir, f)).isDirectory());
 console.log(`build-client: ${files.length} files in ${path.relative(process.cwd(), outDir) || '.'}`);
+
+// The pre-paint scripts are also written as Liquid partials (templates/partials/inline/<name>.liquid), so that the
+// head and sidebar partials inline them in <script> elements, as the former site did: a page must apply the theme and
+// the stored preferences before the first paint, and the specs block external script requests.
+{
+  const outInline = path.join(outDir, 'inline');
+  const partials = path.join(siteRoot, 'templates', 'partials', 'inline');
+  if (fs.existsSync(outInline)) {
+    fs.mkdirSync(partials, { recursive: true });
+    for (const f of fs.readdirSync(outInline).filter((f) => f.endsWith('.js'))) {
+      const js = fs.readFileSync(path.join(outInline, f), 'utf8');
+      if (js.includes('{{') || js.includes('{%')) throw new Error(`${f} contains Liquid syntax; it cannot be inlined as a partial`);
+      fs.writeFileSync(path.join(partials, f.replace(/\.js$/, '.liquid')), js);
+    }
+  }
+}
