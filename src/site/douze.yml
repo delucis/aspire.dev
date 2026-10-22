@@ -67,7 +67,7 @@ steps:
   # Twins of the root locale's pages, of the translated ja pages and of every locale's home page, as before.
   # The Dev Hub and the samples write their own twins (`hub-md.html`, `sample-md.html`); the glossary terms get theirs below.
   twins:        { needs: versions, uses: fork, match: ["**/*.md", "!hub/**", "!reference/samples/**", "!da/**", "!de/**", "!es/**", "!fr/**", "!hi/**", "!id/**", "!it/**", "!ko/**", "!pt-br/**", "!ru/**", "!tr/**", "!uk/**", "!zh-cn/**", "{da,de,es,fr,hi,id,it,ko,pt-br,ru,tr,uk,zh-cn}/index.md"], with: { permalink: "{% if url == '/index.html' %}/index.md{% else %}{{ url | replace: '/index.html', '.md' }}{% endif %}", data: { markdown: false, layout: false, twin: true }, content: "# {{ title }}\n\n{{ content }}" } }
-  glossary-twins: { needs: twins, uses: fork, match: ["hub/glossary/*.md"], with: { permalink: "{{ url | replace: '/index.html', '.md' }}", data: { markdown: false, layout: false, twin: true }, content: "{% include 'partials/hub/glossary-term-md' %}" } }
+  glossary-twins: { needs: twins, uses: fork, match: ["hub/glossary/*/index.md"], with: { permalink: "{{ url | replace: '/index.html', '.md' }}", data: { markdown: false, layout: false, twin: true }, content: "{% include 'partials/hub/glossary-term-md' %}" } }
   markdown:     { needs: glossary-twins, uses: markdown }
   # The home pages have no heading anchors (their sections are components).
   headings:     { needs: markdown, uses: headings, match: ["**/*.html", "!index.html", "!{da,de,es,fr,hi,id,it,ja,ko,pt-br,ru,tr,uk,zh-cn}/index.html"], with: { anchors: true, wrapper-class: sl-heading-wrapper, anchor-class: sl-anchor-link, levels: [2, 3], skip-classes: [not-content] } }   # component headings are not the page's
