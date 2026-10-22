@@ -18,7 +18,6 @@
 </ul></div>
 {%- for panel in panels offset: 1 -%}
 {%- assign n = sl_tab_base | append: forloop.index -%}
-<div id="tab-panel-{{ n }}" aria-labelledby="tab-{{ n }}" role="tabpanel" data-label="{{ panel | raw }}
-{%- unless forloop.first %}{% endunless -%}
+<div id="tab-panel-{{ n }}" aria-labelledby="tab-{{ n }}" role="tabpanel"{% unless forloop.first %} hidden{% endunless %} data-label="{{ panel | raw }}
 {%- endfor -%}
 {% if sync %}<starlight-tabs-restore></starlight-tabs-restore>{% endif %}</starlight-tabs>
