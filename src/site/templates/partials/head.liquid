@@ -16,7 +16,8 @@
 {%- for entry in head -%}{%- if entry.tag == "title" -%}{%- assign sl_title_tag = entry.content -%}{%- endif -%}{%- endfor -%}
 {%- if sl_title_tag == nil -%}{%- assign sl_title_tag = title | append: " | " | append: site.title -%}{%- endif -%}
 {%- assign sl_description = description | default: site.description -%}
-{%- assign sl_canonical = sl_url | absolute_url -%}
+{%- comment -%} The root 404 page is written at /404.html, but its url is /404/ (Starlight's canonical). {%- endcomment -%}
+{%- if sl_is_404 -%}{%- assign sl_canonical = sl_prefix | append: sl_locale_url | absolute_url -%}{%- else -%}{%- assign sl_canonical = sl_url | absolute_url -%}{%- endif -%}
 {%- comment -%} Open Graph values (utils/page-metadata.ts). {%- endcomment -%}
 {%- assign sl_fallback_description = "Aspire streamlines your development workflow with code-first control, modularity, and observability for distributed applications." -%}
 {%- assign sl_og_description = description | strip | default: sl_fallback_description | truncate: 200, "…" -%}
