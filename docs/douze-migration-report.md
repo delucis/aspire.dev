@@ -143,11 +143,25 @@ tonight. The rest of the failures are listed under "What is missing".
 
 | | Astro (`pnpm build` in `src/frontend`) | Douze |
 |---|---|---|
-| Clean build | 8 min 14 s | 2 min 50 s (the code worker's twoslash pass is most of it; the worker keeps its own per-fence cache) |
-| Rebuild, nothing changed | 8 min 14 s | 28 s (every unit replayed from the disk cache; 20 s of it is Pagefind indexing the output) |
+| Clean build | 8 min 14 s | 1 min 54 s (twoslash from Douze's native step: 0.8 s for the 354 snippets; Expressive Code rendering in the worker is most of it) |
+| Clean build, Expressive Code cache warm but twoslash fences | 8 min 14 s | 52 s |
+| Rebuild, nothing changed | 8 min 14 s | 3 s (every unit replayed from the disk cache, Pagefind's included) |
 | One article changed | 8 min 14 s | a few seconds with `douze watch` / `douze serve` (the page, its twin, the search index) |
 
-Measured on the same machine (Apple Silicon, 12 cores).
+Measured on the same machine (Apple Silicon, 12 cores); the Douze rows on 2026-10-22 (site `1b7b1a42`, Douze
+`977fc16`), one run each, each started at a 1-minute load under 3. Douze's downloaded TypeScript 7 stays installed
+between builds (`douze tools install`, like `node_modules`). For comparison, the same clean build with
+`TWOSLASH: node` in the `code` step (twoslash compiled in Node with TypeScript 6, as before) takes 2 min 40 s.
+
+Twoslash moved from the Node worker to Douze's `twoslash` step (TypeScript 7's language server; the worker keeps
+Expressive Code and renders the step's results). Fidelity: 291 of the 323 twoslash code blocks of the 78 English
+twoslash pages are byte-identical to the Astro build (323 of 323 with `TWOSLASH: node`); the 32 others differ by
+TypeScript 7's quick info: a type and a const of the same name (the generated enums) shown in the other order without
+the type's documentation, union members sorted, one `Date` hover. Douze restores TypeScript 5's `(+N overloads)` at
+calls (836 hovers that differed only by it). The twoslash Playwright spec passes its hover checks on direct loads and
+fails, as before, at its client-router step. C# and Go hovers (Douze's `csharp` and `go` steps) are wired in
+`douze.yml` but opt-in per fence (`twoslash` in the meta), and no fence opts in: the reference has none, and the
+Expressive Code plugin renders their popups as TypeScript.
 
 ### Memory
 
@@ -162,6 +176,10 @@ numbers of the table above.
 | Douze clean (code worker's twoslash cache warm) | 42 to 60 s | 11.9 to 13.9 GB | `douze` 11.3 GB, the Node code worker 0.7 GB, Pagefind 0.24 GB |
 | Douze clean, twoslash cache cold | 4 min 9 s | 12.0 GB | twoslash in the worker is the time, not the memory |
 | Douze warm rebuild, nothing changed | 2.1 s | 1.8 GB | |
+| Native twoslash (Douze `977fc16`, quiet machine): every cache cold | 1 min 54 s | 15.0 GB | `douze` 14.0 GB, node 1.1 GB, Pagefind 0.28 GB |
+| Native twoslash: twoslash cold, the rest warm | 52 s | 15.0 GB | `douze` 14.5 GB, node 0.7 GB, tsc 0.27 GB |
+| Native twoslash: nothing changed | 3.1 s | 1.9 GB | |
+| Node twoslash (`TWOSLASH: node`), every cache cold, same machine state | 2 min 40 s | 14.4 GB | `douze` 12.5 GB, node 2.0 GB |
 
 Satori GC against the standard GC, same commit, clean Douze builds (twoslash cache warm) interleaved on a machine
 that was quiet at the start (1-minute load 2.8; it rose with the builds themselves to 19 by the last one):
@@ -244,6 +262,6 @@ article change rebuilds the page, its twin and the search index) and reloads the
 4. Per-locale Pagefind indexes if wanted; Lunaria replacement (a page over `locale_pages`).
 5. Wire the Douze build into the CI (`build.yml`): publish Douze from the branch, run the workflow, the diff and the
    e2e suite; keep the Astro build until the suite is green.
-6. Douze: cut the per-fence code cache from the worker to a Douze-side cache keyed by fence (the cold twoslash pass
-   is 2 of the 2 min 50 s), per-step profiles of the 170 s build.
+6. Douze: cut the per-fence code cache from the worker to a Douze-side cache keyed by fence, per-step profiles of the
+   build. (Twoslash itself moved to Douze's native step: 0.8 s cold.)
 
