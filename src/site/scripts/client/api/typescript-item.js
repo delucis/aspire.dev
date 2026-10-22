@@ -139,6 +139,9 @@ class TypeSearchController {
         const validKinds = new Set(Array.from(this.filtersEl?.querySelectorAll('.api-filter-chip') ?? [])
             .map(c => c.dataset.kind));
         const kinds = this.sync.readKinds(validKinds);
+        // Text typed before the controller mounted (it is imported once the page is parsed) is kept, and recorded in
+        // the url below like text typed afterwards.
+        const typedBeforeMount = !q && this.input.value.trim() !== '';
         if (q) {
             this.input.value = q;
             this.sync.updateClearButton();
@@ -155,6 +158,8 @@ class TypeSearchController {
             this.clearFiltersBtn.style.display = '';
         }
         this.applySearch();
+        if (typedBeforeMount)
+            this.syncUrl();
     }
     applySearch() {
         if (this.debounceTimer !== null)

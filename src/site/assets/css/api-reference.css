@@ -890,3 +890,13 @@ a.api-chip:hover {
   color: #fff;
   background: #32383f;
 }
+
+/* ---------------- Douze site additions (not in the Astro copy) ---------------- */
+/* A member card reached by a deep link (#member or its exact overload anchor) takes the highlight at once: the
+   page is a full document load, so the card would otherwise fade from its plain to its highlighted background
+   during the first 0.18 s (the fragment applies :target after the first style), and a deep link to the overload
+   anchor, a same-document navigation, would not. Leaving the target still fades. */
+.mc:target,
+.mc:has(> .mc-exact-anchor:target) {
+  transition: none;
+}
