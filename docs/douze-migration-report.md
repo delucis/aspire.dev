@@ -45,6 +45,17 @@ The workflow is `src/site/douze.yml` (commented); the converter that produced `s
 sources is `src/site/scripts/convert-mdx/` (`pnpm --dir src/frontend exec tsx ../site/scripts/convert-mdx/convert.ts`,
 idempotent, `--check` reports what would change; its report is `src/site/scripts/convert-mdx/report.md`).
 
+## Update, later the same day
+
+A second pass closed the known gaps (commits `32d9587b` to `46e66652`): the samples' social images, the API
+diagnostics "Learn more" links, member cards wrapping at 320 px, the 14 locale 404 pages, `/404.md`, `/index.md`,
+the `.well-known` files, the whats-new sidebar topic, the schema `$id`, the first-app asides, the Dev Hub catalog order
+and search text, and Pagefind indexing a temp folder of the laid-out pages concurrently with the build (rebuild 28 s
+to 21 s). Measured on that build: **Playwright 417 passed / 66 failed / 10 skipped** (the 66: about 60 router-dependent
+specs, the `/i18n/` table, two timing races that fail on the Astro build served the same way, the sample README
+anchors Astro labels off by one); **routes 57,164 of 57,165** (only `/i18n/` missing, by decision; `VENDOR.md` extra);
+24,855 pages byte-identical. The numbers below are from the overnight build.
+
 ## What was built tonight
 
 Branch `douze-migration`, 40 commits over `main`; the e2e and diff numbers below are from its last build (the
