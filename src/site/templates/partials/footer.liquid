@@ -7,7 +7,8 @@
   The copyright year is the build's (the Astro build wrote it from the browser's clock with an inline script).
   Root class: cid-starlight-footer.
 {%- endcomment -%}
-<div class="footer-wrapper cid-starlight-footer" data-opens-in-new-tab="{{ 'footer.opensInNewTab' | t }}">
+{%- comment -%} No data-opens-in-new-tab: the former site never rendered it, so its script left the links' accessible names alone. {%- endcomment -%}
+<div class="footer-wrapper cid-starlight-footer">
 <div class="footer-container">
 {%- unless sl_is_home %}
 {% include "partials/starlight-footer" %}
