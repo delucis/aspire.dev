@@ -97,14 +97,17 @@ src/site/
   douze.yml                     the workflow (3.2)
   package.json, pnpm-lock.yaml  Node tooling the workflow runs: expressive-code (+ twoslash, line numbers,
                                 collapsible sections, icons), pagefind, esbuild, @unocss/cli (icons), playwright
-  content/
-    docs/                       the articles, Markdown + shortcodes (converted from FE/src/content/docs; same tree, same slugs)
-    docs/ja/, docs/de/, ...     locale folders, as today
-    glossary/                   40 glossary terms (Markdown), rendered by a paginated template
+  content/                      the url root: the Starlight tree as today (urls do not change)
+    get-started/, integrations/, ...   the articles, Markdown + shortcodes (converted from FE/src/content/docs; same tree, same slugs)
+    ja/, de/, ...               locale folders, as today
+    hub/glossary/*.md           40 glossary terms (Markdown), their url is /hub/glossary/<term>/
     hub/, reference/samples/    the data-driven pages, as Liquid templates with pagination
-    index.md, 404.md, docs.md, support.md
-    sitemap.xml, rss.xml, llms.txt, llms-full.txt, llms-small.txt, robots.txt   Liquid templates
+    index.md, 404.md (permalink: /404.html), docs.md, support.md
+    sitemap.xml.liquid, rss.xml.liquid, robots.txt.liquid   output templates (permalink + layout: false)
+    exports/llms*.txt.liquid    text exports rendered after the docs collection has the page contents
     reference/api/              one template per route (section 5), HTML and .md twins
+    reference/cli/configuration/schema*.liquid   the CLI schema routes (latest and per version) from data/schemas
+    .well-known/, rss.xsl, ...  the static files of FE/public, passed through
   data/
     site.yml                    title, description, social links, versions (from aspire-versions.mjs)
     sidebar/*.yml               the sidebar topics (generated once from FE/config/sidebar/*.ts, then hand maintained)
@@ -113,7 +116,7 @@ src/site/
     integrations.json, samples.json, github-stats.json, ...   moved from FE/src/data (same names, same daily updater)
     api/pkgs/*.json, api/ts-modules/*.json   moved from FE/src/data (the generators' output)
     api/pages/*.json, api/xref.json, api/search-*.json         new generator outputs (section 6)
-    schemas/*.json              CLI schemas, as today
+    schemas/*.json              CLI schemas, as today (served by the schema templates)
   templates/
     layouts/                    base.liquid, docs.liquid, splash.liquid, api.liquid, hub.liquid, glossary.liquid
     partials/                   head, header, sidebar, toc, footer, banner, search, page-actions, breadcrumbs, prev-next, ...
@@ -150,8 +153,7 @@ site:
   output: ../statichost/StaticHost/wwwroot     # -o wins; CI passes an explicit folder
   url: https://aspire.dev
   locales:
-    default: en
-    root: docs
+    default: en                                  # root is the content folder: /ja/... are the locale folders
     fallback: true                               # every untranslated page exists under every locale, as today
     languages:
       de: { label: Deutsch, lang: de }
@@ -168,7 +170,8 @@ site:
       hi: { label: हिन्दी, lang: hi }
       da: { label: Dansk, lang: da }
       uk: { label: Українська, lang: uk }
-  serve: { port: 4321, markdown: true, redirects: redirects.json }
+  serve: { port: 4321, markdown: sibling, redirects: redirects.json }   # /a/b/ negotiates to /a/b.md as StaticHost does
+  external: [pagefind]
 
 markdown:
   extensions: [pipetables, tasklists, attributes, autolinks, alerts, customcontainers]
@@ -181,31 +184,35 @@ steps:
   site-data:   { inputs: "data/**/*.{yml,json}", uses: data, with: { scope: site } }
   folder-data: { inputs: "content/**/*.{yml,json}", uses: data, with: { scope: folder, root: content } }
 
-  # assets: fingerprinted css, js, fonts, icons; the client bundle and the icon css are produced first
+  # assets: fingerprinted css, js, fonts, icons; the client bundle, the icon css and the highlighter's base assets are produced first
   client-js:   { inputs: "scripts/client/**/*.ts", run: "node scripts/build-client.mjs {{ inputs }} {{ outputs }}", outputs: "assets/js/**", sources: ["scripts/build-client.mjs", "scripts/client/**"] }
   icons-css:   { inputs: ["templates/**", "content/**/*.md"], run: "npx unocss --config uno.config.ts --out-file {{ outputs }}/assets/css/icons.css", outputs: "assets/css/icons.css", sources: ["uno.config.ts"] }
-  assets:      { inputs: ["assets/**", "!assets/images/**"], needs: [client-js, icons-css], uses: assets, with: { root: assets, output: assets } }
+  code-assets: { inputs: "ec.config.mjs", run: "node scripts/code-worker.mjs --assets {{ outputs }}", outputs: "assets/code.*", sources: ["scripts/code-worker.mjs", "ec.config.mjs"] }
+  assets:      { inputs: ["assets/**", "!assets/images/**"], needs: [client-js, icons-css, code-assets], uses: assets, with: { root: assets, output: assets } }
 
-  # articles
-  pages:       { inputs: ["content/**", "!content/**/*.{yml,json}", "!content/reference/api/**"], needs: [site-data, folder-data, assets], uses: frontmatter, with: { require: [title] } }
-  dates:       { needs: pages, uses: git, match: "content/docs/**" }
-  versions:    { needs: dates, uses: replace, with: { tokens: { "%ASPIRE_VERSION%": "{{ versions.aspire }}", "%ASPIRE_VERSION_MAJOR_MINOR%": "{{ versions.majorMinor }}", "%ASPIRE_VERSION_PREVIEW%": "{{ versions.preview }}" } } }
-  permalink:   { needs: versions, uses: permalink, with: { root: content } }
-  collections: { needs: permalink, uses: collect, match: ["content/docs/**", "content/glossary/**"] }
+  # articles (paths after permalink are urls: the content folder is stripped)
+  pages:       { inputs: ["content/**", "!content/**/*.{yml,json}", "!content/reference/api/**", "!content/exports/**"], needs: [site-data, folder-data, assets], uses: frontmatter, with: { require: [title] } }
+  dates:       { needs: pages, uses: git, match: "content/**/*.md" }
+  permalink:   { needs: dates, uses: permalink, with: { root: content } }
+  collections: { needs: permalink, uses: collect, match: ["**/*.md", "!reference/api/**", "!*.liquid"] }
   localize:    { needs: [permalink, collections], uses: localize }
-  paginate:    { needs: localize, uses: paginate }
-  render:      { needs: paginate, uses: liquid }
-  twins:       { needs: render, uses: fork, match: ["docs/**/*.md", "index.md", "*/index.md"],
-                 with: { permalink: "{% if url == '/index.html' %}/index.md{% else %}{{ url | replace: '/index.html', '.md' }}{% endif %}", data: { markdown: false, layout: false, twin: true } } }   # /docs/a/ -> /docs/a.md, / -> /index.md, /ja/ -> /ja.md (StaticHost's mapping)
-  markdown:    { needs: twins, uses: markdown }
-  headings:    { needs: markdown, uses: headings, with: { anchors: true, levels: [2, 3] } }
-  code:        { needs: headings, run: "node scripts/code-worker.mjs", mode: worker, match: ["docs/**/*.html", "hub/**/*.html", "reference/samples/**/*.html"],
-                 sources: ["scripts/code-worker.mjs", "ec.config.mjs", "data/twoslash/aspire.d.ts"], with: { cache: .douze/code-cache }, env: { NODE_NO_WARNINGS: "1" } }
-  og:          { needs: localize, uses: social-image, match: "docs/**/*.md",
+  og:          { needs: localize, uses: social-image, match: ["**/*.md", "!reference/api/**", "!hub/**"],
                  with: { template: og/card.svg.liquid, width: 1200, height: 630, output: "og{{ locale_url }}index.png",
-                         skip: "og == false or ogImage or locale != 'default' or twin",
+                         skip: "og == false or ogImage or locale != 'default'",
                          text: [ { value: "{{ seoTitle | default: title }}", font: "Outfit Bold 60", fontfile: assets/fonts/Outfit-Bold.ttf, x: 80, y: 150, width: 1040, height: 240, color: "#ffffff" },
                                  { value: "{{ description | strip_markdown | truncate: 180 }}", font: "Outfit 32", fontfile: assets/fonts/Outfit-Regular.ttf, x: 80, y: 410, width: 1040, height: 140, color: "#cdd6f4" } ] } }
+  paginate:    { needs: og, uses: paginate }
+  render:      { needs: paginate, uses: liquid }           # pages, hub and samples templates, and the *.liquid output templates
+  versions:    { needs: render, uses: replace, with: { tokens: { "%ASPIRE_VERSION%": "{{ versions.aspire }}", "%ASPIRE_VERSION_MAJOR_MINOR%": "{{ versions.majorMinor }}", "%ASPIRE_VERSION_PREVIEW%": "{{ versions.preview }}" } } }
+  twins:       { needs: versions, uses: fork, match: ["**/*.md", "!reference/api/**"],
+                 with: { permalink: "{% if url == '/index.html' %}/index.md{% else %}{{ url | replace: '/index.html', '.md' }}{% endif %}", data: { markdown: false, layout: false, twin: true } } }   # /get-started/x/ -> /get-started/x.md, / -> /index.md, /ja/ -> /ja.md (StaticHost's mapping)
+  markdown:    { needs: twins, uses: markdown }
+  headings:    { needs: markdown, uses: headings, with: { anchors: true, levels: [2, 3] } }
+  collect-docs:{ needs: headings, uses: collect, match: ["**/*.html", "!reference/api/**", "!*/**/index.html.twin"], with: { content: true, name: docs } }   # English article contents for llms-full.txt
+  exports:     { inputs: "content/exports/*.liquid", needs: collect-docs, uses: frontmatter }
+  render-exports: { needs: exports, uses: liquid }
+  code:        { needs: headings, run: "node scripts/code-worker.mjs", mode: worker, match: ["**/*.html", "!reference/api/**"],
+                 sources: ["scripts/code-worker.mjs", "ec.config.mjs", "data/twoslash/aspire.d.ts"], with: { cache: .douze/code-cache }, env: { NODE_NO_WARNINGS: "1" } }
 
   # api reference: one template per route paginates its page index (section 5)
   api-pages:   { inputs: "content/reference/api/**", needs: site-data, uses: frontmatter }
@@ -213,12 +220,12 @@ steps:
   api-render:  { needs: api-paginate, uses: liquid }     # .html templates render the pages, .md templates the twins (markdown: false, layout: false)
 
   # chrome and checks
-  layout:      { needs: [code, api-render], uses: layout }
-  links:       { needs: layout, uses: links, match: ["docs/**/*.html", "hub/**/*.html", "index.html", "404.html"] }
+  layout:      { needs: [code, api-render, render-exports], uses: layout, with: { includes: templates/layouts } }
+  links:       { needs: layout, uses: links, match: ["**/*.html", "!reference/api/**"] }
   redirects:   { needs: site-data, uses: redirects, with: { data: redirects, manifest: redirects.json } }
-  check-links: { needs: [links, og, redirects], uses: check-links, with: { ignore: ["/reference/api/**", "/i18n/**"], anchors: true } }   # emits nothing; an error fails the build
-  write:       { needs: [links, og, redirects], uses: write }
-  search:      { needs: write, run: "npx pagefind --site {{ site }} --glob \"{docs,hub,reference/samples}/**/*.html\" --glob index.html", timeout: 10m }
+  check-links: { needs: [links, redirects], uses: check-links, with: { ignore: ["/reference/api/**", "/i18n/**"], anchors: true } }   # emits nothing; an error fails the build
+  write:       { needs: [links, redirects], uses: write }
+  search:      { needs: write, run: "npx pagefind --site {{ site }} --glob \"**/*.html\" --glob \"!reference/api/**\"", timeout: 10m }
 ```
 
 Notes on the shape:
@@ -226,16 +233,18 @@ Notes on the shape:
 - `localize` runs after `collections` so that `collections.urls` tells it which translations exist; the fallback
   copies render through the same `render -> twins -> markdown -> headings -> code -> layout` chain with the locale's
   chrome, which gives the 7,500 fallback routes of today for a few seconds of build.
-- The `.md` twins are taken after `render` (Liquid resolved: shortcodes, placeholders, includes), which is better
+- `og` is inline in the chain (it passes pages through and adds the PNGs to its units); the layout builds the
+  `og:image` url with `social_image_url` and the same `output` template, or uses a page's `ogImage` front matter.
+- The `.md` twins are taken after `render` and the placeholder replacement (Liquid resolved: shortcodes, includes,
+  versions), which is better
   than today's raw MDX copies (whose JSX the agents see); their path follows StaticHost's mapping (`/docs/a/` ->
   `/docs/a.md`, `/` -> `/index.md`), so `MarkdownPathMapper` does not change.
 - The API routes are a separate branch of the graph (no `localize`, no `git`, no `code`, no `links`): they join at
   `layout`. Their signatures and doc code blocks come pre-highlighted from the generators (section 6), so the code
   worker never sees the 24k API pages.
 - `search` indexes articles, hub and samples only, as today (`pagefind: false` on API pages becomes a glob).
-- `og` consumes the pages after `localize` on a branch of its own and emits only the PNGs; `head.liquid` builds the
-  `og:image` url with `social_image_url` and the same `output` template, and a page with `ogImage` in its front
-  matter uses that instead (the `skip` expression also excludes it: `ogImage`).
+- The `layout` step reads layouts from `templates/layouts` (`layout: docs` is `templates/layouts/docs.liquid`) while
+  `{% include %}` and `{% render %}` resolve against `templates/`, so partials are written as `partials/header`.
 
 ---
 
@@ -254,10 +263,10 @@ mapping is one to one and reviewable:
 |---|---|---|
 | Sidebar (2,029) | `sidebar.liquid`, `sidebar-topics.liquid`, `sidebar-api.liquid` | topics from `data/sidebar/*.yml` with `nav_active`; the API sidebar from `api/pages` data inside `{% cache package.slug %}` (Douze 3.15); the filter box script ported as is |
 | Search (767) | `search.liquid` | Pagefind UI as today (`/pagefind/pagefind-ui.js`), the C#/TS API notice, keyboard footer, `?q=` passthrough; the Starlight patch (re-init across swaps) disappears with `ClientRouter` (4.4) |
-| Head (602) | `head.liquid` | fonts (`asset_url`), OG meta (`social_image`, `seoTitle`), JSON-LD from `structured-data` ported to a Liquid partial fed by page data, WCP cookie consent, analytics bridge, theme persistence; `ClientRouter` removed (4.4) |
+| Head (602) | `head.liquid` | fonts (`asset_url`), OG meta (`social_image_url`, `seoTitle`), JSON-LD from `structured-data` ported to a Liquid partial fed by page data, WCP cookie consent, analytics bridge, theme persistence; `ClientRouter` removed (4.4) |
 | Header (584) | `header.liquid` | Install CLI modal, live indicator, Dev Hub, cookies, help |
 | Footer (575) | `footer.liquid` | sections, AspireMap, ScrollToTop element |
-| Banner (409) | `banner.liquid` | expiry from `bannerExpiresOn` compared with the build date (`now`), dismissal script |
+| Banner (409) | `banner.liquid` | expiry from `bannerExpiresOn` checked in the browser (a build-time check would be stale in pages replayed from the CI cache), dismissal script |
 | PageTitle (207) | `page-title.liquid` | page actions (share, chatgpt, claude, copilot: links built from the `.md` twin url, as the patched starlight-page-actions does) |
 | Hero (186), MobileMenuToggle (165), MobileSiteLinks (155), PageFrame (85), SocialIcons (77), MarkdownContent (60), EditLink (41), SkipLink (7) | one partial each | `MarkdownContent`: breadcrumbs (`nav_breadcrumbs` and the `crumbs` flag), What's New publish date, image zoom script |
 
@@ -326,7 +335,11 @@ components' scripts are about 20 KB minified in total).
 contributors page and `whats-new` indexes use the same data files as today (moved under `data/`) through paginated
 templates (`pagination: { data: samples, size: 1, alias: sample }`, `permalink: "reference/samples/{{ sample.slug }}/"`)
 and the `markdownify` filter for Markdown fields (sample readmes, glossary definitions). The `.md` endpoints of hub,
-samples and glossary become `fork` twins or a second paginated template with `markdown: false`.
+samples and glossary become `fork` twins or a second paginated template with `markdown: false`. The CLI schema
+routes are two templates over `data/schemas` (`schema.json.liquid` with `permalink: /reference/cli/configuration/schema.json`,
+and a paginated `schema/[version].json.liquid`), the `.well-known/agent-skills/index.json` with its digests is computed
+by the existing `compute-skill-digests.mjs` as a `batch` step before `assets`, and the samples' OG images are a second
+`social-image` step over the samples pages.
 
 ---
 
@@ -356,7 +369,7 @@ layout: api
 pagination: { data: api.routes.csharp-types, size: 1, alias: route }
 permalink: "{{ route.url }}"
 ---
-{% assign pkg = api.pkgs[route.file] %}{% assign type = pkg.types[route.type] %}
+{% assign pkg = api.pkgs[route.file] %}{% assign type = pkg.types[route.type] %}   # route.file is the data file key, e.g. Aspire.Hosting.13.6.0
 {% render 'api/type-hero', type: type, pkg: pkg %}
 ```
 
@@ -408,7 +421,7 @@ worker's).
 ### 5.5 Search
 
 The landing pages embed their index as today (`<script type="application/json" data-api-search-index>` with
-`{{ api.search.csharp | json }}`), from `data/api/search-csharp.json` and `search-typescript.json` emitted by the
+`{{ api["search-csharp"] | json }}`), from `data/api/search-csharp.json` and `search-typescript.json` emitted by the
 generators (the same entries as `IndexEntry` and `buildTsApiSearchIndex`); the per-package and per-type indexes are
 built the same way from the page's data. The client controller is unchanged. (A later change could load the 13.6 MB
 TS index with `fetch`; not in this plan, since `api-search-contract` asserts the inline element.)
@@ -490,7 +503,9 @@ today) are reported. `%ASPIRE_VERSION%` placeholders are kept (the `replace` ste
 The remark plugin `remark-typescript-first-apphost-tabs` (TypeScript tab before the C# tab in `aspire-lang` tab sets)
 is applied once by the converter to the source order. Front matter is kept as YAML, with these changes: `template:
 splash` -> `layout: splash`; `prev`/`next` kept; `sidebar: { order }` kept for a check that the data sidebar agrees;
-`tableOfContents` kept; `lastUpdated` removed (git); `hero` kept (the splash layout reads it).
+`tableOfContents` kept; `lastUpdated` removed; `updated` and `created` written from the git history of the original
+`.mdx` path (the move and rewrite defeat git's rename detection, so the `git` step would date every article at the
+conversion commit; the layout prefers front matter dates when present); `hero` kept (the splash layout reads it).
 
 Images: `import x from '@assets/foo.png'` + `<Image src={x} alt="..." />` becomes `{% image "/assets/images/foo.png",
 alt: "..." %}` (the `assets` folder is copied once from `FE/src/assets`); `<ThemeImage light={a} dark={b} />` becomes
@@ -509,10 +524,10 @@ The converter runs on `ja/` with the same table.
 |---|---|---|---|
 | Tabs / TabItem (1,174 / 2,485) | `{% tabs sync: "aspire-lang" %}` / `{% tab "C#", icon: "seti:c-sharp" %}` | block | `syncKey` -> `sync`; the tab script keeps the `starlight-synced-tabs__<key>` localStorage keys |
 | Aside (837) | `:::note[Title]` container, or `{% aside "tip", title: "..." %}` when the body has a nested `:::` | block | one `starlight-aside` markup for both, titles from `i18n.aside` |
-| ApiReference (1,225) | `{% api "Aspire.Hosting.X.Y" %}`, `{% api "...", package: "...", parameter_types: [...] %}` | inline | reads `xref-names`; build error on diagnostics |
+| ApiReference (1,433 tags in 296 files) | `{% api "Aspire.Hosting.X.Y" %}`, `{% api "...", package: "...", parameter_types: [...] %}` | inline | reads `xref-names`; build error on diagnostics |
 | LearnMore (477) | `{% learnmore %}...{% endlearnmore %}` | block | |
 | Include (422) | `{% include_markdown "reference/cli/includes/x.md" %}` | tag | Douze 3.4; the 14 partials get `permalink: false` through `content/reference/cli/includes/includes.yml` |
-| Image (342) | `{% image "...", alt: "..." %}` | inline | width and height, WebP variants, lazy |
+| Image (342) | `{% image "...", alt: "..." %}` | inline | width and height, WebP variants, lazy (Douze 3.8, phase S4) |
 | Steps (257) | `{% steps %}...{% endsteps %}` | block | ordered list body |
 | ThemeImage (156) | `{% image light: ..., dark: ..., alt, zoomable, href, label %}` | inline | |
 | Badge (136) | `{% badge "New", variant: "tip", size: "small" %}` | inline | |
@@ -546,8 +561,10 @@ shortcodes, and `src/frontend/src/content` is frozen (a CI check fails a PR that
 ## 8. Locales
 
 Strategy: **keep the 15 locales and the fallback behavior**; let Douze render the fallbacks (`site.locales.fallback:
-true`): the 7,500 fallback routes exist as today, with the locale's chrome, the "this page is not translated yet"
-notice (`fallback` metadata), `hreflang` alternates from `alternates`, and `lang`/`dir`. The cost is seconds. The
+true`; the locale folders are the children of the content folder, so `/ja/get-started/x/` is `content/ja/get-started/x.md`
+and its `locale_url` is `/get-started/x/`): the 7,500 fallback routes exist as today, with the locale's chrome, the
+"this page is not translated yet" notice (`fallback` metadata), `hreflang` alternates from `alternates`, and
+`lang`/`dir`. The cost is seconds. The
 alternative (serving English from StaticHost for missing locale paths) would change the url set, the sitemap and the
 notice, for no benefit.
 
@@ -556,7 +573,8 @@ notice, for no benefit.
 - Sidebar labels: `data/sidebar/*.yml` carry `label: { en: ..., fr: ... }` from the TypeScript `translations`,
   converted once by `sidebar-from-ts.mjs` (which evaluates the modules with Node and writes YAML); `nav_label: lang`
   picks the locale's label.
-- Locale selector: the `language select` partial lists `site.locales.languages` and links `locale_url`.
+- Locale selector: the `language select` partial lists `site.locales.languages` (exposed by Douze in the settings
+  scope, with a recorded dependency) and links `locale_url`.
 - The API reference stays English only: the templates live outside `docs/`, so `localize` ignores them, and the
   locale-prefixed `/ja/reference/api/...` links are rewritten to the root by the sidebar partial (as
   `route-data-middleware` does today). StaticHost's 308 for localized API paths (today in `src/middleware.ts`, SSR
@@ -696,7 +714,8 @@ API pages beyond the chrome, and the API build takes under 30 s on the CI runner
 
 ### M3: the chrome port (L, High, review)
 
-**Needs** Douze S1, S3 (navigation and locales), S4 (assets, images, social images) from the preview feed. **Owns**
+**Needs** Douze S1, S3 (navigation and locales), S4 (assets, images, social images) from the preview feed; M2 for
+the last step (the API pages wearing the chrome). **Owns**
 `templates/layouts/*`, `templates/partials/*`, `assets/css/*` (except `api-*`), `assets/fonts`, `scripts/client/*`
 (except `api/`), `uno.config.ts`, `scripts/build-client.mjs`, `data/sidebar/*`, `data/i18n/*`, `data/site.yml`,
 `scripts/sidebar-from-ts.mjs`, `scripts/icons-sprite.mjs`. **Does** section 4 (layouts, partials, the three CSS
@@ -708,7 +727,7 @@ site-search with Pagefind, wcag-aa on the fixture pages) pass, and the API pages
 
 ### M4: the converter (M, High, review)
 
-**Needs** Douze S1 (shortcodes), S2 (includes, headings, replace, twins). **Owns** `scripts/convert-mdx/*`,
+**Needs** Douze S1 (shortcodes, `include_markdown`), S2 (headings, replace, twins), S4 (`image`). **Owns** `scripts/convert-mdx/*`,
 `templates/shortcodes/*` (section 7.2, written against the components' markup), `tests/unit/convert-mdx*`,
 `scripts/code-worker.mjs` + `ec.config.mjs`. **Does** sections 7.1 and 7.2, dry runs on the whole content with the
 report, the code worker configured as today's Expressive Code. **Done when** the dry run converts at least 90% of
@@ -717,7 +736,7 @@ diff.
 
 ### M5: articles, locales, outputs (M)
 
-**Needs** M3, M4; Douze S2, S3, S4. **Owns** `content/**` (the converted articles committed, `ja` included, the
+**Needs** M3, M4; Douze S2, S3, S4, S5 (`links`, `check-links`). **Owns** `content/**` (the converted articles committed, `ja` included, the
 glossary, hub and samples templates, the feeds, sitemap, llms templates, 404), `data/redirects.yml`, `og/card.svg.liquid`,
 the rest of `douze.yml`. **Does** the conversion run, the manual queue (about 25 files), the data-driven pages
 (4.6), locales (8), social images, redirects, llms outputs (reproducing `starlight-llms-txt`'s three files: an index
@@ -728,7 +747,7 @@ excluding the sections the config excludes today), RSS, sitemap with `locale_pag
 
 ### M6: hosting and CI (S)
 
-**Needs** M2 (the first full Douze output). **Owns** `src/statichost/*`, `tests/StaticHost.Tests`, `src/apphost/*`,
+**Needs** M2 (the first full Douze output); Douze S6 for the AppHost's `douze serve` (the CI part needs nothing). **Owns** `src/statichost/*`, `tests/StaticHost.Tests`, `src/apphost/*`,
 `.github/workflows/site-build.yml`, `ci.yml`, `update-integration-data.yml`, `.config/dotnet-tools.json`. **Does**
 sections 9 and 10, with the Astro workflow still running in parallel on `main` (the Douze workflow runs on the branch
 only, `continue-on-error` until M7). **Done when** StaticHost tests pass with Douze's output and the e2e job runs
@@ -757,10 +776,10 @@ and the daily data job has run once on `main` with the new generators.
 | M0 generators | | | M, High | yes |
 | M1 parity harness | | | S | no |
 | M2 API reference | S1 (S5 for the sidebar cache) | M0, M1 | L, High | yes |
-| M3 chrome | S1, S3, S4 | M1 | L, High | yes |
-| M4 converter | S1, S2 | | M, High | yes |
-| M5 articles and outputs | S2, S3, S4 | M3, M4 | M | no |
-| M6 hosting and CI | | M2 | S | no |
+| M3 chrome | S1, S3, S4 | M1, M2 (last step) | L, High | yes |
+| M4 converter | S1, S2, S4 | | M, High | yes |
+| M5 articles and outputs | S2, S3, S4, S5 | M3, M4 | M | no |
+| M6 hosting and CI | S6 (dev server only) | M2 | S | no |
 | M7 parity and performance | S7 | M5, M6 | M | yes |
 | M8 cutover | | M7 | S | no |
 
@@ -776,9 +795,9 @@ The same table as section 6 of `docs/site-features-plan.md` in the Douze reposit
 | Order | Douze | aspire.dev | Dependency |
 |---|---|---|---|
 | 1 | S1 Markdown pipeline, shortcodes, engine additions | M0 generators, M1 parity harness | none between them |
-| 2 | S2, S3, S4, S5 in parallel | M2 API reference (starts on S1; takes S5's `cache` when it lands) | M2 needs S1 |
-| 3 | S6 watch and serve | M3 chrome (needs S1, S3, S4), M4 converter (needs S1, S2) | preview feed |
-| 4 | S7 docs sample, benchmarks, first release | M5 articles and outputs (needs M3, M4), M6 hosting and CI (needs M2) | |
+| 2 | S2, S3, S4, S5, S6 in parallel | M2 API reference (starts on S1; takes S5's `cache` when it lands) | M2 needs S1 |
+| 3 | S6 watch and serve (needs S1 only, parallel with S2 to S5) | M3 chrome (needs S1, S3, S4), M4 converter (needs S1, S2, S4) | preview feed |
+| 4 | S7 docs sample, benchmarks, first release | M5 articles and outputs (needs M3, M4; S2 to S5), M6 hosting and CI (needs M2; S6 for the dev server) | |
 | 5 | fixes from M7 | M7 parity and performance (needs S7) | |
 | 6 | | M8 cutover | |
 
