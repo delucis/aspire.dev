@@ -21,7 +21,7 @@ params: [package, parameter_types]
   {%- assign scoped = entry.packages[package] -%}
   {%- if scoped -%}{%- assign cs = scoped.csharp -%}{%- assign ts = scoped.typescript -%}{%- endif -%}
 {%- endif -%}
-<span class="api-reference not-content" data-status="{{ entry.status }}">
+<span class="api-reference not-content cid-api-reference" data-status="{{ entry.status }}">
 {%- if cs.path -%}
 <a class="ar-lang" data-lang="csharp" href="{{ cs.path }}" aria-label="{{ cs.label }} — C# API reference" title="{{ cs.title | default: cs.label | append: ' — C# API reference' | truncate: 160 }}" data-tooltip-placement="top" data-tippy-allowhtml="false"><code><span class="ar-icon i-material-icon-theme:csharp" aria-hidden="true"></span><span>{{ cs.label }}</span></code></a>
 {%- else -%}
