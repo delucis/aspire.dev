@@ -11,7 +11,8 @@
   ca_row_end (control characters that sort before any title character and never occur in the data).
   The languages of an article are its framework folder's, plus those of its code fences when a `doc_text` collection
   holds the pages' Markdown (see step 3; without it, the fences are not read). Not reproduced: the languages of
-  included files, and the removal of diacritics from the search text (it is lowercased).
+  included files, and the removal of diacritics from the search text (lowercased, its ellipses expanded as NFKD does;
+  no entry has an accented letter).
 {%- endcomment -%}
 {%- assign ca_facets = "|" -%}
 {%- assign ca_none = dev_hub.topics | where: "id", "~" -%}

@@ -83,14 +83,14 @@ To create your first Aspire application, use the [Aspire CLI](/get-started/insta
 
     The template provides several projects, including an API service, web frontend, and AppHost.
 
-        :::tip[CLI flags]{icon='list-format'}
+    :::tip[CLI flags]{icon='list-format'}
 
-        The following flags are used in the command:
+    The following flags are used in the command:
 
-        - `-n`: specifies the name of the solution.
-        - `-o`: specifies the output directory.
+    - `-n`: specifies the name of the solution.
+    - `-o`: specifies the output directory.
 
-        :::
+    :::
 
     {% learnmore %}
 For further CLI reference, see [`aspire new`](/reference/cli/commands/aspire-new/) command information.
@@ -111,12 +111,12 @@ To create your first Aspire application, use the [Aspire CLI](/get-started/insta
 
     The template provides several projects, including an API service, web frontend, and AppHost.
 
-        :::tip[CLI flags]{icon='list-format'}
-        The following flags are used in the command:
+    :::tip[CLI flags]{icon='list-format'}
+    The following flags are used in the command:
 
-        - `-n`: specifies the name of the solution.
-        - `-o`: specifies the output directory.
-        :::
+    - `-n`: specifies the name of the solution.
+    - `-o`: specifies the output directory.
+    :::
 
     {% learnmore %}
 For further CLI reference, see [`aspire new`](/reference/cli/commands/aspire-new/) command information.

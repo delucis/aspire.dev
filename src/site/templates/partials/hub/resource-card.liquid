@@ -2,19 +2,26 @@
   A resource of the catalog (src/frontend/src/utils/dev-center/resource-card-html.ts resourceCardHtml, with
   resource-presentation.ts and resource-search.ts resourceSearchEntry), written as one row of the catalog:
   "<sort key><ca_key_end><li ...>...</li><ca_row_end>", the sort key being the lowercased title, its punctuation
-  mapped to ca_punctuation_keys, then the id (the catalog is sorted by title, then id). Inputs: rc_id, rc_title, rc_desc (Markdown allowed: summarized here),
-  rc_href, rc_type, rc_topics, rc_tags, rc_languages, rc_providers (arrays), rc_platform (youtube, twitch or nil),
+  mapped to ca_punctuation_keys and its symbols to ca_symbol_key, then the title with its capitals as ca_upper_key
+  (lowercase first), then the id (the catalog is sorted by title, then id). Inputs: rc_id, rc_title, rc_desc
+  (Markdown allowed: summarized here), rc_href, rc_type, rc_topics, rc_tags, rc_languages, rc_providers (arrays), rc_platform (youtube, twitch or nil),
   rc_light, rc_dark (image paths or urls, nil without image; local images become 640px WebP variants), rc_logo (the
   image is a logo: shown as artwork), rc_date (YYYY-MM-DD or nil). Also reads dev_hub.resource_types, ca_key_end,
   ca_row_end, and adds the type, topics and languages to ca_facets ("|type:x|topic:y|language:z|").
   Each card's styles are global (resource-card.css), as the Astro component set its HTML.
 {%- endcomment -%}
 {%- assign rc_topics = rc_topics | uniq | sort -%}
-{%- assign rc_tags = rc_tags | uniq | sort -%}
+{%- comment -%} uniqueValues sorts with localeCompare: case-insensitive (sort_natural), not ordinal. {%- endcomment -%}
+{%- assign rc_tags = rc_tags | uniq | sort_natural -%}
 {%- assign rc_languages = rc_languages | uniq | sort -%}
 {%- assign rc_providers = rc_providers | uniq | sort -%}
 {%- comment -%} summary(): the description as text, at most 280 characters. {%- endcomment -%}
 {%- assign rc_text = rc_desc | default: "" | replace: "![", "[" | strip_markdown | strip -%}
+{%- comment -%} sampleDescriptionText strips the Markdown without SmartyPants: the typographic quotes and dashes that
+strip_markdown made are ASCII again, unless the description has such characters itself. {%- endcomment -%}
+{%- unless rc_desc contains "’" or rc_desc contains "‘" -%}{%- assign rc_text = rc_text | replace: "’", "'" | replace: "‘", "'" -%}{%- endunless -%}
+{%- unless rc_desc contains "“" or rc_desc contains "”" -%}{%- assign rc_text = rc_text | replace: "“", '"' | replace: "”", '"' -%}{%- endunless -%}
+{%- unless rc_desc contains "–" -%}{%- assign rc_text = rc_text | replace: "–", "--" -%}{%- endunless -%}
 {%- if rc_text.size > 280 -%}{%- assign rc_text = rc_text | slice: 0, 277 | rstrip | append: "…" -%}{%- endif -%}
 {%- comment -%} The type and its presentation (label, icon, variant, identifier). {%- endcomment -%}
 {%- assign rc_kind = dev_hub.resource_types | where: "id", rc_type | first -%}
@@ -70,11 +77,13 @@
 {%- assign rc_topic_titles = "" -%}
 {%- for tp_id in rc_topics -%}{%- include "partials/hub/topic" -%}{%- assign rc_topic_titles = rc_topic_titles | append: " " | append: tp_title -%}{%- endfor -%}
 {%- assign rc_joined = rc_tags | join: " " -%}
-{%- assign rc_search = rc_title | append: " " | append: rc_text | append: " " | append: rc_joined -%}
+{%- assign rc_search = rc_title | append: " " | append: rc_text -%}{%- if rc_joined != "" -%}{%- assign rc_search = rc_search | append: " " | append: rc_joined -%}{%- endif -%}
 {%- assign rc_joined = rc_languages | join: " " -%}{%- if rc_joined != "" -%}{%- assign rc_search = rc_search | append: " " | append: rc_joined -%}{%- endif -%}
 {%- assign rc_search = rc_search | append: " " | append: rc_platform | append: rc_facet_labels -%}
 {%- assign rc_joined = rc_providers | join: " " -%}{%- if rc_joined != "" -%}{%- assign rc_search = rc_search | append: " " | append: rc_joined -%}{%- endif -%}
-{%- assign rc_search = rc_search | append: rc_topic_titles | downcase | strip -%}
+{%- comment -%} normalizeGlossaryText: NFKD without combining marks (the data has no accented letters; the ellipsis
+is the compatibility character in use), lowercased. {%- endcomment -%}
+{%- assign rc_search = rc_search | append: rc_topic_titles | replace: "…", "..." | downcase | strip -%}
 {%- if rc_platform -%}{%- assign rc_platforms = rc_platform | split: "~" -%}{%- else -%}{%- assign rc_platforms = "" | split: "~" -%}{%- endif -%}
 {%- capture rc_entry -%}{"id":{{ rc_id | json | raw }},"title":{{ rc_title | json | raw }},"text":{{ rc_search | json | raw }},"type":{{ rc_type | json | raw }},"topic":{{ rc_topics | json | raw }},"language":{{ rc_languages | json | raw }},"platform":{{ rc_platforms | json | raw }},"date":{{ rc_date | default: "" | json | raw }}}{%- endcapture -%}
 {%- assign ca_facets = ca_facets | append: "type:" | append: rc_type | append: "|" -%}
@@ -89,7 +98,10 @@
 {%- assign rc_title_id = rc_id | url_encode | prepend: "resource-" -%}
 {%- assign rc_key = rc_title | downcase -%}
 {%- for rc_mark in ca_punctuation -%}{%- assign rc_key = rc_key | replace: rc_mark, ca_punctuation_keys[forloop.index0] -%}{%- endfor -%}
-{{- rc_key | raw }}{{ ca_tie | raw }}{{ rc_id | raw }}{{ ca_key_end | raw -}}
+{%- for rc_mark in ca_symbols -%}{%- assign rc_key = rc_key | replace: rc_mark, ca_symbol_key -%}{%- endfor -%}
+{%- assign rc_case = rc_title | replace: "’", "'" -%}
+{%- for rc_mark in ca_upper -%}{%- assign rc_case = rc_case | replace: rc_mark, ca_upper_key -%}{%- endfor -%}
+{{- rc_key | raw }}{{ ca_tie | raw }}{{ rc_case | raw }}{{ ca_tie | raw }}{{ rc_id | raw }}{{ ca_key_end | raw -}}
 <li class="browse-result" data-resource-entry="{{ rc_entry | escape }}" data-resource-type="{{ rc_type }}" style="--resource-accent: {{ rc_accent }}; --grain-x: {{ rc_gx }}%; --grain-y: {{ rc_gy }}%"><a class="browse-card{% if rc_external %} external-link{% endif %}" data-underline-trigger href="{{ rc_href }}" aria-labelledby="{{ rc_title_id }}"{% if rc_languages.size > 0 %} aria-describedby="{{ rc_title_id }}-languages"{% endif %}><div class="browse-card-preview{% if rc_artwork %} browse-card-artwork{% endif %}" data-artwork="{{ rc_variant }}">
 {%- if rc_light and rc_artwork == false -%}
   {%- assign ri_light = rc_light_url -%}{%- assign ri_dark = rc_dark_url -%}{%- assign ri_width = 640 -%}{%- assign ri_height = 360 -%}{%- assign ri_class = nil -%}{%- include "partials/hub/resource-image" -%}

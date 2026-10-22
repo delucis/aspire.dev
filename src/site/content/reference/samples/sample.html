@@ -26,8 +26,9 @@ ca_ascii: " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`ab
 " -%}
 {%- capture sp_text -%}{%- for sp_line in sp_lines -%}{%- unless sp_line contains "|" -%}{{ sp_line | raw }}
 {% endunless -%}{%- endfor -%}{%- endcapture -%}
-{%- comment -%} An image counts as its alt text. {%- endcomment -%}
-{%- assign sp_lines = sp_text | replace: "![", "[" | strip_markdown | split: "
+{%- comment -%} An image counts as its alt text; an alert marker ([!NOTE]) is text, as sampleDescriptionText left it. {%- endcomment -%}
+{%- capture sp_alert -%}\[!{%- endcapture -%}
+{%- assign sp_lines = sp_text | replace: "![", "[" | replace: "[!", sp_alert | strip_markdown | split: "
 " -%}
 {%- for sp_line in sp_lines -%}{%- assign sp_text = sp_line | strip -%}{%- if sp_text != "" -%}{%- assign sd_summary = sp_text | split: " " | join: " " -%}{%- break -%}{%- endif -%}{%- endfor -%}
 {%- comment -%} Captured as text (raw): the layouts encode it. {%- endcomment -%}

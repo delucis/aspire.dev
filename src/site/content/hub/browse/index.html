@@ -16,14 +16,20 @@ ca_key_end: "\x01"
 ca_row_end: "\x02"
 ca_ascii: " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~"
 ca_bits: [128, 64, 32, 16, 8, 4, 2, 1]
-# Titles sort as localeCompare does for English (ICU): punctuation in this order, before digits and letters.
+# Titles sort as localeCompare does for English (ICU): punctuation in this order, before digits and letters; titles
+# equal but for case put lowercase first (ca_upper: each uppercase letter becomes ca_upper_key in a second key).
 ca_punctuation: " _-,;:!?.'’\"()@*/\\&#%+"
 ca_punctuation_keys: "\x04\x05\x06\x07\x08\x0b\x0c\x0e\x0f\x10\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b"
+# Symbols (the emoji of the data, "|" separated) sort after punctuation, before digits and letters.
+ca_symbols: "💫|📺"
+ca_symbol_key: "\x1c"
+ca_upper: "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+ca_upper_key: "\x7f"
 ---
 {%- comment -%} InpageSearch's scoped styles (the search field, chips and stats) are in the API components' stylesheet,
 which only the API layout links. {%- endcomment -%}
 <link rel="stylesheet" href="/assets/css/api-components.css">
-{%- assign ca_punctuation = ca_punctuation | split: "" -%}{%- assign ca_punctuation_keys = ca_punctuation_keys | split: "" -%}
+{%- assign ca_punctuation = ca_punctuation | split: "" -%}{%- assign ca_punctuation_keys = ca_punctuation_keys | split: "" -%}{%- assign ca_symbols = ca_symbols | split: "|" -%}{%- assign ca_upper = ca_upper | split: "" -%}
 {%- include "partials/hub/catalog" -%}
 {%- assign br_count = ca_rows.size -%}
 <resource-browser class="not-content cid-dev-center-resource-browser" data-filter-path="/hub/browse/"><script>
