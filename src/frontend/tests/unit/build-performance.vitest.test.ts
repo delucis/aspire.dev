@@ -71,14 +71,22 @@ test('frontend workflow keeps validation parallel and every shard required', asy
   expect(job('build')).toContain('./node_modules/astro/bin/astro.mjs build --mode production');
 });
 
-test('build job restores Astro incremental state keyed on the Bun lockfile', async () => {
+test('build job restores Astro incremental state keyed on the Bun lockfile and saves it sparingly', async () => {
   const workflow = (await readFile(new URL('../../../../.github/workflows/frontend-build.yml', import.meta.url), 'utf8')).replace(/\r\n/g, '\n');
-  const cacheStep = workflow.match(/- name: Cache Astro build state\n([\s\S]*?)(?=\n {6}- name:)/)?.[1];
-  expect(cacheStep).toBeDefined();
-  expect(cacheStep).toContain('path: src/frontend/node_modules/.astro');
-  expect(cacheStep).toContain("hashFiles('src/frontend/bun.lock', 'src/frontend/astro.config.mjs', 'src/frontend/patches/*.patch')");
-  expect(cacheStep).toContain('-${{ github.sha }}');
-  expect(cacheStep).toMatch(/restore-keys: \|\n\s+astro-build-\$\{\{ runner\.os \}\}-/);
+  const step = (name: string) => workflow.match(new RegExp(`- name: ${name}\\n([\\s\\S]*?)(?=\\n {6}- name:)`))?.[1];
+  const restoreStep = step('Restore Astro build state');
+  expect(restoreStep).toBeDefined();
+  expect(restoreStep).toContain('uses: actions/cache/restore@');
+  expect(restoreStep).toContain('path: src/frontend/node_modules/.astro');
+  expect(restoreStep).toContain("hashFiles('src/frontend/bun.lock', 'src/frontend/astro.config.mjs', 'src/frontend/patches/*.patch')");
+  expect(restoreStep).toContain('-${{ github.sha }}');
+  expect(restoreStep).toMatch(/restore-keys: \|\n\s+astro-build-\$\{\{ runner\.os \}\}-/);
+  const saveStep = step('Save Astro build state');
+  expect(saveStep).toBeDefined();
+  expect(saveStep).toContain('uses: actions/cache/save@');
+  expect(saveStep).toContain('path: src/frontend/node_modules/.astro');
+  expect(saveStep).toContain('key: ${{ steps.astro_cache.outputs.cache-primary-key }}');
+  expect(saveStep).toContain("if: ${{ success() && (github.event_name == 'push' || steps.astro_cache.outputs.cache-matched-key == '') }}");
 });
 
 test('CPU, timing, output inventories and diagnostic uploads are opt-in only', async () => {

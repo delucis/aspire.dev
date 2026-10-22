@@ -25,6 +25,10 @@ import buildTiming from './config/build-timing.mjs';
 import UnoCSS from 'unocss/astro';
 import Icons from 'starlight-plugin-icons';
 
+// Bun resolves `import.meta.env` to `process.env`, so raw-TS Astro plugins that read
+// Vite's `BASE_URL` (starlight-links-validator) get `undefined`. The site is served from `/`.
+process.env.BASE_URL ??= '/';
+
 const modeArgIndex = process.argv.indexOf('--mode');
 const isSkipSearchBuild = modeArgIndex >= 0 && process.argv[modeArgIndex + 1] === 'skip-search';
 const outDir = process.env.ASTRO_OUT_DIR;

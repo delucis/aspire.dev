@@ -79,11 +79,13 @@ jobs:
       # `incrementalBuild` keeps its state, including a copy of every
       # prerendered route, under node_modules/.astro and decides for itself
       # what is stale. The key only partitions by the inputs that invalidate
-      # all of it (lockfile, config, patches) and saves a new entry per commit,
-      # so restore-keys always resolves to the newest compatible state.
-      - name: Cache Astro build state
+      # all of it (lockfile, config, patches), so restore-keys always resolves
+      # to the newest compatible state. Pushes and a PR's first build save a
+      # new entry (below); later PR builds keep restoring it instead of
+      # writing another entry per commit.
+      - name: Restore Astro build state
         id: astro_cache
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: src/frontend/node_modules/.astro
           key: astro-build-${{ runner.os }}-${{ hashFiles('src/frontend/bun.lock', 'src/frontend/astro.config.mjs', 'src/frontend/patches/*.patch') }}-${{ github.sha }}
@@ -115,6 +117,13 @@ jobs:
           else
             bun run build:production
           fi
+
+      - name: Save Astro build state
+        if: ${{ success() && (github.event_name == 'push' || steps.astro_cache.outputs.cache-matched-key == '') }}
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: src/frontend/node_modules/.astro
+          key: ${{ steps.astro_cache.outputs.cache-primary-key }}
 
       - name: Report Astro build cache
         if: ${{ always() }}
