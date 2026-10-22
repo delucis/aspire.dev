@@ -61,7 +61,13 @@ steps:
                           text: [ { value: "{{ seoTitle | default: title }}", font: "Outfit Bold 54", fontfile: assets/fonts/Outfit-Bold.ttf, x: 96, y: 232, width: 1008, height: 150, color: "#ffffff", align: left },
                                   { value: "{{ description | strip_markdown | truncate: 180 }}", font: "Outfit 30", fontfile: assets/fonts/Outfit-Regular.ttf, x: 96, y: 392, width: 1008, height: 96, color: "#dcd5f6", align: left } ] } }
   paginate:     { needs: og, uses: paginate }
-  render:       { needs: paginate, uses: liquid }             # pages, the hub and samples templates, the *.liquid output templates
+  # The samples' social images (/og/reference/samples/<slug>.png, the og:image of sample.html): the primary thumbnail,
+  # or the branded card for the samples without one.
+  sample-og:    { needs: paginate, uses: social-image, match: ["reference/samples/*/index.html"],
+                  with: { template: og/sample.svg.liquid, width: 1200, height: 630, output: "og/reference/samples/{{ sample.name | slug }}.png",
+                          text: [ { value: "{% unless sample.thumbnail %}{{ sample.title }}{% endunless %}", font: "Outfit Bold 54", fontfile: assets/fonts/Outfit-Bold.ttf, x: 96, y: 232, width: 1008, height: 150, color: "#ffffff", align: left },
+                                  { value: "{% unless sample.thumbnail %}{{ sample.description | strip_markdown | strip | newline_to_br | split: '<br />' | first | strip | truncate: 180 }}{% endunless %}", font: "Outfit 30", fontfile: assets/fonts/Outfit-Regular.ttf, x: 96, y: 392, width: 1008, height: 96, color: "#dcd5f6", align: left } ] } }
+  render:       { needs: sample-og, uses: liquid }             # pages, the hub and samples templates, the *.liquid output templates
   versions:     { needs: render, uses: replace, with: { tokens: { "%ASPIRE_VERSION%": "{{ site.versions.aspire }}", "%ASPIRE_VERSION_MAJOR_MINOR%": "{{ site.versions.majorMinor }}", "%ASPIRE_VERSION_PREVIEW%": "{{ site.versions.preview }}" } } }
   # Markdown twins at StaticHost's paths: /get-started/x/ -> /get-started/x.md, / -> /index.md, /ja/ -> /ja.md.
   # Twins of the root locale's pages, of the translated ja pages and of every locale's home page, as before.
