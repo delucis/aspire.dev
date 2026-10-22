@@ -163,6 +163,18 @@ numbers of the table above.
 | Douze clean, twoslash cache cold | 4 min 9 s | 12.0 GB | twoslash in the worker is the time, not the memory |
 | Douze warm rebuild, nothing changed | 2.1 s | 1.8 GB | |
 
+Satori GC against the standard GC, same commit, clean Douze builds (twoslash cache warm) interleaved on a machine
+that was quiet at the start (1-minute load 2.8; it rose with the builds themselves to 19 by the last one):
+
+| Binary | Run 1 | Run 2 |
+|---|---|---|
+| Satori GC (the default of the AOT publish) | 23.7 s, `douze` 11.4 GB, tree 12.0 GB | 39.4 s, `douze` 12.8 GB, tree 13.4 GB |
+| Standard GC (`-p:UseSatoriGC=false`, non-concurrent workstation) | 47.5 s, `douze` 14.4 GB, tree 15.0 GB | 58.1 s, `douze` 13.4 GB, tree 14.0 GB |
+
+The standard GC is not lower on this build: it is slower (about 1.5 to 2 times) and peaks higher, so the default stays.
+The 23.7 s run is the clean-build time of this site on a quiet machine after the day's engine work (66 s this morning,
+2 min 50 s overnight).
+
 The `douze` process alone measured 5.5 to 6.1 GB in the Douze benchmark of the same change (`bench/README.md`,
 the locale copies section, with `/usr/bin/time -l` on a copy of the site before the Pagefind step was reworked); the
 native AOT build uses the Satori GC, which peaks higher than the standard GC for the same build (10 to 14 GB on
