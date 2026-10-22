@@ -2,6 +2,7 @@
 # The latest CLI configuration schema (data/schemas/index.json names it), as the former schema.json.ts endpoint.
 permalink: /reference/cli/configuration/schema.json
 layout: false
+localize: false   # one output set, not one per locale
 ---
 {%- assign schema_key = "aspire-config." | append: schemas.index.latest | append: ".schema" -%}
 {{ schemas[schema_key] | json | raw }}

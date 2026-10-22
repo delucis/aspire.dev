@@ -3,6 +3,7 @@
 pagination: { data: schemas.index.versions, size: 1, alias: version }
 permalink: "/reference/cli/configuration/schema/{{ version }}.json"
 layout: false
+localize: false   # one output set, not one per locale
 ---
 {%- assign schema_key = "aspire-config." | append: version | append: ".schema" -%}
 {{ schemas[schema_key] | json | raw }}
