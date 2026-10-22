@@ -66,7 +66,7 @@ steps:
   twins:        { needs: versions, uses: fork, match: ["**/*.md", "!da/**", "!de/**", "!es/**", "!fr/**", "!hi/**", "!id/**", "!it/**", "!ko/**", "!pt-br/**", "!ru/**", "!tr/**", "!uk/**", "!zh-cn/**"], with: { permalink: "{% if url == '/index.html' %}/index.md{% else %}{{ url | replace: '/index.html', '.md' }}{% endif %}", data: { markdown: false, layout: false, twin: true }, content: "# {{ title }}\n\n{{ content }}" } }
   markdown:     { needs: twins, uses: markdown }
   # The home pages have no heading anchors (their sections are components).
-  headings:     { needs: markdown, uses: headings, match: ["**/*.html", "!index.html", "!{da,de,es,fr,hi,id,it,ja,ko,pt-br,ru,tr,uk,zh-cn}/index.html"], with: { anchors: true, wrapper-class: sl-heading-wrapper, anchor-class: sl-anchor-link, levels: [2, 3] } }
+  headings:     { needs: markdown, uses: headings, match: ["**/*.html", "!index.html", "!{da,de,es,fr,hi,id,it,ja,ko,pt-br,ru,tr,uk,zh-cn}/index.html"], with: { anchors: true, wrapper-class: sl-heading-wrapper, anchor-class: sl-anchor-link, levels: [2, 3], skip-classes: [not-content] } }   # component headings are not the page's
   code:         { needs: headings, run: "node scripts/code-worker.mjs", mode: worker, match: "**/*.html", sources: ["scripts/code-worker.mjs", "scripts/douze-worker.mjs", "ec.config.mjs", "data/twoslash/**", "data/i18n/*.json"], with: { cache: .douze/code-cache }, env: { NODE_NO_WARNINGS: "1" }, stderr: warn }
 
   # API reference: one template per route paginates its route list (size 1); the .html templates render the pages, the
