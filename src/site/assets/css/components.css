@@ -4954,6 +4954,50 @@ a:focus-visible, a:focus-visible:where(:scope) {
   content: none !important;
 }
 }
+/* `.not-content` opts the subtree out of Starlight's content styles, so the
+   category heading is styled here to read like an in-page section header. */
+
+/* Card grid capped at two columns, matching the integration gallery. One
+   column until the catalog is wide enough for two comfortable ~22rem cards
+   (2 × 22rem + 1rem gap ≈ 45rem), then exactly two — never three, so the
+   container reference and tag stay readable and never scroll horizontally. */
+
+/* Let long monospace references shrink and wrap within a column instead of
+   widening the track. */
+
+/* Defensive fallback for browsers without container-query support: a viewport
+   media query tuned for desktop where the Starlight sidebar is visible. */
+
+/* The hero data: the full container reference. Wraps inside the card (no
+   horizontal scroll) with the tag emphasized. */
+
+/* A single path segment (e.g. "azure-app-configuration/"). Kept on one line
+   so a wrapped reference breaks at `/` boundaries, not at internal hyphens. */
+
+/* On very narrow viewports, allow segments to wrap internally so an unusually
+   long host/image segment can never force horizontal scroll. */
+
+/* Meta row: registry link (with brand glyph) on the left, source link on the
+   right; wraps to stack on narrow cards. */
+
+.cic-glyph:where(.cid-container-image-catalog, .cid-container-image-catalog *) img:not(cid-never), .cic-glyph:where(.cid-container-image-catalog, .cid-container-image-catalog *) svg:not(cid-never) {
+  display: block;
+  width: 14px;
+  height: 14px;
+}
+
+/* Footer docs link — pinned to the bottom of the card (so footers align
+   across a row) with a separator, mirroring the gallery card footer. Points
+   at the integration's documentation for deeper detail. */
+
+.cic-docs:where(.cid-container-image-catalog, .cid-container-image-catalog *) svg:not(cid-never) {
+  flex-shrink: 0;
+}
+
+/* Group-level provenance note, mirroring the ContainerImages card component. */
+
+/* Suppress any auto-appended external-link icon on our links; each renders its
+   own iconography where needed. */
 
 /* ==== src/frontend/src/components/ContainerImages.astro -> .cid-container-images ==== */
 /* <style> */
@@ -5148,6 +5192,62 @@ a:focus-visible, a:focus-visible:where(:scope) {
   content: none !important;
 }
 }
+/* Caption tying the image back to the API that introduces it, rendered under
+   the reference so the card reads as a detail of that API call. */
+
+/* Group-level provenance note. The catalog is generated from microsoft/aspire@main,
+   so a card's tag can be newer than the package version a page pins in its install
+   snippet. Stating that keeps readers from copying an image that doesn't match the
+   package they installed. Rendered once per component, below the cards. */
+
+/* The API method reads as inline code that matches prose inline code exactly.
+   The component root carries `.not-content`, which opts the subtree out of
+   Starlight's inline-code rule, so replicate that rule here with the same
+   theme vars. Casing pivots with the page's C#/TS selection (rules below). */
+
+/* Language pivot: mirror the page-wide `syncKey="aspire-lang"` choice. Default
+   to the TypeScript name while preserving an explicit C# selection. The
+   `data-aspire-lang` attribute is set on <html> by the inline script below. */
+
+html[data-aspire-lang='typescript'] .ci-api:where(.cid-container-images, .cid-container-images *) [data-lang='typescript']:where(.cid-container-images, .cid-container-images *):not(cid-never) {
+  display: inline;
+}
+
+html[data-aspire-lang='csharp'] .ci-api:where(.cid-container-images, .cid-container-images *) [data-lang='csharp']:where(.cid-container-images, .cid-container-images *):not(cid-never) {
+  display: inline;
+}
+
+/* The registry brand glyph lives inside the registry link, so it inherits the
+   link's accent color. The Microsoft and GitHub marks use `currentColor` and
+   follow the theme; the Docker logo keeps its own brand blue. */
+
+.ci-glyph:where(.cid-container-images, .cid-container-images *) img:not(cid-never), .ci-glyph:where(.cid-container-images, .cid-container-images *) svg:not(cid-never) {
+  display: block;
+  width: 14px;
+  height: 14px;
+}
+
+/* The image name reads as inline code (matching prose inline code) inside the
+   "`{name}` container image" title. Same recipe as `.ci-api`. */
+
+/* Reuse the site's Expressive Code block for the reference so the copy button
+   and code styling match every other code block on the page. Strip the EC
+   frame's default block margin so it sits flush inside the card. */
+.ci-code:where(.cid-container-images, .cid-container-images *) .expressive-code:not(cid-never) {
+  margin: 0;
+}
+
+/* Bottom row: the API tie-in caption on the left, the provenance Source link
+   pushed to the right so it sits opposite the caption. */
+
+/* Registry link is the primary affordance; it uses the high-contrast accent
+   (not `--sl-color-text-accent`, which is ~4.42:1 here) so the text and brand
+   glyph meet WCAG AA contrast against the card's `--sl-color-gray-6`
+   background on both themes. The tag-source link is a secondary, muted
+   provenance link back to the pinned tag in microsoft/aspire. */
+
+/* The component renders its own single external-link icon; suppress Starlight's
+   auto-appended content icon so the links don't show two. */
 
 /* ==== src/frontend/src/components/ContainerRuntimeChoices.astro -> .cid-container-runtime-choices ==== */
 /* <style> */
@@ -7563,6 +7663,57 @@ html[data-theme='dark'] .slide:where(.cid-dashboard-carousel, .cid-dashboard-car
   border-right-width: 1px;
 }
 }
+/* Clickable title — keep the same visual weight but signal it's a link
+   on hover/focus. The underline appears under the package name only,
+   not the (transparent) ellipsis area. */
+
+/* Tighten the Expressive Code "frame=none" rendering inside cards: shrink
+   the default outer margins and make the snippet visually attach to the
+   language buttons below it.  EC ships its own copy button inside the
+   frame, which is what we want here. */
+
+.card:where(.cid-integration-card, .cid-integration-card *) .install-command:where(.cid-integration-card, .cid-integration-card *) .expressive-code:not(cid-never) {
+  margin: 0 !important;
+}
+
+[data-theme='light'] .card:where(.cid-integration-card, .cid-integration-card *) .install-command:where(.cid-integration-card, .cid-integration-card *) .expressive-code:not(cid-never) {
+  --ec-brdCol: var(--sl-color-gray-5);
+}
+
+.card:where(.cid-integration-card, .cid-integration-card *) .install-command:where(.cid-integration-card, .cid-integration-card *) .expressive-code .frame:not(cid-never) {
+  border-radius: 0.375rem;
+  box-shadow: none;
+}
+
+.card:where(.cid-integration-card, .cid-integration-card *) .install-command:where(.cid-integration-card, .cid-integration-card *) .expressive-code pre:not(cid-never) {
+  font-size: 0.85rem;
+  line-height: 1.4;
+  padding-block: 0.5rem;
+}
+
+/* When language buttons render below the snippet, drop the bottom corner
+   radii so the frame visually fuses with the button row. */
+.card:where(.cid-integration-card, .cid-integration-card *) .install-block:has(.lang-buttons):where(.cid-integration-card, .cid-integration-card *) .install-command:where(.cid-integration-card, .cid-integration-card *) .expressive-code .frame:not(cid-never) {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.card:where(.cid-integration-card, .cid-integration-card *) .install-block:has(.lang-buttons):where(.cid-integration-card, .cid-integration-card *) .install-command:where(.cid-integration-card, .cid-integration-card *) .expressive-code pre:not(cid-never) {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  border-bottom: 0;
+}
+
+.card:where(.cid-integration-card, .cid-integration-card *) .lang-button:where(.cid-integration-card, .cid-integration-card *) img:not(cid-never) {
+  display: block;
+  width: 1.25rem;
+  height: 1.25rem;
+  margin: 0;
+  pointer-events: none;
+}
+
+/* External-docs fallback: a single full-width button replaces the lang
+   pair. Round both bottom corners and add a gap between icon and label. */
 
 /* ==== src/frontend/src/components/IntegrationTotals.astro -> .cid-integration-totals ==== */
 /* <style> */
@@ -10787,6 +10938,74 @@ button:focus-visible:where(:scope) .tooltip {
   }
 }
 }
+/* ── Controls bar ── */
+
+/* Hidden card via filter */
+.session-card.filtered-out:not(cid-never) {
+  display: none !important;
+}
+
+/* Hidden time group when all cards filtered */
+
+/* ── Light theme ── */
+[data-theme='light'] .filter-btn:where(.cid-session-grid, .cid-session-grid *):not(cid-never),[data-theme='light'] .tz-toggle:where(.cid-session-grid, .cid-session-grid *):not(cid-never),[data-theme='light'] .clock-toggle:where(.cid-session-grid, .cid-session-grid *):not(cid-never) {
+  background: var(--sl-color-gray-7);
+  border-color: var(--sl-color-gray-5);
+  color: var(--sl-color-gray-2);
+}
+
+[data-theme='light'] .filter-btn:hover:where(.cid-session-grid, .cid-session-grid *):not(cid-never),[data-theme='light'] .tz-toggle:hover:where(.cid-session-grid, .cid-session-grid *):not(cid-never),[data-theme='light'] .clock-toggle:hover:where(.cid-session-grid, .cid-session-grid *):not(cid-never) {
+  border-color: var(--sl-color-accent);
+  color: var(--sl-color-white);
+}
+
+[data-theme='light'] .filter-btn[aria-pressed='true']:where(.cid-session-grid, .cid-session-grid *):not(cid-never),[data-theme='light'] .tz-toggle[data-active='true']:where(.cid-session-grid, .cid-session-grid *):not(cid-never),[data-theme='light'] .clock-toggle[data-active='true']:where(.cid-session-grid, .cid-session-grid *):not(cid-never) {
+  background: color-mix(in srgb, var(--sl-color-accent) 12%, transparent);
+  border-color: var(--sl-color-accent);
+  color: var(--sl-color-accent-high);
+}
+
+/* ── Timeline ── */
+
+/* Vertical timeline connector */
+
+/* Hide the default details marker */
+
+/* Glowing dot on the timeline */
+
+/* Collapsed info pill — hidden when open */
+
+/* Animate content with interpolate-size */
+
+@keyframes pulse-dot {
+  0%, 100% { box-shadow: 0 0 12px color-mix(in srgb, var(--sl-color-accent) 50%, transparent); }
+  50% { box-shadow: 0 0 20px color-mix(in srgb, var(--sl-color-accent) 70%, transparent); }
+}
+
+/* ── Light theme overrides ── */
+[data-theme='light'] .session-timeline:where(.cid-session-grid, .cid-session-grid *):not(cid-never)::before {
+  background: linear-gradient(
+    180deg,
+    var(--sl-color-accent),
+    color-mix(in srgb, var(--sl-color-accent) 20%, transparent)
+  );
+}
+
+[data-theme='light'] .time-dot:where(.cid-session-grid, .cid-session-grid *):not(cid-never) {
+  box-shadow: 0 0 10px color-mix(in srgb, var(--sl-color-accent) 35%, transparent);
+}
+
+[data-theme='light'] .time-label:where(.cid-session-grid, .cid-session-grid *):not(cid-never) {
+  color: var(--sl-color-text-accent);
+}
+
+[data-theme='light'] .collapse-chevron:where(.cid-session-grid, .cid-session-grid *):not(cid-never) {
+  color: var(--sl-color-text-accent);
+}
+
+/* When only one session in a time block, span full width */
+
+/* When no time groups exist, hide the timeline */
 
 /* ==== src/frontend/src/components/SiteTour.astro -> .cid-site-tour ==== */
 /* <style is:global>: unscoped */

@@ -407,7 +407,9 @@ function transform(css, cls, { global }, report) {
   pruneEmpty(scoped);
   pruneEmpty(legacy);
   wrapInScope(scoped, scopePrelude(cls));
-  const parts = [scoped.toString().trim(), legacy.toString().trim()].filter((p) => p && !/^(\/\*[\s\S]*?\*\/\s*)*$/.test(p));
+  // Drop a copy holding only comments. The comment body must not contain `*/`: a lazy [\s\S]*? would let one
+  // "comment" span from the first `/*` to the last `*/` and drop a copy whose rules sit between two comments.
+  const parts = [scoped.toString().trim(), legacy.toString().trim()].filter((p) => p && !/^(\/\*(?:(?!\*\/)[\s\S])*\*\/\s*)*$/.test(p));
   return parts.join('\n');
 }
 

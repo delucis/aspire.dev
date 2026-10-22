@@ -18,8 +18,11 @@
 // For OS aware tabs (`data-os-aware` on <starlight-tabs>), a missing choice defaults to PowerShell on
 // Windows and Bash elsewhere, and is stored (OsAwareTabs.astro's inline script).
 //
+// When the server rendered the tab list (partials/tabs-markup.liquid: first tab selected, other panels hidden), it
+// only applies that selection to the existing list and panels.
+//
 // It runs from the inline `starlight-tabs-restore` element (no flash of the wrong tab) and again from the
-// StarlightTabs element constructor (tabs without a restore element); it is idempotent.
+// StarlightTabs element constructor (tabs without a restore element); it is idempotent (data-tabs-ready).
 
 const STORAGE_PREFIX = 'starlight-synced-tabs__';
 
@@ -87,27 +90,61 @@ function iconMarkup(name: string): string {
   );
 }
 
-/** Fills the tab list of `tabs` from its panels; returns false when there was nothing to do. */
+/** The index of the panel to select: the synced choice (stored, or the OS default for OS aware tabs), else 0. */
+function selectedIndex(tabs: HTMLElement, labels: string[]): number {
+  const syncKey = tabs.dataset.syncKey;
+  if (!syncKey) return 0;
+  let stored = readStorage(STORAGE_PREFIX + syncKey);
+  if (!stored && tabs.hasAttribute('data-os-aware')) {
+    stored = osDefaultLabel();
+    writeStorage(STORAGE_PREFIX + syncKey, stored);
+  }
+  if (!stored) return 0;
+  const index = labels.indexOf(stored);
+  return index > 0 ? index : 0;
+}
+
+/** Panel attributes of Starlight's markup: no build-time data, focusable when it holds nothing focusable. */
+function finishPanel(panel: HTMLElement): void {
+  panel.removeAttribute('data-label');
+  panel.removeAttribute('data-icon');
+  if (!panel.querySelector(focusableElementSelectors)) panel.setAttribute('tabindex', '0');
+}
+
+/**
+ * Selects the synced tab of a tab list rendered on the server (partials/tabs-markup.liquid renders the first tab
+ * selected): `aria-selected`, `tabindex` and the panels' `hidden`.
+ */
+function applySelection(tabs: HTMLElement, tablist: HTMLUListElement, panels: HTMLElement[]): boolean {
+  if (tabs.dataset.tabsReady === 'true') return false;
+  tabs.dataset.tabsReady = 'true';
+  const links = Array.from(tablist.querySelectorAll<HTMLAnchorElement>('[role="tab"]'));
+  const selected = selectedIndex(tabs, links.map((link) => (link.textContent ?? '').trim()));
+  links.forEach((link, index) => {
+    link.setAttribute('aria-selected', index === selected ? 'true' : 'false');
+    link.setAttribute('tabindex', index === selected ? '0' : '-1');
+  });
+  panels.forEach((panel, index) => {
+    finishPanel(panel);
+    panel.hidden = index !== selected;
+  });
+  return true;
+}
+
+/**
+ * Fills the tab list of `tabs` from its panels, or, when the server rendered it, selects the synced tab in it;
+ * returns false when there was nothing to do.
+ */
 export function buildTabList(tabs: HTMLElement): boolean {
   const tablist = tabs.querySelector<HTMLUListElement>(':scope > .tablist-wrapper [role="tablist"]');
-  if (!tablist || tablist.children.length > 0) return false;
+  if (!tablist) return false;
   const panels = Array.from(tabs.querySelectorAll<HTMLElement>(':scope > [role="tabpanel"]'));
   if (panels.length === 0) return false;
+  if (tablist.children.length > 0) return applySelection(tabs, tablist, panels);
+  tabs.dataset.tabsReady = 'true';
 
   const labels = panels.map((panel) => (panel.dataset.label ?? '').trim());
-  let selected = 0;
-  const syncKey = tabs.dataset.syncKey;
-  if (syncKey) {
-    let stored = readStorage(STORAGE_PREFIX + syncKey);
-    if (!stored && tabs.hasAttribute('data-os-aware')) {
-      stored = osDefaultLabel();
-      writeStorage(STORAGE_PREFIX + syncKey, stored);
-    }
-    if (stored) {
-      const index = labels.indexOf(stored);
-      if (index > 0) selected = index;
-    }
-  }
+  const selected = selectedIndex(tabs, labels);
 
   panels.forEach((panel, index) => {
     const id = nextId();
@@ -130,9 +167,7 @@ export function buildTabList(tabs: HTMLElement): boolean {
 
     panel.id = panelId;
     panel.setAttribute('aria-labelledby', tabId);
-    panel.removeAttribute('data-label');
-    panel.removeAttribute('data-icon');
-    if (!panel.querySelector(focusableElementSelectors)) panel.setAttribute('tabindex', '0');
+    finishPanel(panel);
     panel.hidden = index !== selected;
   });
   return true;

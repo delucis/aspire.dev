@@ -4,8 +4,10 @@
 // <starlight-file-tree data-directory-label="...">: Liquid cannot rewrite HTML. This module applies the plugin's
 // build-time transform on load, with the same final markup and classes (`.directory`/`.file`/`.empty`,
 // `.tree-entry`, `.highlight`, `.comment`, `.tree-icon`, `.icon-open`/`.icon-closed`, the sr-only directory
-// label), except that icons are sprite <svg class="tree-icon ..."><use href="/assets/icons.svg#..."></svg>
-// instead of UnoCSS classes (UnoCSS is not used by src/site). The file and folder name tables are
+// label). Icons are the plugin's class-based icons (`<span class="tree-icon i-material-icon-theme:x">`), whose
+// rules scripts/icons-sprite.mjs writes into assets/css/icons.css for the plugin's safelist (every icon the
+// content's file trees use); an icon without a rule there falls back to a sprite
+// <svg class="tree-icon ..."><use href="/assets/icons.svg#..."></svg>. The file and folder name tables are
 // starlight-plugin-icons' (.starlight-icons) pruned to the sprite's icons by scripts/icons-sprite.mjs.
 import tables from './generated/file-icons.json';
 import { onReady } from './lib/ready';
@@ -28,6 +30,33 @@ function svgIcon(name: string, classes: string[]): SVGSVGElement {
   use.setAttribute('href', `${SPRITE}#${name}`);
   svg.append(use);
   return svg;
+}
+
+/** The plugin's markup: `<span class="tree-icon i-<icon>" data-icon="i-<icon>">` (icons.css draws it). */
+function classIcon(name: string, classes: string[]): HTMLSpanElement {
+  const span = document.createElement('span');
+  span.className = ['tree-icon', ...classes, `i-${name}`].join(' ');
+  span.dataset.icon = `i-${name}`;
+  return span;
+}
+
+const hasIconRule = new Map<string, boolean>();
+
+/** Replaces the class icons that icons.css does not draw (no background nor mask) with sprite icons. */
+function fallBackToSprite(tree: HTMLElement): void {
+  for (const span of tree.querySelectorAll<HTMLSpanElement>('span.tree-icon[data-icon]')) {
+    const name = span.dataset.icon!.slice(2);
+    let drawn = hasIconRule.get(name);
+    if (drawn === undefined) {
+      const style = getComputedStyle(span);
+      drawn = style.backgroundImage !== 'none' || (style.maskImage || style.webkitMaskImage) !== 'none';
+      hasIconRule.set(name, drawn);
+    }
+    if (!drawn) {
+      const classes = [...span.classList].filter((c) => c !== 'tree-icon' && c !== span.dataset.icon);
+      span.replaceWith(svgIcon(name, classes));
+    }
+  }
 }
 
 function fileIcon(fileName: string): string {
@@ -90,11 +119,11 @@ function transformItem(li: HTMLLIElement, directoryLabel: string): void {
   if (isDirectory) {
     icon = el('span', undefined, [
       el('span', 'sr-only', [document.createTextNode(directoryLabel)]),
-      svgIcon(folderIcon(name, false), ['icon-closed']),
-      svgIcon(folderIcon(name, true), ['icon-open']),
+      classIcon(folderIcon(name, false), ['icon-closed']),
+      classIcon(folderIcon(name, true), ['icon-open']),
     ]);
   } else {
-    icon = svgIcon(fileIcon(name), []);
+    icon = classIcon(fileIcon(name), []);
   }
 
   li.className = isDirectory ? 'directory' : 'file';
@@ -128,6 +157,7 @@ function transform(tree: HTMLElement): void {
   // parent's sub-list is final when it moves into its <details>.
   const items = [...tree.querySelectorAll<HTMLLIElement>('li')];
   for (const li of items.reverse()) transformItem(li, label);
+  fallBackToSprite(tree);
   tree.dataset.processed = 'true';
 }
 
