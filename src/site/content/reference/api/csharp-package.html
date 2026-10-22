@@ -3,6 +3,8 @@
 # data/api/routes/csharp-packages.json. The package search index entries anchor members with the exact anchors of
 # data/api/routes/csharp-types.json.
 layout: api.liquid
+# The search controller (scripts/client/api/csharp-package.js), loaded by the layout as a module script of the document.
+api_search: csharp-package
 pagination: { data: api.routes.csharp-packages, size: 1, alias: route }
 permalink: "{{ route.url }}"
 ---

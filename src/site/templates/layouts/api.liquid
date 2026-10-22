@@ -24,5 +24,13 @@ editUrl: false
 {%- endcomment -%}
 <link rel="stylesheet" href="/assets/css/api-components.css">
 {% include "partials/page-content" %}
-{%- comment -%} The API search controllers (scripts/client/api/index.js imports the one of each search root). {%- endcomment %}
+{%- comment -%}
+  The API search controllers (scripts/client/api/index.js imports the one of each search root). The page's own
+  controller (`api_search` front matter) is also a module script of the document, after index.js (module scripts run
+  in order, so the version filters are restored first; the dynamic import then resolves to the same module): the
+  load event waits for it, so a chip clicked once the page has loaded is never lost to a controller still loading.
+{%- endcomment %}
 <script type="module" src="/scripts/client/api/index.js"></script>
+{%- if api_search %}
+<script type="module" src="/scripts/client/api/{{ api_search }}.js"></script>
+{%- endif %}

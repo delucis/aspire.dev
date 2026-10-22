@@ -2,6 +2,8 @@
 # A C# type page: src/frontend/src/pages/reference/api/csharp/[package]/[type]/index.astro, one page per entry of
 # data/api/routes/csharp-types.json (route.file is the data file key, route.type the index of the type in it).
 layout: api.liquid
+# The search controller (scripts/client/api/csharp-type.js), loaded by the layout as a module script of the document.
+api_search: csharp-type
 pagination: { data: api.routes.csharp-types, size: 1, alias: route }
 permalink: "{{ route.url }}"
 ---

@@ -4,6 +4,8 @@
 # Method slugs are the slugified method names (no two methods of a handle share one in the data), and an
 # "Applies to" target links to the slugified name of the module's type of that name.
 layout: api.liquid
+# The search controller (scripts/client/api/typescript-item.js), loaded by the layout as a module script of the document.
+api_search: typescript-item
 pagination: { data: api.routes.typescript-items, size: 1, alias: route }
 permalink: "{{ route.url }}"
 ---

@@ -5,6 +5,8 @@
 # reach the layout). The search index is data/api/search-csharp.json.
 route: { url: /reference/api/csharp/, md: /reference/api/csharp.md, language: csharp }
 layout: api.liquid
+# The search controller (scripts/client/api/csharp-index.js), loaded by the layout as a module script of the document.
+api_search: csharp-index
 pagination: { data: api.routes.indexes, size: 2 }
 permalink: /reference/api/csharp/
 ---

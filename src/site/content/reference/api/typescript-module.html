@@ -4,6 +4,8 @@
 # hold the item slugs; the data comes from api["ts-modules"][route.file]. Names sort with sort_natural
 # (case-insensitive ordinal) where the Astro page used localeCompare.
 layout: api.liquid
+# The search controller (scripts/client/api/typescript-module.js), loaded by the layout as a module script of the document.
+api_search: typescript-module
 pagination: { data: api.routes.typescript-modules, size: 1, alias: route }
 permalink: "{{ route.url }}"
 ---

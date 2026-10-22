@@ -20,7 +20,22 @@ const controllers = {
     'typescript/item': () => import('./typescript-item.js'),
 };
 
+/**
+ * A theme switch (`<html data-theme>`) restyles the search controls at once: their hover/active color transitions
+ * would otherwise animate from the old theme's colors, leaving low-contrast intermediate states on screen.
+ */
+function snapThemeChanges() {
+    new MutationObserver(() => {
+        const style = document.createElement('style');
+        style.textContent = '.api-search-bar-unified, .api-search-bar-unified * { transition: none !important; }';
+        document.head.append(style);
+        void document.documentElement.offsetWidth;
+        style.remove();
+    }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+}
+
 function start() {
+    snapThemeChanges();
     initializeVersionFilters();
     if (document.querySelector('[data-member-href]'))
         initializeMemberOverviewRows();

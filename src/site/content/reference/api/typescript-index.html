@@ -5,6 +5,8 @@
 # the page would not reach the layout).
 route: { url: /reference/api/typescript/, md: /reference/api/typescript.md, language: typescript }
 layout: api.liquid
+# The search controller (scripts/client/api/typescript-index.js), loaded by the layout as a module script of the document.
+api_search: typescript-index
 pagination: { data: api.routes.indexes, size: 2 }
 permalink: /reference/api/typescript/
 ---
