@@ -11,6 +11,8 @@ resources:
     href: /architecture/resource-hierarchies/
 legacyAnchors: [referenceexpression]
 legacyGroup: api-reference-terms
+prev: { label: "Publisher", link: /hub/glossary/publisher/ }
+next: { label: "Resource", link: /hub/glossary/resource/ }
 ---
 A `ReferenceExpression` retains the structure of a value assembled from endpoints, parameters, connection strings, and literal text.
 

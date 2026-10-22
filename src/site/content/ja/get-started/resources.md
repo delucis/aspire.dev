@@ -3,8 +3,6 @@ title: リソースの理解
 description: Aspire のリソース モデルと、さまざまな種類のリソースの扱い方について学ぶ
 ---
 
-import IconAside from '@components/IconAside.astro';
-
 Aspire を使えば、フロントエンド、API、データベースなど、アプリケーションに必要なすべてを `AppHost` を通じて簡単に定義できます。リソースをコードで記述するだけで、接続や連携は Aspire が自動的に処理してくれます。
 
 ## リソースの種類
@@ -21,13 +19,13 @@ Rリソースには、次のようなものがあります:
 - **プロジェクト**: C# プロジェクト、Node.js アプリケーション、Python サービス、その他
 - **ストレージ**: Blob Storage、ファイル システム、クラウド ストレージ サービス
 
-{% raw %}<IconAside type="tip" icon="puzzle" title="連携機能を探す">
-  リソースは _ホスティング連携_
-  としてモデル化されており、これは外部サービスとのやり取り方法を定義する再利用可能なコンポーネントです。
-  Aspire には豊富な[一般的なサービス向けの
-  組み込み連携](/ja/integrations/gallery/?search=hosting)
-  が用意されており、要件に応じてカスタム連携を簡単に作成することもできます。
-</IconAside>{% endraw %}
+{% aside "tip", title: "連携機能を探す", icon: "puzzle" %}
+リソースは _ホスティング連携_
+としてモデル化されており、これは外部サービスとのやり取り方法を定義する再利用可能なコンポーネントです。
+Aspire には豊富な[一般的なサービス向けの
+組み込み連携](/ja/integrations/gallery/?search=hosting)
+が用意されており、要件に応じてカスタム連携を簡単に作成することもできます。
+{% endaside %}
 
 ## リソースの依存関係
 

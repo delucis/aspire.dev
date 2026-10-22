@@ -11,6 +11,8 @@ resources:
     href: /dashboard/overview/
 legacyAnchors: [aspire-dashboard]
 legacyGroup: dashboard-and-observability
+prev: { label: "AppHost", link: /hub/glossary/apphost/ }
+next: { label: "Aspire Type System", link: /hub/glossary/ats/ }
 ---
 The dashboard runs with the AppHost during local development and can also run standalone to receive telemetry. Use the URL printed by your AppHost or CLI instead of assuming a fixed port.
 

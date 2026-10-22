@@ -11,6 +11,8 @@ resources:
     href: /architecture/resource-model/#status-reporting
 legacyAnchors: [resourcenotificationservice]
 legacyGroup: api-reference-terms
+prev: { label: "Resource lifetime", link: /hub/glossary/resource-lifetime/ }
+next: { label: "Run mode", link: /hub/glossary/run-mode/ }
 ---
 `ResourceNotificationService` lets resource implementations publish updated snapshots of resource state. Observers use these updates to track status and present it in the dashboard.
 

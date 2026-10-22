@@ -6,10 +6,32 @@ giscus: false
 tableOfContents:
   minHeadingLevel: 1
   maxHeadingLevel: 4
+props:
+  container_runtime_choices:
+    - id: "docker"
+      title: "Docker Desktop"
+      href: "https://www.docker.com/products/docker-desktop"
+      linkLabel: "Install Docker Desktop"
+      statusLabel: "Recommended default"
+      description: "A familiar and widely supported environment for building and running containers."
+    - id: "podman"
+      title: "Podman"
+      href: "https://podman.io/"
+      linkLabel: "Install Podman"
+      statusLabel: "Supported alternative"
+      description: "An open-source, daemonless runtime for building and running Open Container Initiative (OCI) containers."
+    - id: "rancher"
+      title: "Rancher Desktop"
+      href: "https://rancherdesktop.io/"
+      linkLabel: "Learn about Rancher Desktop"
+      statusLabel: "Community reported"
+      description: "Reported by users as a successful alternative, especially when configured to use the Docker CLI. Rancher Desktop is not an officially supported or regularly tested Aspire scenario."
+  container_runtime_podman_setup:
+    heading: "Use Podman with Aspire"
+    body: "After installing Podman, set ASPIRE_CONTAINER_RUNTIME to podman."
+    bashTitle: "Set Podman runtime"
+    powershellTitle: "Set Podman runtime"
 ---
-
-import CodespacesButton from '@components/CodespacesButton.astro';
-import ContainerRuntimeChoices from '@components/ContainerRuntimeChoices.astro';
 
 Ready to dive into Aspire? Before you begin, make sure your development environment is set up with a few essential tools. This guide walks you through everything you need to start building and running Aspire solutions with confidence.
 
@@ -49,45 +71,7 @@ Follow the [installation instructions](https://dotnet.microsoft.com/download/dot
 
 1. ## Install an OCI-compliant container runtime
 
-    {% raw %}<ContainerRuntimeChoices
-      ariaLabel="Container runtime choices"
-      intro="Choose one runtime for local container support. Docker Desktop is the recommended default for most Aspire developers."
-      choices={[
-        {
-          id: 'docker',
-          title: 'Docker Desktop',
-          href: 'https://www.docker.com/products/docker-desktop',
-          linkLabel: 'Install Docker Desktop',
-          statusLabel: 'Recommended default',
-          description:
-            'A familiar and widely supported environment for building and running containers.',
-        },
-        {
-          id: 'podman',
-          title: 'Podman',
-          href: 'https://podman.io/',
-          linkLabel: 'Install Podman',
-          statusLabel: 'Supported alternative',
-          description:
-            'An open-source, daemonless runtime for building and running Open Container Initiative (OCI) containers.',
-        },
-        {
-          id: 'rancher',
-          title: 'Rancher Desktop',
-          href: 'https://rancherdesktop.io/',
-          linkLabel: 'Learn about Rancher Desktop',
-          statusLabel: 'Community reported',
-          description:
-            'Reported by users as a successful alternative, especially when configured to use the Docker CLI. Rancher Desktop is not an officially supported or regularly tested Aspire scenario.',
-        },
-      ]}
-      podmanSetup={{
-        heading: 'Use Podman with Aspire',
-        body: 'After installing Podman, set ASPIRE_CONTAINER_RUNTIME to podman.',
-        bashTitle: 'Set Podman runtime',
-        powershellTitle: 'Set Podman runtime',
-      }}
-    />{% endraw %}
+    {% container_runtime_choices aria_label: "Container runtime choices", intro: "Choose one runtime for local container support. Docker Desktop is the recommended default for most Aspire developers.", choices: props.container_runtime_choices, podman_setup: props.container_runtime_podman_setup %}
 
     :::tip[Choose one runtime]{icon='approve-check-circle'}
     Install one option from the tabs above. For most users, choose **Docker Desktop**; don't install Podman or Rancher Desktop unless you specifically want to use one of them instead.
@@ -124,4 +108,4 @@ If you prefer not to install the prerequisites on your local machine, you can de
 
 The Aspire team maintains a GitHub Codespaces (with preconfigured Dev Container) configuration to help you get started quickly:
 
-{% raw %}<CodespacesButton owner='microsoft' repo='aspire-devcontainer'  />{% endraw %}
+{% codespaces_button "microsoft", "aspire-devcontainer" %}

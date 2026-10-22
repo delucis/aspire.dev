@@ -3,8 +3,6 @@ title: Explore the Aspire dashboard with the Starter app
 description: Explore Aspire dashboard features — resource graph, console logs, traces, metrics, and the GenAI visualizer — using the Aspire Starter app as a guided tour.
 ---
 
-import LoopingImage from '@components/LoopingImage.astro';
-
 In the upcoming sections, you discover how to create an Aspire project and embark on the following tasks:
 
 - Investigate the dashboard's capabilities by using the app generated from the project template as explained in the [Quickstart: Build your first Aspire project.](/get-started/first-app/)
@@ -37,7 +35,7 @@ apphost.cs
         Logs:  $HOME/.aspire/cli/logs/apphost-27732-2025-10-31-19-21-27.log
 
                 Press CTRL+C to stop the apphost and exit.
-    ```
+```
 
 The URL contains a token query string (with the token value mapped to the `t` name part) that's used to _log in_ to the dashboard. If your console supports it, you can hold the {% kbd windows: "Ctrl", mac: "Command", linux: "Ctrl" %} key and then select the link to open the dashboard in your browser. This method is easier than copying the token from the console and pasting it into the login page. If you end up on the dashboard login page without either of the previously described methods, you can always return to the console to copy the token.
 
@@ -383,7 +381,7 @@ The Aspire dashboard provides a specialized dialog for viewing GenAI (Generative
 
 The following is an animation demonstrating the GenAI telemetry visualizer in action:
 
-{% raw %}<LoopingImage light={dashboardGeniVisualizerLight} dark={dashboardGeniVisualizerDark} alt="An animated screenshot of the Aspire dashboard GenAI telemetry visualizer in action." />{% endraw %}
+{% looping_image light: "/assets/images/dashboard/explore/dashboard-geni-visualizer-light.gif", dark: "/assets/images/dashboard/explore/dashboard-geni-visualizer-dark.gif", alt: "An animated screenshot of the Aspire dashboard GenAI telemetry visualizer in action." %}
 
 The GenAI telemetry visualizer works best when message content is recorded to telemetry. Without message content, the dialog displays a note and provides a link to documentation about how to enable this feature.
 

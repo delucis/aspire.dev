@@ -11,6 +11,8 @@ resources:
   - title: Deploy to Kubernetes
     href: /deployment/kubernetes/
 legacyAnchors: []
+prev: { label: "Client integration", link: /hub/glossary/client-integration/ }
+next: { label: "Connection string", link: /hub/glossary/connection-string/ }
 ---
 A compute environment answers where a compatible project, container, or executable resource should be deployed. Examples include deployment targets for Docker Compose, Kubernetes, and Azure.
 

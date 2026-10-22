@@ -10,6 +10,8 @@ resources:
     href: /app-host/eventing/
 legacyAnchors: [lifecycle-events]
 legacyGroup: api-reference-terms
+prev: { label: "IResourceAnnotation", link: /hub/glossary/iresourceannotation/ }
+next: { label: "OpenTelemetry", link: /hub/glossary/opentelemetry/ }
 ---
 Lifecycle events signal stages such as resource initialization, endpoint allocation, startup, and readiness. Handlers can use these stages to coordinate work that cannot happen while the model is initially declared.
 

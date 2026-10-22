@@ -11,6 +11,8 @@ resources:
     href: /architecture/resource-hierarchies/
 legacyAnchors: [heterogeneous-dag]
 legacyGroup: api-reference-terms
+prev: { label: "Health check", link: /hub/glossary/health-check/ }
+next: { label: "Hoisting", link: /hub/glossary/hoisting/ }
 ---
 Heterogeneous means that the graph's nodes are not all the same type. Aspire's model includes executable workloads as well as configuration values and cloud infrastructure.
 

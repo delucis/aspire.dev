@@ -11,6 +11,8 @@ resources:
     href: /fundamentals/external-parameters/
 legacyAnchors: [existing-resource-pattern]
 legacyGroup: common-patterns
+prev: { label: "Environment variable", link: /hub/glossary/environment-variable/ }
+next: { label: "Health check", link: /hub/glossary/health-check/ }
 ---
 For a dependency exposed through a connection string, use `AddConnectionString` in C# or `addConnectionString` in TypeScript to represent the configured value in the AppHost.
 

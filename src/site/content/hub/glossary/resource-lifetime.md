@@ -11,6 +11,8 @@ resources:
   - title: Persist container data
     href: /fundamentals/persist-data-volumes/
 legacyAnchors: []
+prev: { label: "Resource command", link: /hub/glossary/resource-command/ }
+next: { label: "ResourceNotificationService", link: /hub/glossary/resourcenotificationservice/ }
 ---
 Resource lifetime controls how a resource's existence relates to an AppHost run or another owner.
 

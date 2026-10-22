@@ -10,6 +10,8 @@ resources:
     href: /integrations/overview/
 legacyAnchors: [the-relationship]
 legacyGroup: resource-types
+prev: { label: "Hoisting", link: /hub/glossary/hoisting/ }
+next: { label: "Hosting integration", link: /hub/glossary/hosting-integration/ }
 ---
 A hosting integration and a client integration serve different layers of the same application:
 

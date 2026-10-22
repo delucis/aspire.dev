@@ -9,14 +9,8 @@ pagefind: false
 pageActions: false
 ---
 
-import LiveVideosTabs from '@components/LiveVideosTabs.astro';
-
 Catch the team live on either platform. When we're streaming, the **live indicator** in the site navigation lights up. On phones, open the menu to find it. Select it to choose how to watch. The active tab below switches to whichever stream is online and the embed starts playing.
 
-{% raw %}<LiveVideosTabs
-  youtubeChannelId={ASPIRE_YOUTUBE_CHANNEL_ID}
-  youtubePlaylistId={ASPIRE_YOUTUBE_UPLOADS_PLAYLIST_ID}
-  twitchChannel="aspiredotdev"
-/>{% endraw %}
+{% live_videos_tabs youtube_channel_id: "UCW_UJkc7RhM_NPcDXnOCfrQ", youtube_playlist_id: "UUW_UJkc7RhM_NPcDXnOCfrQ", twitch_channel: "aspiredotdev" %}
 
 Looking for older Aspire content? Browse our channels directly on [YouTube](https://youtube.com/@aspiredotdev) and [Twitch](https://twitch.tv/aspiredotdev).

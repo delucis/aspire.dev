@@ -148,24 +148,13 @@ props:
     href: /get-started/first-app/
 ---
 
-import TerminalShowcase from '@components/TerminalShowcase.astro';
-
 {% topic_hero icon: "seti:json", title: "The tools you need,", highlight: "at your fingertips.", subtitle: "From the interactive CLI to the full API surface — everything you need to build, run, and deploy Aspire applications is documented here.", accent: "cyan", floating_icons: props.topic_hero_floating_icons, primary_cta: props.topic_hero_primary_cta, secondary_cta: props.topic_hero_secondary_cta %}
 
 ## The Aspire CLI
 
 The `aspire` CLI is a cross-platform, interactive-first tool that manages the full lifecycle of your distributed applications — from scaffolding to deployment.
 
-{% raw %}<TerminalShowcase
-  title="Create, run, and deploy"
-  highlight="from one tool."
-  description="The aspire CLI scaffolds projects from templates, orchestrates multi-service apps, publishes deployment artifacts, and deploys to cloud environments — all with a single, intuitive command-line experience."
-  cast="/casts/aspire-new.cast"
-  poster="npt:0:03"
-  rows={12}
-  speed={0.5}
-  cta={{ label: 'View full CLI reference', href: '/reference/cli/overview/' }}
-/>{% endraw %}
+{% terminal_showcase title: "Create, run, and deploy", highlight: "from one tool.", description: "The aspire CLI scaffolds projects from templates, orchestrates multi-service apps, publishes deployment artifacts, and deploys to cloud environments — all with a single, intuitive command-line experience.", cast: "/casts/aspire-new.cast", poster: "npt:0:03", rows: 12, speed: 0.5, cta_label: "View full CLI reference", cta_href: "/reference/cli/overview/" %}
 
 ## Core commands
 

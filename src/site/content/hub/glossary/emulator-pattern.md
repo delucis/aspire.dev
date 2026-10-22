@@ -11,6 +11,8 @@ resources:
     href: /integrations/cloud/azure/azure-storage-blobs/azure-storage-blobs-host/
 legacyAnchors: [emulator-pattern]
 legacyGroup: common-patterns
+prev: { label: "Distributed application", link: /hub/glossary/distributed-application/ }
+next: { label: "Endpoint", link: /hub/glossary/endpoint/ }
 ---
 Some hosting integrations support a local emulator, often running in a container. Azure Storage, for example, can use Azurite through `RunAsEmulator` in C# or `runAsEmulator` in TypeScript.
 

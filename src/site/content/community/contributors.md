@@ -16,8 +16,6 @@ props:
     - microsoftopensource
 ---
 
-import AspireMap from '@components/AspireMap.astro';
-
 Aspire wouldn't be what it is today without the amazing contributions from our community. From code contributions to documentation improvements, every bit helps us grow and improve. Your ideas have the potential to shape the future of the project, and issues you uncover help others be successful too. Interested in contributing?
 
 {% linkbutton "/community/contributor-guide/", icon: "rocket", icon_placement: "start", variant: "primary" %}
@@ -68,4 +66,4 @@ The [Distributed Component Platform (DCP)](/architecture/overview/#developer-con
 
 Made with 💜 at Microsoft...
 
-{% raw %}<AspireMap />{% endraw %}
+{% aspire_map %}

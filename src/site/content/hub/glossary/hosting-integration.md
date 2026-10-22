@@ -10,6 +10,8 @@ resources:
     href: /integrations/databases/postgres/postgres-host/
 legacyAnchors: [hosting-integration]
 legacyGroup: resource-types
+prev: { label: "Hosting and client relationship", link: /hub/glossary/integration-relationship/ }
+next: { label: "IResourceAnnotation", link: /hub/glossary/iresourceannotation/ }
 ---
 Hosting integrations configure the infrastructure side of an application: resources, networking, health checks, volumes, and connection information. The exact capabilities vary by integration.
 

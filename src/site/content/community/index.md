@@ -84,8 +84,6 @@ props:
     href: https://discord.com/invite/raNPcaaSj8
 ---
 
-import TwitchEmbed from '@components/TwitchEmbed.astro';
-
 {% topic_hero icon: "heart", title: "Built together,", highlight: "in the open.", subtitle: "Join thousands of developers building, contributing, and learning together across social channels, live streams, and open-source repos.", accent: "magenta", floating_icons: props.topic_hero_floating_icons, primary_cta: props.topic_hero_primary_cta, secondary_cta: props.topic_hero_secondary_cta %}
 
 ## Connect with us
@@ -101,7 +99,7 @@ Catch up on the latest videos from the Aspire team and community. From deep-dive
 {% youtube_embed video_id: "6j61K9Sna2M", title: nil %}
 {% endtab %}
 {% tab "Twitch", value: "twitch", icon: "twitch" %}
-{% raw %}<TwitchEmbed channel="aspiredotdev" title={null /* hide title */} />{% endraw %}
+{% twitch_embed "aspiredotdev", title: nil %}
 {% endtab %}
 {% endtabs %}
 

@@ -11,6 +11,8 @@ resources:
     href: /architecture/resource-model/
 legacyAnchors: [resource]
 legacyGroup: core-concepts
+prev: { label: "ReferenceExpression", link: /hub/glossary/referenceexpression/ }
+next: { label: "Resource command", link: /hub/glossary/resource-command/ }
 ---
 Resources describe the parts of your application and the values those parts need. Not every resource is a running process: parameters and logical databases are resources too.
 

@@ -11,6 +11,8 @@ resources:
   - title: Invoke resource HTTP endpoints as commands
     href: /fundamentals/http-commands/
 legacyAnchors: []
+prev: { label: "Resource", link: /hub/glossary/resource/ }
+next: { label: "Resource lifetime", link: /hub/glossary/resource-lifetime/ }
 ---
 A resource command exposes an operation on a resource through Aspire's developer tools. Its implementation might invoke application logic, make an HTTP request, or run a process.
 

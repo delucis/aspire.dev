@@ -13,6 +13,7 @@ resources:
     href: /integrations/databases/postgres/postgres-host/
 legacyAnchors: [withreference]
 legacyGroup: apis-and-patterns
+prev: { label: "WithAnnotation", link: /hub/glossary/withannotation/ }
 ---
 `WithReference` in C# and `withReference` in TypeScript connect the configuration of resources. The information supplied depends on the referenced resource: a database can provide a connection string, while a service can provide named endpoints for service discovery.
 

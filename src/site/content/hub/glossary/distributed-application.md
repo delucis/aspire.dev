@@ -10,6 +10,8 @@ resources:
     href: /get-started/what-is-aspire/
 legacyAnchors: [distributed-application]
 legacyGroup: core-concepts
+prev: { label: "Deployment pipeline", link: /hub/glossary/deployment-pipeline/ }
+next: { label: "Emulator pattern", link: /hub/glossary/emulator-pattern/ }
 ---
 A distributed application can include a frontend, several APIs, databases, caches, and message queues. Its parts have independent lifecycles and can fail or become available at different times.
 

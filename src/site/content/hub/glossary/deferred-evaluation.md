@@ -10,6 +10,8 @@ resources:
     href: /architecture/resource-hierarchies/
 legacyAnchors: [deferred-evaluation]
 legacyGroup: api-reference-terms
+prev: { label: "DAG", link: /hub/glossary/dag/ }
+next: { label: "Deployment pipeline", link: /hub/glossary/deployment-pipeline/ }
 ---
 Some resource values do not exist when the application model is first constructed. Ports, endpoints, generated credentials, or provisioned cloud outputs may become available later.
 

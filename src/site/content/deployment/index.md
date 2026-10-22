@@ -65,9 +65,23 @@ props:
   cta_banner_secondary_cta:
     label: Browse integrations
     href: /integrations/
+  quick_start_journey_steps:
+    - icon: "seti:powershell"
+      title: "aspire publish"
+      description: "Transforms your AppHost model into integration-specific artifacts — Docker Compose files, Kubernetes manifests, Bicep templates, and more. Secrets remain as parameterized placeholders."
+      href: "/reference/cli/commands/aspire-publish/"
+      label: "View publish reference"
+    - icon: "rocket"
+      title: "aspire deploy"
+      description: "Resolves parameters, applies configuration, and executes the deployment to your target environment. Works with Azure Container Apps, Kubernetes, and more."
+      href: "/reference/cli/commands/aspire-deploy/"
+      label: "View deploy reference"
+    - icon: "setting"
+      title: "Customize your pipeline"
+      description: "Build custom deployment pipelines that plug into the same model. Use CI/CD variable injection, scripts, or your own toolchain to resolve parameters and apply changes."
+      href: "/deployment/custom-deployments/"
+      label: "Custom pipelines"
 ---
-
-import QuickStartJourney from '@components/QuickStartJourney.astro';
 
 {% topic_hero icon: "rocket", title: "From dev to production,", highlight: "seamlessly.", subtitle: "Use `aspire publish` to emit deployment artifacts as a one-way handoff, or use `aspire deploy` to generate, resolve, and apply changes directly. Both workflows run the AppHost as part of the deployment pipeline to produce target-specific output.", accent: "orange", floating_icons: props.topic_hero_floating_icons, primary_cta: props.topic_hero_primary_cta, secondary_cta: props.topic_hero_secondary_cta %}
 
@@ -75,34 +89,7 @@ import QuickStartJourney from '@components/QuickStartJourney.astro';
 
 Aspire's deployment model is built on two complementary commands that keep your workflow clean, secure, and extensible.
 
-{% raw %}<QuickStartJourney
-  steps={[
-    {
-      icon: 'seti:powershell',
-      title: 'aspire publish',
-      description:
-        'Transforms your AppHost model into integration-specific artifacts — Docker Compose files, Kubernetes manifests, Bicep templates, and more. Secrets remain as parameterized placeholders.',
-      href: '/reference/cli/commands/aspire-publish/',
-      label: 'View publish reference',
-    },
-    {
-      icon: 'rocket',
-      title: 'aspire deploy',
-      description:
-        'Resolves parameters, applies configuration, and executes the deployment to your target environment. Works with Azure Container Apps, Kubernetes, and more.',
-      href: '/reference/cli/commands/aspire-deploy/',
-      label: 'View deploy reference',
-    },
-    {
-      icon: 'setting',
-      title: 'Customize your pipeline',
-      description:
-        'Build custom deployment pipelines that plug into the same model. Use CI/CD variable injection, scripts, or your own toolchain to resolve parameters and apply changes.',
-      href: '/deployment/custom-deployments/',
-      label: 'Custom pipelines',
-    },
-  ]}
-/>{% endraw %}
+{% quick_start_journey steps: props.quick_start_journey_steps %}
 
 ## Deploy anywhere
 

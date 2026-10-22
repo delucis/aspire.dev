@@ -11,6 +11,8 @@ resources:
     href: /get-started/csharp-service-defaults/
 legacyAnchors: [service-defaults]
 legacyGroup: core-concepts
+prev: { label: "Run mode", link: /hub/glossary/run-mode/ }
+next: { label: "Service discovery", link: /hub/glossary/service-discovery/ }
 ---
 The service defaults project is shared source code created by Aspire's .NET templates, not settings automatically applied to every project in an AppHost.
 

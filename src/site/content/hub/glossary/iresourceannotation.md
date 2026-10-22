@@ -11,6 +11,8 @@ resources:
     href: /fundamentals/annotations-overview/
 legacyAnchors: [iresourceannotation]
 legacyGroup: api-reference-terms
+prev: { label: "Hosting integration", link: /hub/glossary/hosting-integration/ }
+next: { label: "Lifecycle events", link: /hub/glossary/lifecycle-events/ }
 ---
 Annotations store strongly typed metadata on resources. Built-in annotations describe concerns such as endpoints, environment settings, and startup waits; integration authors can define custom annotation types.
 

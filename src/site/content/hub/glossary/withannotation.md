@@ -11,6 +11,8 @@ resources:
     href: /architecture/resource-api-patterns/
 legacyAnchors: [withannotation]
 legacyGroup: api-reference-terms
+prev: { label: "WaitForStart", link: /hub/glossary/waitforstart/ }
+next: { label: "WithReference", link: /hub/glossary/withreference/ }
 ---
 `WithAnnotation` is part of the .NET resource-builder API. It lets integration authors attach typed metadata that other parts of Aspire can inspect and act on.
 

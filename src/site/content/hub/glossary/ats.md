@@ -12,6 +12,8 @@ resources:
   - title: Export integrations for guest languages
     href: /extensibility/multi-language-integration-authoring/
 legacyAnchors: []
+prev: { label: "Aspire dashboard", link: /hub/glossary/aspire-dashboard/ }
+next: { label: "Client integration", link: /hub/glossary/client-integration/ }
 ---
 The Aspire Type System (ATS) describes the types and operations that can cross the boundary between Aspire's .NET host and a guest-language AppHost.
 

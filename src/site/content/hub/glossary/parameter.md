@@ -11,6 +11,8 @@ resources:
   - title: Use parameters during deployment
     href: /deployment/deploy-with-aspire/#parameters
 legacyAnchors: []
+prev: { label: "OpenTelemetry Protocol", link: /hub/glossary/otlp/ }
+next: { label: "Polyglot", link: /hub/glossary/polyglot/ }
 ---
 A parameter models a value that comes from outside the AppHost code. Examples include passwords, API keys, and settings that differ between environments.
 

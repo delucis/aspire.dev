@@ -8,10 +8,8 @@ giscus: false
 pageActions: false
 ---
 
-import ContainerImageCatalog from '@components/ContainerImageCatalog.astro';
-
 Every Aspire hosting integration that runs a container declares its default image, tag, and registry in
 source. This page catalogs all of them in one place — grouped by integration category — so you can see
 exactly what Aspire pulls, from which registry, and which AppHost API introduces each image.
 
-{% raw %}<ContainerImageCatalog />{% endraw %}
+{% container_image_catalog %}

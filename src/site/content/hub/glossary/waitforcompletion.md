@@ -11,6 +11,8 @@ resources:
     href: /fundamentals/annotations-overview/
 legacyAnchors: [waitforcompletion]
 legacyGroup: apis-and-patterns
+prev: { label: "WaitFor", link: /hub/glossary/waitfor/ }
+next: { label: "WaitForStart", link: /hub/glossary/waitforstart/ }
 ---
 `WaitForCompletion` in C# and `waitForCompletion` in TypeScript are useful for one-time jobs such as migrations, data seeding, and setup scripts.
 

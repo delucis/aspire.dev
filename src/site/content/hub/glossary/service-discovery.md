@@ -10,6 +10,8 @@ resources:
     href: /fundamentals/service-discovery/
 legacyAnchors: [service-discovery]
 legacyGroup: key-terms
+prev: { label: "Service defaults", link: /hub/glossary/service-defaults/ }
+next: { label: "WaitFor", link: /hub/glossary/waitfor/ }
 ---
 Service discovery separates a service's logical name from its current address. For example, a client configured for Aspire service discovery can resolve a request to `http://apiservice` using endpoints supplied by the AppHost.
 

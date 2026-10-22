@@ -6,8 +6,6 @@ tableOfContents:
   maxHeadingLevel: 3
 ---
 
-import CodespacesButton from '@components/CodespacesButton.astro';
-
 Thank you for your interest in contributing to `aspire.dev`! Whether you're fixing typos, adding new content, or improving existing pages, this guide will help you get started and your contributions are greatly appreciated.
 
 ## 🚀 About this site
@@ -39,7 +37,7 @@ If you haven't noticed the **Edit page** button, scroll to the bottom of this pa
 
 To avoid local setup, you can use [GitHub Codespaces](/get-started/github-codespaces/) for a fully configured development environment in the cloud. This is ideal for larger contributions or if you prefer not to set up a local environment.
 
-{% raw %}<CodespacesButton owner='microsoft' repo='aspire.dev' />{% endraw %}
+{% codespaces_button "microsoft", "aspire.dev" %}
 
 :::note
 If you choose to use Codespaces, please still refer to the rest of this guide for information on writing style, code quality, and the contribution workflow. Continue reading at the [Writing style section below](#️-writing-style-guide).
@@ -765,7 +763,26 @@ Do not give your password to anyone.
 
 To use custom components available in `aspire.dev`, import them at the top of your MDX file. Custom component imports rely on configured aliases—have a look at the `tsconfig.json` file for more information:
 
-{% raw %}<Code code={tsConfig} lang="json" title="tsconfig.json" mark={8} />{% endraw %}
+```json title="tsconfig.json" {8}
+{
+  "extends": "astro/tsconfigs/strict",
+  "include": [".astro/types.d.ts", "**/*"],
+  "exclude": ["dist"],
+  "compilerOptions": {
+    "paths": {
+      "@assets/*": ["./src/assets/*"],
+      "@components/*": ["./src/components/*"],
+      "@data/*": ["./src/data/*"],
+      "@scripts/*": ["./src/scripts/*"],
+      "@tests/e2e/*": ["./tests/e2e/*"],
+      "@tests/typecheck/*": ["./tests/typecheck/*"],
+      "@tests/unit/*": ["./tests/unit/*"],
+      "@tests/*": ["./tests/*"],
+      "@utils/*": ["./src/utils/*"]
+    }
+  }
+}
+```
 
 By using the `@components` alias, you can easily import any custom component from the `frontend/src/components/` directory. For example, to import the `LearnMore` component used in this guide:
 

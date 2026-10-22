@@ -3,8 +3,6 @@ title: Use AI coding agents with Aspire observability
 description: Set up Aspire skills so coding agents can inspect application logs, traces, and resource health, diagnose local failures, and verify fixes with runtime evidence.
 ---
 
-import LoopingVideo from '@components/LoopingVideo.astro';
-
 Give your AI coding agent access to application observability, not just source code. Run `aspire agent init` in your project to install skills that teach your assistant to use the Aspire CLI, inspect local services, and work with TypeScript or C# AppHosts. A runtime MCP server is optional.
 
 ## Why Aspire for coding agents
@@ -106,18 +104,7 @@ For a worked investigation using the same evidence in the dashboard and CLI, see
 
 {% tabs %}
 {% tab "VS Code", id: "demo-vscode" %}
-{% raw %}<LoopingVideo
-      aria-label="VS Code with GitHub Copilot using Aspire MCP to list resources"
-      controls={true}
-      sources={[
-        {
-          src: '/mcp-vscode-list-resources.mp4',
-          type: 'video/mp4',
-          title:
-            'VS Code demonstrating Aspire MCP integration with GitHub Copilot',
-        },
-      ]}
-    />{% endraw %}
+{% looping_video src: "/mcp-vscode-list-resources.mp4", type: "video/mp4", source_title: "VS Code demonstrating Aspire MCP integration with GitHub Copilot", aria_label: "VS Code with GitHub Copilot using Aspire MCP to list resources", controls: true %}
 {% endtab %}
 {% tab "Claude Code", id: "demo-claude" %}
 {% asciinema_player src: "/casts/mcp-claudecode-cli.cast", poster: "npt:0:27", auto_play: false, preload: false, loop: false, cols: 256, rows: 28 %}

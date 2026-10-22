@@ -10,6 +10,8 @@ resources:
     href: /architecture/multi-language-architecture/
 legacyAnchors: [polyglot]
 legacyGroup: core-concepts
+prev: { label: "Parameter", link: /hub/glossary/parameter/ }
+next: { label: "Publish mode", link: /hub/glossary/publish-mode/ }
 ---
 In Aspire, polyglot refers to code and applications written in multiple languages, including TypeScript, C#, Python, Go, Java, and Rust.
 

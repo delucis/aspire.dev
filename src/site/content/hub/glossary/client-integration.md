@@ -10,6 +10,8 @@ resources:
     href: /integrations/databases/postgres/postgres-connect/
 legacyAnchors: [client-integration]
 legacyGroup: resource-types
+prev: { label: "Aspire Type System", link: /hub/glossary/ats/ }
+next: { label: "Compute environment", link: /hub/glossary/compute-environment/ }
 ---
 Client integrations operate inside your service, not the AppHost. They configure SDK clients using application configuration and commonly add dependency injection registration, health checks, and OpenTelemetry support.
 

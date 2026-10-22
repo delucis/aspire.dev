@@ -11,6 +11,8 @@ resources:
     href: /fundamentals/annotations-overview/
 legacyAnchors: [waitforstart]
 legacyGroup: apis-and-patterns
+prev: { label: "WaitForCompletion", link: /hub/glossary/waitforcompletion/ }
+next: { label: "WithAnnotation", link: /hub/glossary/withannotation/ }
 ---
 `WaitForStart` in C# and `waitForStart` in TypeScript provide weaker coordination than a readiness wait. The dependency must reach the running state, but its health checks do not need to pass.
 

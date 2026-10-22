@@ -10,6 +10,8 @@ resources:
     href: /fundamentals/external-parameters/
 legacyAnchors: [connection-string]
 legacyGroup: key-terms
+prev: { label: "Compute environment", link: /hub/glossary/compute-environment/ }
+next: { label: "DAG", link: /hub/glossary/dag/ }
 ---
 A connection string can contain a host, port, database name, authentication information, and provider-specific options. Its syntax depends on the client library; there is no universal database connection string format.
 

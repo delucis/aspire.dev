@@ -11,6 +11,8 @@ resources:
   - title: Use named endpoints in service discovery
     href: /fundamentals/service-discovery/#named-endpoints
 legacyAnchors: []
+prev: { label: "Emulator pattern", link: /hub/glossary/emulator-pattern/ }
+next: { label: "Environment variable", link: /hub/glossary/environment-variable/ }
 ---
 An endpoint describes network access to a resource. A resource can expose multiple named endpoints, such as HTTP and HTTPS, with addresses resolved as Aspire prepares the application.
 

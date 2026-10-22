@@ -10,6 +10,8 @@ resources:
     href: /reference/cli/commands/aspire-run/
 legacyAnchors: [run-mode]
 legacyGroup: execution-modes
+prev: { label: "ResourceNotificationService", link: /hub/glossary/resourcenotificationservice/ }
+next: { label: "Service defaults", link: /hub/glossary/service-defaults/ }
 ---
 Run mode orchestrates development resources such as application processes and containers, and makes their state available in the dashboard. Start it with `aspire run` or your IDE's AppHost debugging workflow.
 

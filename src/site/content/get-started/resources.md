@@ -4,8 +4,6 @@ seoTitle: Understand Aspire resources, resource types, and lifecycle
 description: "Learn about Aspire's resource model and how to work with different types of resources — projects, containers, executables, integrations, parameters, and connections."
 ---
 
-import IconAside from '@components/IconAside.astro';
-
 Aspire makes it easy to define everything your app needs—frontends, APIs, databases, and more—using the **AppHost**. Just describe your resources in code, and Aspire handles the connections for you.
 
 ## Types of resources
@@ -22,9 +20,9 @@ Resources can include:
 - **Projects**: C# projects, Node.js applications, Python services, and more.
 - **Storage**: Blob storage, file systems, and cloud storage services.
 
-{% raw %}<IconAside type="tip" icon="puzzle" title="Explore Integrations">
-  Resources are modeled in _hosting integrations_, which are reusable components that define how your app interacts with external services. Aspire provides a rich set of [built-in integrations for common services](../../integrations/gallery/?search=hosting), and you can easily create custom integrations to suit your needs.
-</IconAside>{% endraw %}
+{% aside "tip", title: "Explore Integrations", icon: "puzzle" %}
+Resources are modeled in _hosting integrations_, which are reusable components that define how your app interacts with external services. Aspire provides a rich set of [built-in integrations for common services](../../integrations/gallery/?search=hosting), and you can easily create custom integrations to suit your needs.
+{% endaside %}
 
 ## Resource dependencies
 

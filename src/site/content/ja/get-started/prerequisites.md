@@ -5,10 +5,32 @@ giscus: false
 tableOfContents:
   minHeadingLevel: 1
   maxHeadingLevel: 4
+props:
+  container_runtime_choices:
+    - id: "docker"
+      title: "Docker Desktop"
+      href: "https://www.docker.com/products/docker-desktop"
+      linkLabel: "Docker Desktop をインストール"
+      statusLabel: "推奨されるデフォルト"
+      description: "コンテナーを構築・実行するための、馴染みがあり広くサポートされた環境です。"
+    - id: "podman"
+      title: "Podman"
+      href: "https://podman.io/"
+      linkLabel: "Podman をインストール"
+      statusLabel: "サポートされている代替案"
+      description: "Open Container Initiative (OCI) コンテナーを構築・実行するためのオープンソースでデーモンレスのランタイムです。"
+    - id: "rancher"
+      title: "Rancher Desktop"
+      href: "https://rancherdesktop.io/"
+      linkLabel: "Rancher Desktop について詳しく"
+      statusLabel: "コミュニティ報告済み"
+      description: "ユーザーから、特に Docker CLI を使用するよう設定した場合に成功したという報告を受けています。ただし、Rancher Desktop は正式にサポートされている Aspire シナリオではなく、定期的にテストされていません。"
+  container_runtime_podman_setup:
+    heading: "Aspire で Podman を使用"
+    body: "Podman をインストール後、ASPIRE_CONTAINER_RUNTIME を podman に設定します。"
+    bashTitle: "Podman ランタイムを設定"
+    powershellTitle: "Podman ランタイムを設定"
 ---
-
-import CodespacesButton from '@components/CodespacesButton.astro';
-import ContainerRuntimeChoices from '@components/ContainerRuntimeChoices.astro';
 
 Aspire を始める準備はできていますか？開始する前に、開発環境にいくつかの必須ツールが整っていることを確認してください。このガイドでは、Aspire ソリューションを自信を持って構築・実行するために必要なすべてのセットアップについて説明します。
 
@@ -48,45 +70,7 @@ C# AppHost には .NET 10.0 SDK が必要です。ただし、Aspire は .NET 8.
 
 1. #### OCI 準拠のコンテナー ランタイムをインストール
 
-    {% raw %}<ContainerRuntimeChoices
-      ariaLabel="コンテナー ランタイムの選択肢"
-      intro="ローカル コンテナー サポート用に 1 つのランタイムを選択します。ほとんどの Aspire 開発者には Docker Desktop が推奨されるデフォルトです。"
-      choices={[
-        {
-          id: 'docker',
-          title: 'Docker Desktop',
-          href: 'https://www.docker.com/products/docker-desktop',
-          linkLabel: 'Docker Desktop をインストール',
-          statusLabel: '推奨されるデフォルト',
-          description:
-            'コンテナーを構築・実行するための、馴染みがあり広くサポートされた環境です。',
-        },
-        {
-          id: 'podman',
-          title: 'Podman',
-          href: 'https://podman.io/',
-          linkLabel: 'Podman をインストール',
-          statusLabel: 'サポートされている代替案',
-          description:
-            'Open Container Initiative (OCI) コンテナーを構築・実行するためのオープンソースでデーモンレスのランタイムです。',
-        },
-        {
-          id: 'rancher',
-          title: 'Rancher Desktop',
-          href: 'https://rancherdesktop.io/',
-          linkLabel: 'Rancher Desktop について詳しく',
-          statusLabel: 'コミュニティ報告済み',
-          description:
-            'ユーザーから、特に Docker CLI を使用するよう設定した場合に成功したという報告を受けています。ただし、Rancher Desktop は正式にサポートされている Aspire シナリオではなく、定期的にテストされていません。',
-        },
-      ]}
-      podmanSetup={{
-        heading: 'Aspire で Podman を使用',
-        body: 'Podman をインストール後、ASPIRE_CONTAINER_RUNTIME を podman に設定します。',
-        bashTitle: 'Podman ランタイムを設定',
-        powershellTitle: 'Podman ランタイムを設定',
-      }}
-    />{% endraw %}
+    {% container_runtime_choices aria_label: "コンテナー ランタイムの選択肢", intro: "ローカル コンテナー サポート用に 1 つのランタイムを選択します。ほとんどの Aspire 開発者には Docker Desktop が推奨されるデフォルトです。", choices: props.container_runtime_choices, podman_setup: props.container_runtime_podman_setup %}
 
     :::tip[1 つのランタイムを選択]{icon='approve-check-circle'}
     上のタブから 1 つのオプションだけをインストールしてください。ほとんどのユーザーは **Docker Desktop** を選択します。Podman または Rancher Desktop を使いたいという理由がある場合を除き、それらをインストールしないでください。
@@ -123,4 +107,4 @@ Aspire は次の IDE でもよく動作します:
 
 Aspire チームは、すぐに開始できるように、事前設定されている Dev Container を備えた GitHub Codespaces 設定を保守しています:
 
-{% raw %}<CodespacesButton owner='microsoft' repo='aspire-devcontainer' />{% endraw %}
+{% codespaces_button "microsoft", "aspire-devcontainer" %}

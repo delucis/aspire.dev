@@ -11,6 +11,8 @@ resources:
   - title: Run Aspire from a CI/CD workflow
     href: /deployment/ci-cd/
 legacyAnchors: []
+prev: { label: "Deferred evaluation", link: /hub/glossary/deferred-evaluation/ }
+next: { label: "Distributed application", link: /hub/glossary/distributed-application/ }
 ---
 Aspire's deployment pipeline organizes work into named steps with explicit dependencies. Resources and deployment integrations contribute steps, and independent steps can run concurrently.
 

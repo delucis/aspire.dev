@@ -12,6 +12,8 @@ resources:
     href: /architecture/resource-model/
 legacyAnchors: [dag]
 legacyGroup: api-reference-terms
+prev: { label: "Connection string", link: /hub/glossary/connection-string/ }
+next: { label: "Deferred evaluation", link: /hub/glossary/deferred-evaluation/ }
 ---
 Aspire describes its resource dependency model as a directed acyclic graph. Resources form the nodes, and dependency relationships form directed edges.
 

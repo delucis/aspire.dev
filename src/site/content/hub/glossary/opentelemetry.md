@@ -11,6 +11,8 @@ resources:
     href: /fundamentals/telemetry/
 legacyAnchors: [opentelemetry]
 legacyGroup: dashboard-and-observability
+prev: { label: "Lifecycle events", link: /hub/glossary/lifecycle-events/ }
+next: { label: "OpenTelemetry Protocol", link: /hub/glossary/otlp/ }
 ---
 Telemetry is the data an application emits about its behavior. OpenTelemetry is a standard and ecosystem for collecting and exporting that data, not another name for telemetry itself.
 

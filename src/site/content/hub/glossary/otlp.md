@@ -13,6 +13,8 @@ resources:
   - title: Configure the dashboard OTLP receiver
     href: /dashboard/configuration/#otlp
 legacyAnchors: []
+prev: { label: "OpenTelemetry", link: /hub/glossary/opentelemetry/ }
+next: { label: "Parameter", link: /hub/glossary/parameter/ }
 ---
 OpenTelemetry Protocol (OTLP) defines how telemetry is encoded and transmitted between applications, collectors, and receivers. It supports gRPC and HTTP transports.
 

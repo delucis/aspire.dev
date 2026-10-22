@@ -3,8 +3,6 @@ title: AI コーディングエージェントを活用する
 description: Aspire 向けに最適化されたスキル、MCP サーバー、ブラウザー自動化で、AI コーディングエージェントをセットアップします。
 ---
 
-import LoopingVideo from '@components/LoopingVideo.astro';
-
 Aspire は AI コーディングエージェント向けに、優れた初期セットアップ体験を提供します。プロジェクトで `aspire agent init` を実行すると、AI アシスタントは GitHub Copilot、Claude Code、またはその他の <abbr title="Model Context Protocol" data-tooltip-placement="top">MCP</abbr> 対応ツールのいずれであっても、分散アプリをすぐに理解し、ビルドし、デバッグし、監視できるようになります。
 
 ## Aspire がコーディングエージェントに適している理由
@@ -140,17 +138,7 @@ MCP サーバーは、実行中の Aspire アプリケーションに対する�
 
 {% tabs %}
 {% tab "VS Code", id: "demo-vscode" %}
-{% raw %}<LoopingVideo
-      aria-label="Aspire MCP を使ってリソース一覧を取得する GitHub Copilot と VS Code"
-      controls={true}
-      sources={[
-        {
-          src: '/mcp-vscode-list-resources.mp4',
-          type: 'video/mp4',
-          title: 'GitHub Copilot と統合した Aspire MCP を示す VS Code のデモ',
-        },
-      ]}
-    />{% endraw %}
+{% looping_video src: "/mcp-vscode-list-resources.mp4", type: "video/mp4", source_title: "GitHub Copilot と統合した Aspire MCP を示す VS Code のデモ", aria_label: "Aspire MCP を使ってリソース一覧を取得する GitHub Copilot と VS Code", controls: true %}
 {% endtab %}
 {% tab "Claude Code", id: "demo-claude" %}
 <p>

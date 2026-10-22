@@ -10,6 +10,8 @@ resources:
     href: /reference/cli/commands/aspire-publish/
 legacyAnchors: [publish-mode]
 legacyGroup: execution-modes
+prev: { label: "Polyglot", link: /hub/glossary/polyglot/ }
+next: { label: "Publisher", link: /hub/glossary/publisher/ }
 ---
 `aspire publish` executes the publishing workflow for the configured application model. Deployment integrations determine the output, such as Docker Compose configuration, Kubernetes artifacts, or infrastructure definitions.
 

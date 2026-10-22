@@ -11,6 +11,7 @@ resources:
     href: /get-started/app-host/
 legacyAnchors: [apphost]
 legacyGroup: core-concepts
+next: { label: "Aspire dashboard", link: /hub/glossary/aspire-dashboard/ }
 ---
 You can write an AppHost in C# or any guest language supported through the [Aspire Type System (ATS)](/hub/glossary/ats/). It declares your resources and how they connect, orchestrates local development, and supplies an application model to deployment integrations.
 

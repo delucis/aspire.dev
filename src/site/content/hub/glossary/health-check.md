@@ -10,6 +10,8 @@ resources:
     href: /fundamentals/health-checks/
 legacyAnchors: [health-check]
 legacyGroup: key-terms
+prev: { label: "Existing resource pattern", link: /hub/glossary/existing-resource-pattern/ }
+next: { label: "Heterogeneous DAG", link: /hub/glossary/heterogeneous-dag/ }
 ---
 Aspire uses health checks in two distinct places:
 

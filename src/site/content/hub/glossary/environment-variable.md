@@ -10,6 +10,8 @@ resources:
     href: /fundamentals/environment-variables/
 legacyAnchors: [environment-variable]
 legacyGroup: key-terms
+prev: { label: "Endpoint", link: /hub/glossary/endpoint/ }
+next: { label: "Existing resource pattern", link: /hub/glossary/existing-resource-pattern/ }
 ---
 Aspire supplies environment variables to running resources for configuration such as:
 

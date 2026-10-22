@@ -10,6 +10,8 @@ resources:
     href: /architecture/resource-publishing/
 legacyAnchors: [publisher]
 legacyGroup: api-reference-terms
+prev: { label: "Publish mode", link: /hub/glossary/publish-mode/ }
+next: { label: "ReferenceExpression", link: /hub/glossary/referenceexpression/ }
 ---
 A publisher translates resource definitions, annotations, and value references into output understood by deployment tooling.
 

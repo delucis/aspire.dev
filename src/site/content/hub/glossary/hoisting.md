@@ -10,6 +10,8 @@ resources:
     href: /architecture/resource-hierarchies/
 legacyAnchors: [hoisting]
 legacyGroup: api-reference-terms
+prev: { label: "Heterogeneous DAG", link: /hub/glossary/heterogeneous-dag/ }
+next: { label: "Hosting and client relationship", link: /hub/glossary/integration-relationship/ }
 ---
 In Aspire publishing discussions, hoisting describes leaving a value unresolved so a later stage can provide it. It is not JavaScript's declaration-hoisting behavior.
 

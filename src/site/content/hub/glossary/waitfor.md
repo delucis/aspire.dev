@@ -13,6 +13,8 @@ resources:
     href: /architecture/resource-model/#resource-health
 legacyAnchors: [waitfor]
 legacyGroup: apis-and-patterns
+prev: { label: "Service discovery", link: /hub/glossary/service-discovery/ }
+next: { label: "WaitForCompletion", link: /hub/glossary/waitforcompletion/ }
 ---
 `WaitFor` in C# and `waitFor` in TypeScript express a startup dependency. For a running resource with health checks, Aspire waits for those checks to report healthy. Without health checks, reaching the running state is sufficient.
 

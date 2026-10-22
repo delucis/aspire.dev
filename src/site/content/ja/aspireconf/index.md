@@ -25,14 +25,10 @@ hero:
 
 {% youtube_embed video_id: "6j61K9Sna2M", title: "Aspire Conf 2026 ライブ配信のアーカイブを視聴する" %}
 
-{% raw %}{sessions.length > 0 && (
+{% if aspireconf_sessions.size > 0 %}
+<h2>つながりましょう</h2>
 
-  <>
-    <h2>つながりましょう</h2>
+<p class="pt-2 pb-2">イベントは終了しましたが、会話はまだ続きます。<a href="https://discord.com/invite/raNPcaaSj8">Discord</a> でチームやコミュニティメンバーと交流し、質問やフィードバックをぜひお寄せください。<a href="https://x.com/aspiredotdev">X</a> と <a href="https://bsky.app/profile/aspire.dev">BlueSky</a> では、お知らせやクリップ、最新情報を発信しています。ぜひフォローしてください！</p>
 
-    <p class='pt-2 pb-2'>イベントは終了しましたが、会話はまだ続きます。<a href="https://discord.com/invite/raNPcaaSj8">Discord</a> でチームやコミュニティメンバーと交流し、質問やフィードバックをぜひお寄せください。<a href="https://x.com/aspiredotdev">X</a> と <a href="https://bsky.app/profile/aspire.dev">BlueSky</a> では、お知らせやクリップ、最新情報を発信しています。ぜひフォローしてください！
-</p>
-    
-    <SessionGrid sessions={sessions} />
-  </>
-)}{% endraw %}
+{% session_grid sessions: aspireconf_sessions %}
+{% endif %}
