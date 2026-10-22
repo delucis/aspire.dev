@@ -95,8 +95,8 @@ A new folder holds the Douze site; `src/frontend` stays until M8 and is deleted 
 ```
 src/site/
   douze.yml                     the workflow (3.2)
-  package.json, pnpm-lock.yaml  Node tooling the workflow runs: expressive-code (+ twoslash, line numbers,
-                                collapsible sections, icons), pagefind, esbuild, @unocss/cli (icons), playwright
+  package.json, pnpm-lock.yaml  tooling the workflow runs: expressive-code (+ twoslash, line numbers, collapsible
+                                sections, icons; Node), pagefind, esbuild and lightningcss (native binaries), playwright
   content/                      the url root: the Starlight tree as today (urls do not change)
     get-started/, integrations/, ...   the articles, Markdown + shortcodes (converted from FE/src/content/docs; same tree, same slugs)
     ja/, de/, ...               locale folders, as today
@@ -186,9 +186,9 @@ steps:
 
   # assets: fingerprinted css, js, fonts, icons; the client bundle, the icon css and the highlighter's base assets are produced first
   client-js:   { inputs: "scripts/client/**/*.ts", run: "node scripts/build-client.mjs {{ inputs }} {{ outputs }}", outputs: "assets/js/**", sources: ["scripts/build-client.mjs", "scripts/client/**"] }
-  icons-css:   { inputs: ["templates/**", "content/**/*.md"], run: "npx unocss --config uno.config.ts --out-file {{ outputs }}/assets/css/icons.css", outputs: "assets/css/icons.css", sources: ["uno.config.ts"] }
+  site-css:    { inputs: "assets/css/**/*.css", run: "node scripts/build-css.mjs {{ inputs }} {{ outputs }}", outputs: "assets/css/site.css", sources: ["scripts/build-css.mjs"] }   # lightningcss: bundle + minify
   code-assets: { inputs: "ec.config.mjs", run: "node scripts/code-worker.mjs --assets {{ outputs }}", outputs: "assets/code.*", sources: ["scripts/code-worker.mjs", "ec.config.mjs"] }
-  assets:      { inputs: ["assets/**", "!assets/images/**"], needs: [client-js, icons-css, code-assets], uses: assets, with: { root: assets, output: assets } }
+  assets:      { inputs: ["assets/**", "!assets/images/**", "!assets/css/**"], needs: [client-js, site-css, code-assets], uses: assets, with: { root: assets, output: assets } }
 
   # articles (paths after permalink are urls: the content folder is stripped)
   pages:       { inputs: ["content/**", "!content/**/*.{yml,json}", "!content/reference/api/**", "!content/exports/**"], needs: [site-data, folder-data, assets], uses: frontmatter, with: { require: [title] } }
@@ -296,11 +296,18 @@ Three sources, all under `assets/css/`:
 The Expressive Code CSS and script are emitted by the code worker once per build (`assets/css/code.css`,
 `assets/js/code.js`) from the engine's `getBaseStyles`/`getThemeStyles`/`getJsModules`, with the same `ec.config.mjs`.
 
-### 4.3 Icons and UnoCSS
+### 4.3 Icons, CSS and JavaScript tooling (native tools first)
 
-UnoCSS is used for icons only (`presetStarlightIcons`, `presetIcons` with devicon, 26-class safelist). It stays as a
-`batch` command step (`icons-css` above) running `@unocss/cli` over the templates and content, producing one CSS file
-that `assets` fingerprints. `starlight-plugin-icons`' `pluginIcon` for Expressive Code frames stays in the worker's
+Rule for every delegated step: a fast native tool over a Node script when one exists with the needed fidelity
+(macOS, Linux and Windows, x64 and arm64). Choices: Pagefind (native binary), esbuild (Go) for the client bundle,
+lightningcss (Rust) for CSS bundling and minification (`scripts/build-css.mjs` runs `lightningcss --bundle --minify`
+over `assets/css/site-entry.css`), libvips through NetVips in Douze for images and social images (resvg would be the
+standalone alternative), and Node only for the Expressive Code engine with twoslash (section 5.4 of the Douze plan:
+no native engine reproduces its frames, markers and collapsible sections, and twoslash needs the TypeScript compiler).
+
+UnoCSS, used for icons only today (`presetStarlightIcons`, `presetIcons` with devicon, 26-class safelist), is
+dropped: an SVG sprite built once by `scripts/icons-sprite.mjs` from Starlight's icon set and the devicon/mdi icons
+the site uses, with the `icon` shortcode rendering `<svg><use href="/assets/icons.svg#name">`. `starlight-plugin-icons`' `pluginIcon` for Expressive Code frames stays in the worker's
 `ec.config.mjs`; its `FileTree` component becomes the `filetree` shortcode (icons by extension from the same icon set,
 rendered as inline SVG by the `icon` shortcode from a vendored sprite built once by `sidebar-from-ts.mjs`'s sibling
 `icons-sprite.mjs`).
