@@ -8,7 +8,7 @@
 {%- if topic -%}
   {%- for sb_key in site.sidebar_topics -%}{%- if sb_key == topic or sidebar[sb_key].id == topic -%}{%- assign sb_current_key = sb_key -%}{%- endif -%}{%- endfor -%}
 {%- endif -%}
-{%- if api -%}{%- assign sb_current_key = "reference" -%}{%- endif -%}
+{% if api_page -%}{%- assign sb_current_key = "reference" -%}{%- endif -%}
 {%- if sb_current_key == nil -%}
   {%- for sb_key in site.sidebar_topics -%}
     {%- if sb_current_key == nil -%}

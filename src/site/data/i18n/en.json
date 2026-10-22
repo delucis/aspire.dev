@@ -73,7 +73,8 @@
       "v0": "Open in v0",
       "cursor": "Open in Cursor",
       "perplexity": "Open in Perplexity",
-      "githubCopilot": "Open in GitHub Copilot"
+      "githubCopilot": "Open in GitHub Copilot",
+      "markdown": "View in Markdown"
     },
     "view": {
       "markdown": "View in Markdown"

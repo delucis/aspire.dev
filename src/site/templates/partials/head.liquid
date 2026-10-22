@@ -35,7 +35,7 @@
 {%- assign sl_og_image = nil -%}
 {%- if ogImage -%}
   {%- assign sl_og_image = ogImage | strip | absolute_url -%}
-{%- elsif og == false or sl_prefix != "" or sl_is_splash or sl_is_home or sl_is_404 or api -%}
+{%- elsif og == false or sl_prefix != "" or sl_is_splash or sl_is_home or sl_is_404 or api_page -%}
   {%- assign sl_og_image = "/og-image.png" | absolute_url -%}
 {%- else -%}
   {%- assign sl_og_path = "/og" | append: sl_locale_url | append: "index.png" -%}
@@ -64,7 +64,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="description" content="{{ sl_description }}">
 {%- comment -%} hreflang alternates: every locale (Starlight lists all of them, the fallback copies exist). {%- endcomment -%}
-{%- unless api %}
+{% unless api_page %}
 {%- for language in site.languages %}
 <link rel="alternate" hreflang="{{ language.lang }}" href="{{ language.prefix | append: sl_locale_url | absolute_url }}">
 {%- endfor %}

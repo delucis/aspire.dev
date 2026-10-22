@@ -1,20 +1,32 @@
 ---
 # Starlight's <Tabs> (user-components/Tabs.astro): {% tabs sync: "aspire-lang" %}{% tab "C#", icon: "seti:c-sharp" %}...{% endtab %}{% endtabs %}.
 #
-# DEVIATION from Starlight: Starlight renders the tab list on the server from the panels (rehype-tabs). A shortcode
-# renders its body first and cannot see its children as data, so here each {% tab %} renders
-# `<div role="tabpanel" data-label="..." data-icon="...">` and this shortcode renders an EMPTY
-# `<div class="tablist-wrapper not-content"><ul role="tablist"></ul></div>`. The client script (scripts/client, the
-# `starlight-tabs` element) fills the list from the DIRECT `[role=tabpanel]` children before Starlight's own logic
-# runs, giving the same final DOM as Starlight:
+# Starlight renders the tab list on the server from the panels (rehype-tabs). A shortcode renders its body first, so
+# each {% tab %} renders `<div role="tabpanel" data-label="..." data-icon="...">` and this shortcode rebuilds the
+# panels with their ids and the tab list from those attributes, giving Starlight's DOM:
 #   <starlight-tabs data-sync-key><div class="tablist-wrapper not-content"><ul role="tablist">
 #     <li role="presentation" class="tab"><a role="tab" href="#tab-panel-N" id="tab-N" aria-selected tabindex>[svg] label</a></li>...
 #   </ul></div><div id="tab-panel-N" aria-labelledby="tab-N" role="tabpanel" [hidden]>...</div>...<starlight-tabs-restore>
-# and restores the synced tab (localStorage `starlight-synced-tabs__<sync>`). Until it runs, the CSS rule in
-# assets/css/shortcodes-extra.css shows only the first panel. `<starlight-tabs-restore>` is emitted as Starlight does
-# (last child, synced tabs only); its inline definition script is replaced by the client element's restore logic.
-# Root class: cid-sl-tabs.
+# Ids are unique per page (a counter in the page's variables). Root class: cid-sl-tabs.
 block: true
 params: [sync]
 ---
-<starlight-tabs class="cid-sl-tabs"{% if sync %} data-sync-key="{{ sync | escape }}"{% endif %}><div class="tablist-wrapper not-content"><ul role="tablist"></ul></div>{{ body | strip }}{% if sync %}<starlight-tabs-restore></starlight-tabs-restore>{% endif %}</starlight-tabs>
+{%- assign sl_tab_counter = sl_tab_counter | default: 0 -%}
+{%- assign panels = body | strip | split: '<div role="tabpanel" data-label="' -%}
+{%- assign tab_count = panels.size | minus: 1 -%}
+<starlight-tabs class="cid-sl-tabs"{% if sync %} data-sync-key="{{ sync | escape }}"{% endif %}><div class="tablist-wrapper not-content"><ul role="tablist">
+{%- for panel in panels offset: 1 -%}
+{%- assign n = sl_tab_counter | plus: forloop.index -%}
+{%- assign label = panel | split: '"' | first -%}
+{%- assign head = panel | split: '>' | first -%}
+{%- if head contains 'data-icon="' -%}{%- assign tab_icon = head | split: 'data-icon="' | last | split: '"' | first -%}{%- else -%}{%- assign tab_icon = nil -%}{%- endif -%}
+<li role="presentation" class="tab"><a role="tab" href="#tab-panel-{{ n }}" id="tab-{{ n }}" aria-selected="{% if forloop.first %}true{% else %}false{% endif %}" tabindex="{% if forloop.first %}0{% else %}-1{% endif %}">{% if tab_icon %}{% icon tab_icon, size: "1rem", class: nil, label: nil, color: nil %}{% endif %}{{ label }}</a></li>
+{%- endfor -%}
+</ul></div>
+{%- for panel in panels offset: 1 -%}
+{%- assign n = sl_tab_counter | plus: forloop.index -%}
+<div id="tab-panel-{{ n }}" aria-labelledby="tab-{{ n }}" role="tabpanel" data-label="{{ panel | raw }}
+{%- unless forloop.first %}{% endunless -%}
+{%- endfor -%}
+{% if sync %}<starlight-tabs-restore></starlight-tabs-restore>{% endif %}</starlight-tabs>
+{%- assign sl_tab_counter = sl_tab_counter | plus: tab_count -%}

@@ -6,7 +6,7 @@
   conventions (site.sidebar_topics, sidebar.<topic>) and base.liquid's sl_prefix, sl_lang, sl_locale_url.
   ReadableText's <wbr> hints are not reproduced. Root class: cid-breadcrumb.
 {%- endcomment -%}
-{%- unless crumbs == false or api -%}
+{%- unless crumbs == false or api_page -%}
 {%- assign bc_topic = nil -%}{%- assign bc_path = nil -%}
 {%- for bc_key in site.sidebar_topics -%}
   {%- if bc_topic == nil -%}
