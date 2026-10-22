@@ -157,9 +157,9 @@ TypeScript 7's quick info. Of the 5,750 popups of those pages, 54 differ:
 
 | Difference | Popups |
 |---|---|
-| A type and a const of the same name (the generated enums, imported): the const's meaning first, the type's union sorted, and the const's documentation (none) instead of the type's `Enum ...` | 25 |
-| The const of such a name alone: the same documentation difference | 25 |
-| Union members in another order (`const cache: AzureManagedRedisResource \| RedisResource`, a `value?:` property) | 3 |
+| A type and a const of the same name (the generated enums, imported): the const's meaning first, the type's union sorted, and the const's documentation (none) instead of the type's `Enum ...` | 30 |
+| The const of such a name alone: the same documentation difference | 19 |
+| Union members in another order (`const cache: AzureManagedRedisResource \| RedisResource`, a `value?:` property) | 4 |
 | `var Date: new () => Date (+4 overloads)` where TypeScript 6 prints `var Date: DateConstructor` and `new () => Date (+3 overloads)` | 1 |
 
 The 32 fences are on 25 pages: `app-host/certificate-configuration` (4), `executable-resources` (2), `resource-lifetimes`,
