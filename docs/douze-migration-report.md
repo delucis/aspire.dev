@@ -147,7 +147,27 @@ tonight. The rest of the failures are listed under "What is missing".
 | Rebuild, nothing changed | 8 min 14 s | 28 s (every unit replayed from the disk cache; 20 s of it is Pagefind indexing the output) |
 | One article changed | 8 min 14 s | a few seconds with `douze watch` / `douze serve` (the page, its twin, the search index) |
 
-Measured on the same machine (Apple Silicon, 12 cores). Douze runs as a native AOT binary (17.7 MB + libvips);
+Measured on the same machine (Apple Silicon, 12 cores).
+
+### Memory
+
+Clean full builds run one after the other on the same commit (site `7f8f3de7`, Douze `2ed3d06`, 2026-10-22), the
+process tree's resident memory (the build process and its children) sampled once per second; the machine was not
+idle (another session built on it: 1-minute load 6 to 21 during the runs), so wall times are above the quiet-machine
+numbers of the table above.
+
+| Build | Wall | Peak RSS of the process tree | Of which |
+|---|---|---|---|
+| Astro `pnpm build` (`NODE_OPTIONS=--max-old-space-size=8192`) | 22 min 3 s (21 min 51 s by its own log; 8 min 14 s on a quiet machine) | 12.2 GB | node and its workers |
+| Douze clean (code worker's twoslash cache warm) | 42 to 60 s | 11.9 to 13.9 GB | `douze` 11.3 GB, the Node code worker 0.7 GB, Pagefind 0.24 GB |
+| Douze clean, twoslash cache cold | 4 min 9 s | 12.0 GB | twoslash in the worker is the time, not the memory |
+| Douze warm rebuild, nothing changed | 2.1 s | 1.8 GB | |
+
+The `douze` process alone measured 5.5 to 6.1 GB in the Douze benchmark of the same change (`bench/README.md`,
+the locale copies section, with `/usr/bin/time -l` on a copy of the site before the Pagefind step was reworked); the
+native AOT build uses the Satori GC, which peaks higher than the standard GC for the same build (10 to 14 GB on
+CoreCLR against 17 to 21 GB before the memory fix). The remaining holders and the planned compressed cache packs are
+tracked in the Douze repository (issue 21). Douze runs as a native AOT binary (17.7 MB + libvips);
 `dotnet run` adds the JIT warm-up. The API reference (24,059 pages, 24,096 twins) renders in 24 s cold.
 
 ### What was done in Douze
