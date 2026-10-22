@@ -6,8 +6,16 @@ import base from './playwright.config.mjs';
 
 const e2ePort = Number(process.env.PLAYWRIGHT_TEST_PORT || '4322');
 
+// Playwright 1.61 wants its own Chromium build; when it is not installed, PLAYWRIGHT_CHROMIUM points at another
+// Chrome for Testing build (for example ~/Library/Caches/ms-playwright/chromium-1248/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing).
+const executablePath = process.env.PLAYWRIGHT_CHROMIUM;
+
 export default defineConfig({
   ...base,
+  projects: base.projects.map((project) => ({
+    ...project,
+    use: { ...project.use, ...(executablePath ? { launchOptions: { executablePath } } : {}) },
+  })),
   webServer: {
     command: `dotnet run -c Release --project ../statichost/StaticHost --urls http://127.0.0.1:${e2ePort}`,
     env: { ...process.env, ASPNETCORE_ENVIRONMENT: 'Development', DOTNET_NOLOGO: '1', ConnectionStrings__cache: 'localhost:6379,abortConnect=false' },

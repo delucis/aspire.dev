@@ -26,7 +26,7 @@ markdown: false
   {%- if data.draft or data.description == blank or data.title == "404" -%}{%- continue -%}{%- endif -%}
   {%- if data.termType or data.topics -%}{%- continue -%}{%- endif -%}
   {%- assign item_locale = item.data.url | locale_of -%}
-  {%- if item_locale != "default" -%}{%- continue -%}{%- endif -%}
+  {%- if item_locale != "en" -%}{%- continue -%}{%- endif -%}
   {%- comment -%} trailingSlash: false: /x/ -> https://aspire.dev/x {%- endcomment -%}
   {%- assign link = item.data.url | replace: "/index.html", "/" | absolute_url -%}
   {%- assign last = link.size | minus: 1 -%}
