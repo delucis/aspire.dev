@@ -58,7 +58,6 @@ function when(selector: string, load: () => Promise<unknown>): void {
 when('#aspire-site-tour-strings', () => import('./site-tour'));
 when('starlight-file-tree', () => import('./file-tree'));
 when('glossary-browser', () => import('./glossary-browser'));
-when('resource-browser', () => import('./resource-browser'));
 when('featured-samples', () => import('./featured-samples'));
 when('.asciinema-player-container', () => import('./content/asciinema-player'));
 when('#aspire-live-tabs', () => import('./content/live-videos-tabs'));

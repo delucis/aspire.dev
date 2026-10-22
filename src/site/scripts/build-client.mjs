@@ -10,6 +10,10 @@
 //
 // Outputs (gitignored build outputs):
 //   assets/js/site.js            the single ES module entry (scripts/client/site.ts), with linked source map
+//   assets/js/ResourceBrowser.js the <resource-browser> controller, a second entry that the browse page loads as a
+//                                module script (ResourceBrowser.astro's page script): the window's load event waits
+//                                for it, which the catalog's readiness script relies on, and the e2e specs block
+//                                **/*ResourceBrowser* to simulate it failing
 //   assets/js/chunks/*.js        the lazy chunks (mermaid, asciinema-player, page-specific scripts)
 //   assets/js/inline/*.js        the pre-paint scripts (scripts/client/inline/*.ts) as minified IIFEs, for the
 //                                partials to load as classic blocking scripts or to inline
@@ -81,7 +85,10 @@ fs.mkdirSync(outDir, { recursive: true });
 
 await esbuild.build({
   ...common,
-  entryPoints: { site: path.join(clientDir, 'site.ts') },
+  entryPoints: {
+    site: path.join(clientDir, 'site.ts'),
+    ResourceBrowser: path.join(fromFrontend, 'src/components/dev-center/ResourceBrowser.ts'),
+  },
   outdir: outDir,
   format: 'esm',
   splitting: true,

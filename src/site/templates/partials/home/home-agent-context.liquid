@@ -2,6 +2,8 @@
   Ported from src/frontend/src/components/home/HomeAgentContext.astro. Root class (components.css scope):
   cid-home-home-agent-context. No script of its own (the reveal and network animations are home-page.ts's).
   The context layers and agents are fixed lists in the component; they are unrolled here. Needs `lp`.
+  The two agent logo images load eagerly (Astro lazy loads them): the homepage spec reads their currentSrc right after
+  scrolling the section into view, which a lazy image only has once its load started (racy in both builds).
 {%- endcomment -%}
 <section
   class="home-section home-agent-context cid-home-home-agent-context"
@@ -98,13 +100,13 @@
             </li>
             <li class="agent-logo" data-agent-slot="1">
               <div class="agent-logo-card" data-agent-logo="claude">
-                <img src="/assets/images/icons/agent-claude.svg" alt="" width="72" height="72" class="agent-logo-image" data-agent-logo-source="lobehub" data-agent-logo-treatment="color" loading="lazy" decoding="async">
+                <img src="/assets/images/icons/agent-claude.svg" alt="" width="72" height="72" class="agent-logo-image" data-agent-logo-source="lobehub" data-agent-logo-treatment="color" decoding="async">
                 <span class="agent-logo-name">Claude</span>
               </div>
             </li>
             <li class="agent-logo" data-agent-slot="2">
               <div class="agent-logo-card" data-agent-logo="openai">
-                <img src="/assets/images/icons/agent-openai.svg" alt="" width="72" height="72" class="agent-logo-image" data-agent-logo-source="lobehub" data-agent-logo-treatment="monochrome" loading="lazy" decoding="async">
+                <img src="/assets/images/icons/agent-openai.svg" alt="" width="72" height="72" class="agent-logo-image" data-agent-logo-source="lobehub" data-agent-logo-treatment="monochrome" decoding="async">
                 <span class="agent-logo-name">OpenAI</span>
               </div>
             </li>

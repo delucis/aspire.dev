@@ -285,6 +285,27 @@ function scopedVariants(selector, flags) {
     });
   }).processSync(selector.trim(), { lossless: false });
   out.push(rooted);
+  // A sibling combinator can join two roots of the component (Starlight's `.content-panel + .content-panel`): the
+  // subject is then a scope root of its own, outside the scope of its sibling, so neither variant above matches it.
+  // A third variant makes the subject compound the scope root (`C1 + C2:where(:scope)`).
+  let sibling = false;
+  const subjectRooted = selectorParser((root) => {
+    root.each((sel) => {
+      if (!sel.nodes.some((node) => node.type === 'combinator' && ['+', '~'].includes(node.value.trim()))) return;
+      sibling = true;
+      const nodes = sel.nodes;
+      let start = nodes.length;
+      while (start > 0 && nodes[start - 1].type !== 'combinator') start--;
+      const compound = nodes.slice(start);
+      if (!compound.length) return;
+      const scope = selectorParser.pseudo({ value: ':where', nodes: [] });
+      scope.nodes = selectorParser().astSync(':scope').nodes;
+      const pseudoElement = compound.find((n) => n.type === 'pseudo' && (n.value.startsWith('::') || pseudoElementsLegacy.has(n.value)));
+      if (pseudoElement) pseudoElement.parent.insertBefore(pseudoElement, scope);
+      else compound[compound.length - 1].parent.insertAfter(compound[compound.length - 1], scope);
+    });
+  }).processSync(selector.trim(), { lossless: false });
+  if (sibling) out.push(subjectRooted);
   return out;
 }
 

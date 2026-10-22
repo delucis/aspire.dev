@@ -35,3 +35,28 @@ hub_layout: article
 <aside class="term-related not-content" aria-labelledby="related-terms"><h2 id="related-terms">Related terms</h2><ul>{{ gl_related }}</ul></aside>
 {%- endif %}
 </article>
+{%- comment -%} The return to the filtered glossary results ([term].astro's script): a `from` query naming the
+glossary index (same origin, /hub/glossary/ with its query) replaces the breadcrumb's glossary link and is carried by
+the previous/next links. A module script runs once the document (the hub layout's footer included) is parsed. {%- endcomment %}
+<script type="module">
+const from = (() => {
+  const value = new URLSearchParams(location.search).get('from');
+  if (!value) return undefined;
+  try {
+    const target = new URL(value, location.origin);
+    if (target.origin === location.origin && target.pathname === '/hub/glossary/') return target.pathname + target.search;
+  } catch {}
+  return undefined;
+})();
+if (from) {
+  for (const back of document.querySelectorAll('.dev-breadcrumbs a[href="/hub/glossary/"]')) {
+    back.href = from;
+    back.setAttribute('aria-label', 'Back to your glossary results');
+  }
+  for (const link of document.querySelectorAll('.pagination-links a[href^="/hub/glossary/"]')) {
+    const destination = new URL(link.href);
+    destination.searchParams.set('from', from);
+    link.href = destination.href;
+  }
+}
+</script>
