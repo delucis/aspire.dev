@@ -1,5 +1,5 @@
 // One-shot conversion of the Astro sidebar (src/frontend/config/sidebar/*.topics.ts) to Douze site data
-// (src/site/data/sidebar/<topic>.yml). After the cutover the YAML files are hand maintained and this script is
+// (src/site/data/sidebars/<topic>.yml). After the cutover the YAML files are hand maintained and this script is
 // only kept to regenerate them while src/frontend still exists.
 //
 // Run from the repository root (tsx evaluates the TypeScript modules):
@@ -21,7 +21,7 @@ const here = dirname(fileURLToPath(import.meta.url));
 const site = resolve(here, '..');
 const frontend = resolve(site, '../frontend');
 const sidebarDir = join(frontend, 'config/sidebar');
-const outDir = join(site, 'data/sidebar');
+const outDir = join(site, 'data/sidebars');
 
 const exclude = [
   '**/includes/**/*',
@@ -213,7 +213,7 @@ for (const file of files.sort()) {
   }
   const yaml = header(name, extra) + '\n' + emitMap(convertTopic(topic), 0);
   writeFileSync(join(outDir, `${name}.yml`), yaml);
-  console.log(`wrote data/sidebar/${name}.yml`);
+  console.log(`wrote data/sidebars/${name}.yml`);
 }
 
 const { sidebarTopics } = await import(pathToFileURL(join(sidebarDir, 'sidebar.topics.ts')).href);

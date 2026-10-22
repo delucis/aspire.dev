@@ -132,7 +132,7 @@ src/site/
     code-worker.mjs             the highlighter worker (Expressive Code engine + twoslash), from Douze's reference worker
     build-client.mjs            esbuild bundle of scripts/client/*.ts into assets/js (a batch command step)
     convert-mdx/                the MDX converter (section 7)
-    sidebar-from-ts.mjs         one-shot conversion of FE/config/sidebar to data/sidebar/*.yml
+    sidebar-from-ts.mjs         one-shot conversion of FE/config/sidebar to data/sidebars/*.yml
     update-*.ts, generate-*.ps1 the data updaters, moved from FE/scripts
   tests/
     e2e/                        the Playwright specs, moved from FE/tests/e2e
@@ -261,7 +261,7 @@ mapping is one to one and reviewable:
 
 | Override (lines) | Partial | Notes |
 |---|---|---|
-| Sidebar (2,029) | `sidebar.liquid`, `sidebar-topics.liquid`, `sidebar-api.liquid` | topics from `data/sidebar/*.yml` with `nav_active`; the API sidebar from `api/pages` data inside `{% cache package.slug %}` (Douze 3.15); the filter box script ported as is |
+| Sidebar (2,029) | `sidebar.liquid`, `sidebar-topics.liquid`, `sidebar-api.liquid` | topics from `data/sidebars/*.yml` with `nav_active`; the API sidebar from `api/pages` data inside `{% cache package.slug %}` (Douze 3.15); the filter box script ported as is |
 | Search (767) | `search.liquid` | Pagefind UI as today (`/pagefind/pagefind-ui.js`), the C#/TS API notice, keyboard footer, `?q=` passthrough; the Starlight patch (re-init across swaps) disappears with `ClientRouter` (4.4) |
 | Head (602) | `head.liquid` | fonts (`asset_url`), OG meta (`social_image_url`, `seoTitle`), JSON-LD from `structured-data` ported to a Liquid partial fed by page data, WCP cookie consent, analytics bridge, theme persistence; `ClientRouter` removed (4.4) |
 | Header (584) | `header.liquid` | Install CLI modal, live indicator, Dev Hub, cookies, help |
@@ -577,7 +577,7 @@ notice, for no benefit.
 
 - UI strings: `FE/src/content/i18n/*.json` move to `data/i18n/` unchanged (nested keys; the 37 keys missing in 14
   locales fall back to English through `t`).
-- Sidebar labels: `data/sidebar/*.yml` carry `label: { en: ..., fr: ... }` from the TypeScript `translations`,
+- Sidebar labels: `data/sidebars/*.yml` carry `label: { en: ..., fr: ... }` from the TypeScript `translations`,
   converted once by `sidebar-from-ts.mjs` (which evaluates the modules with Node and writes YAML); `nav_label: lang`
   picks the locale's label.
 - Locale selector: the `language select` partial lists `site.locales.languages` (exposed by Douze in the settings
@@ -724,7 +724,7 @@ API pages beyond the chrome, and the API build takes under 30 s on the CI runner
 **Needs** Douze S1, S3 (navigation and locales), S4 (assets, images, social images) from the preview feed; M2 for
 the last step (the API pages wearing the chrome). **Owns**
 `templates/layouts/*`, `templates/partials/*`, `assets/css/*` (except `api-*`), `assets/fonts`, `scripts/client/*`
-(except `api/`), `uno.config.ts`, `scripts/build-client.mjs`, `data/sidebar/*`, `data/i18n/*`, `data/site.yml`,
+(except `api/`), `uno.config.ts`, `scripts/build-client.mjs`, `data/sidebars/*`, `data/i18n/*`, `data/site.yml`,
 `scripts/sidebar-from-ts.mjs`, `scripts/icons-sprite.mjs`. **Does** section 4 (layouts, partials, the three CSS
 sources, icons, client scripts without `ClientRouter`, the sidebar data conversion) and section 8's chrome parts, on
 a handful of hand-converted pages (`index`, `docs`, `get-started/first-app`, a page with tabs and asides, one `ja`

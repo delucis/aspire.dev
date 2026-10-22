@@ -41,7 +41,7 @@ versions:
 # Today: https://github.com/microsoft/aspire.dev/edit/main/src/frontend/ + src/content/docs/<path>.mdx
 edit_link: https://github.com/microsoft/aspire.dev/edit/main/src/site/content/
 
-# The sidebar topics in display order (sidebar.<topic> is data/sidebar/<topic>.yml).
+# The sidebar topics in display order (sidebars.<topic> is data/sidebars/<topic>.yml).
 sidebar_topics: [docs, integrations, dashboard, deployment, reference, community]
 
 # Pages that belong to no topic and show no topic sidebar (starlight-sidebar-topics `exclude`), as url globs.

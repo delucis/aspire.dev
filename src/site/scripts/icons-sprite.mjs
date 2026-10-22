@@ -114,7 +114,7 @@ for (const dir of [
   path.join(frontendDir, 'config'),
   path.join(siteDir, 'templates'),
   path.join(siteDir, 'content'),
-  path.join(siteDir, 'data/sidebar'),
+  path.join(siteDir, 'data/sidebars'),
 ]) {
   walk(dir, textExtensions, (file) => scanText(readFileSync(file, 'utf8')));
 }

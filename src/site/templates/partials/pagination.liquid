@@ -9,7 +9,7 @@
 {%- assign pg_prev = nil -%}{%- assign pg_next = nil -%}
 {%- assign pg_prev_label = nil -%}{%- assign pg_next_label = nil -%}
 {%- if has_sidebar and sb_current_key -%}
-  {%- assign pg_nav = sidebar[sb_current_key].items | nav_prev_next: url -%}
+  {%- assign pg_nav = sidebars[sb_current_key].items | nav_prev_next: url -%}
   {%- if pg_nav.prev -%}{%- assign sb_item = pg_nav.prev -%}{%- include "partials/sidebar-label" -%}{%- assign pg_prev = sl_prefix | append: pg_nav.prev.link -%}{%- assign pg_prev_label = sb_label -%}{%- endif -%}
   {%- if pg_nav.next -%}{%- assign sb_item = pg_nav.next -%}{%- include "partials/sidebar-label" -%}{%- assign pg_next = sl_prefix | append: pg_nav.next.link -%}{%- assign pg_next_label = sb_label -%}{%- endif -%}
 {%- endif -%}

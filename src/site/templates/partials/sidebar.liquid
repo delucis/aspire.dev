@@ -23,25 +23,25 @@
 {% include "partials/sidebar-topics" %}
 {% include "partials/sidebar-filter" %}
 </div>
-<sl-sidebar-state-persist data-hash="{{ sb_current_key }}-{{ sidebar[sb_current_key].items.size }}"><script aria-hidden="true">{% include "partials/inline/sidebar-restore" %}</script>
+<sl-sidebar-state-persist data-hash="{{ sb_current_key }}-{{ sidebars[sb_current_key].items.size }}"><script aria-hidden="true">{% include "partials/inline/sidebar-restore" %}</script>
 {% if api_page %}
 {% include "api/sidebar" %}
 {%- else %}
-{%- assign sb_tree = sidebar[sb_current_key].items | nav_active: url %}
+{%- assign sb_tree = sidebars[sb_current_key].items | nav_active: url %}
 {% include "partials/sidebar-sublist", sb_list: sb_tree, sb_nested: false %}
 {%- endif %}
 <script aria-hidden="true">{% include "partials/inline/sidebar-scroll" %}</script></sl-sidebar-state-persist>
 {%- else %}
 <sl-sidebar-state-persist data-hash="all"><script aria-hidden="true">{% include "partials/inline/sidebar-restore" %}</script>
 {%- for sb_key in site.sidebar_topics %}
-{%- assign sb_tree = sidebar[sb_key].items | nav_active: url %}
+{%- assign sb_tree = sidebars[sb_key].items | nav_active: url %}
 {% include "partials/sidebar-sublist", sb_list: sb_tree, sb_nested: false %}
 {%- endfor %}
 <script aria-hidden="true">{% include "partials/inline/sidebar-scroll" %}</script></sl-sidebar-state-persist>
 <div class="md:sl-hidden">{% include "partials/mobile-menu-footer" %}</div>
 {%- endif %}
 <div class="divider"></div>
-<div class="sidebar-bottom">{% linkbutton "https://github.com/microsoft/aspire.dev", variant: "minimal", icon: nil, icon_placement: nil, class: nil, target: nil, rel: nil, aria_label: "GitHub: microsoft/aspire.dev" %}{% icon "github" %}<span>aspire.dev</span>{% endlinkbutton %}</div>
+<div class="sidebar-bottom">{% linkbutton "https://github.com/microsoft/aspire.dev", variant: "minimal", icon: nil, icon_placement: nil, class: nil, target: nil, rel: nil, aria_label: "GitHub: microsoft/aspire.dev", link_title: "GitHub: microsoft/aspire.dev" %}{% icon "github" %}<span>aspire.dev</span>{% endlinkbutton %}</div>
 </div>
 {% if api_page or sb_current_key %}
 {% if api_page %}{%- assign sb_btn = "sidebar" -%}{%- else -%}{%- assign sb_btn = "topic-sidebar" -%}{%- endif %}

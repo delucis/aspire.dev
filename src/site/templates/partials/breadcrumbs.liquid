@@ -10,11 +10,11 @@
 {%- assign bc_topic = nil -%}{%- assign bc_path = nil -%}
 {%- for bc_key in site.sidebar_topics -%}
   {%- if bc_topic == nil -%}
-    {%- if sidebar[bc_key].link == sl_locale_url -%}
+    {%- if sidebars[bc_key].link == sl_locale_url -%}
       {%- assign bc_topic = "root" -%}
     {%- else -%}
-      {%- assign bc_found = sidebar[bc_key].items | nav_breadcrumbs: url -%}
-      {%- if bc_found.size > 0 -%}{%- assign bc_topic = sidebar[bc_key] -%}{%- assign bc_path = bc_found -%}{%- endif -%}
+      {%- assign bc_found = sidebars[bc_key].items | nav_breadcrumbs: url -%}
+      {%- if bc_found.size > 0 -%}{%- assign bc_topic = sidebars[bc_key] -%}{%- assign bc_path = bc_found -%}{%- endif -%}
     {%- endif -%}
   {%- endif -%}
 {%- endfor -%}
