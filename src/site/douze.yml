@@ -32,7 +32,7 @@ site:
       uk: { label: Українська, lang: uk }
 
 markdown:
-  extensions: [pipetables, tasklists, attributes, autolinks, alerts, customcontainers, smartypants]
+  extensions: [pipetables, tasklists, attributes, autolinks, alerts, customcontainers, smartypants, strikethrough]
   aside: { class: starlight-aside, kinds: [note, tip, caution, danger, important], titles: { note: Note, tip: Tip, caution: Caution, danger: Danger, important: Important } }
   code: { passthrough: [mermaid] }
   images: { formats: [webp], quality: 82, output: assets/images }
