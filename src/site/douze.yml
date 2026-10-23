@@ -3,8 +3,8 @@
 # Build: from src/site, after `node scripts/icons-sprite.mjs && node scripts/build-client.mjs` (the icon sprite and the
 # client bundle; they write into assets/), run
 #   douze -s src/site -o src/statichost/StaticHost/wwwroot
-# The build itself runs no Node: code blocks are highlighted by Douze's `highlight` step, the twoslash results come
-# from its `twoslash` step (TypeScript 7) and the search index from Pagefind's native binary, tools Douze downloads on
+# The build itself runs no Node: code blocks are highlighted by Douze's `highlight` step, the hovers of TypeScript
+# fences come from its `hover-typescript` step (TypeScript 7) and the search index from Pagefind's native binary, tools Douze downloads on
 # first use (`douze doctor -s src/site` checks them, `douze tools install` gets them). The Node worker of Expressive
 # Code (scripts/code-worker.mjs, `pnpm install` in src/site) stays as an opt-out (the `code` step).
 
@@ -92,22 +92,21 @@ steps:
   markdown:     { needs: not-found-twin, uses: markdown }
   # The home pages have no heading anchors (their sections are components).
   headings:     { needs: markdown, uses: headings, match: ["**/*.html", "!index.html", "!{da,de,es,fr,hi,id,it,ja,ko,pt-br,ru,tr,uk,zh-cn}/index.html"], with: { anchors: true, wrapper-class: sl-heading-wrapper, anchor-class: sl-anchor-link, anchor-label: "Section titled “{text}”", anchor-html: '<span class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span>', levels: [2, 3], skip-classes: [not-content] } }   # component headings are not the page's
-  # Twoslash, the hovers of the ```ts twoslash fences: this step checks them with TypeScript 7 against the SDK's
+  # The hovers of the ```ts twoslash fences: this step checks them with TypeScript 7 against the SDK's
   # declaration bundle (ec.config.mjs has the same compiler options) in about a second and writes data-twoslash, which
   # the `highlight` step renders. TypeScript 7 words some hovers differently from the TypeScript 6 of the Astro site
   # (docs/douze-migration-report.md, "Build time"). With the Node worker (`code`), its TWOSLASH picks who computes them:
   # node (TypeScript 6 in Node, byte-identical popups, minutes on a cold cache) or douze (this step's results).
-  twoslash:     { needs: headings, uses: hover-typescript, match: "**/*.html",
+  hover-typescript: { needs: headings, uses: hover-typescript, match: "**/*.html",
                   with: { files: { ".aspire/modules/aspire.mts": data/twoslash/aspire.d.ts }, compiler: { moduleResolution: bundler, module: esnext, target: esnext, strict: true },
                           handbook: { noErrorValidation: true }, tab-width: 2 } }
   # C# hovers, opt-in per fence: only the fences with `twoslash` in their meta (```csharp twoslash). The Roslyn language
   # server is installed on first use. The projects are those the documentation's snippets use; most fences are
   # fragments with errors (see Douze's docs/code-hover-steps.md), rendered as warnings. Requirements: dotnet on PATH.
-  # Douze also has a `go` step (gopls); the site has no Go hovers, so it isn't configured here. The
-  # Expressive Code twoslash plugin renders their popups as it does TypeScript's (highlighted as TypeScript, with its
-  # rewrites of TypeScript's quick info), so they wait for a renderer of their own before fences opt in.
-  csharp:
-    needs: twoslash
+  # Douze also has a `hover-go` step (gopls); the site has no Go hovers, so it isn't configured here. The `highlight`
+  # step renders their popups, the signatures highlighted as C#; no fence opts in yet.
+  hover-csharp:
+    needs: hover-typescript
     uses: hover-csharp
     match: "**/*.html"
     with:
@@ -201,9 +200,9 @@ steps:
   # Code highlighting, by Douze's `highlight` step (enabled) or by the Node worker (`code`, Expressive Code: set
   # `enabled: true` on `code` and `enabled: false` on `highlight`). The native step renders Expressive Code's markup
   # (templates/code/*.liquid) with the TextMate grammars and themes of the worker's Shiki, and the twoslash popups of
-  # the `twoslash` and `csharp` steps' results; it needs no Node. docs/douze-migration-report.md, "Code blocks", has the
+  # the hover steps' results; it needs no Node. docs/douze-migration-report.md, "Code blocks", has the
   # differences. The worker's TWOSLASH picks who computes the TypeScript hovers: node (TypeScript 6 in Node) or douze.
-  highlight:    { needs: csharp, uses: highlight,
+  highlight:    { needs: hover-csharp, uses: highlight,
                   with: { themes: [laserwave, slack-ochin], tab-width: 2, templates: { block: code/block.liquid, popup: code/popup.liquid },
                           markers: { mark: ["#174a9099", "#9ab6ff99"], ins: ["#1e571599", "#8ec77d99"], del: ["#862d2799", "#ff9c8e99"] } } }
   code:         { needs: highlight, enabled: false, run: "node scripts/code-worker.mjs", mode: worker, match: "**/*.html", sources: ["scripts/code-worker.mjs", "scripts/douze-worker.mjs", "scripts/twoslash-results.mjs", "ec.config.mjs", "data/twoslash/**", "data/i18n/*.json"], with: { cache: .douze/code-cache }, env: { NODE_NO_WARNINGS: "1", TWOSLASH: node }, stderr: warn }

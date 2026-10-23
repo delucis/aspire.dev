@@ -150,7 +150,7 @@ button script and the twoslash popup script work unchanged: frames and titles (a
 frames, line markers with labels, inline markers, diff fences, collapsed sections, line numbers, the copy button
 (`data-disable-copy` kept), the Material icons of titles (read from `.starlight-icons` by the `code-icons` data step),
 the texts of each locale (the `expressiveCode` strings of `data/i18n/<locale>.json`, else `data/code_texts.yml`:
-Expressive Code's English and German), and the twoslash popups of the `twoslash` and `csharp` steps' results (the
+Expressive Code's English and German), and the twoslash popups of the `hover-typescript` and `hover-csharp` steps' results (the
 types highlighted as blocks, the JSDoc rendered as Markdown). The colors are Expressive Code's: each theme's token
 colors made readable on the code background and on markers (contrast 5.5, the marker backgrounds of code.css).
 
@@ -229,7 +229,7 @@ loads every variant alike.
 - Memory: the `douze` peaks of the two configurations overlap (the Satori GC varies by 2 to 5 GB between runs of one
   build, "Memory"); the Node worker's 0.5 to 1.9 GB are gone from the tree.
 
-Twoslash comes from Douze's `twoslash` step (TypeScript 7's language server), whose results the `highlight` step
+Twoslash comes from Douze's `hover-typescript` step (TypeScript 7's language server), whose results the `highlight` step
 renders. With the Node worker (the opt-out of "Code blocks"), one word picks who computes them: the `code` step's
 `TWOSLASH: node` (TypeScript 6 in Node, as the Astro build) or `TWOSLASH: douze`. Fidelity of the native step: 291 of the 323 twoslash code blocks of the 78 English
 twoslash pages are byte-identical to the Astro build (323 of 323 with `TWOSLASH: node`); the 32 others differ by
@@ -248,13 +248,13 @@ The 32 fences are on 25 pages: `app-host/certificate-configuration` (4), `execut
 Namespace, Azure OpenAI, MongoDB, Postgres, Rust, `azure/customize-resources` (2), `azure/role-assignments`,
 `compute/docker` (2), and `whats-new/aspire-13-6` (2). Douze restores TypeScript 5's `(+N overloads)` at
 calls (836 hovers that differed only by it). The twoslash Playwright spec passes its hover checks on direct loads and
-fails, as before, at its client-router step. C# and Go hovers (Douze's `csharp` and `go` steps) are wired in
-`douze.yml` but opt-in per fence (`twoslash` in the meta), and no fence opts in: the reference has none, and the
-Expressive Code plugin renders their popups as TypeScript.
+fails, as before, at its client-router step. C# hovers (Douze's `hover-csharp` step) are wired in
+`douze.yml` but opt-in per fence (`twoslash` in the meta), and no fence opts in: the reference has none. The
+`highlight` step renders their popups (the signatures highlighted as C#), so fences can now opt in.
 
 ### Node in the build
 
-`douze -s src/site` runs no Node any more: code blocks by the `highlight` step, twoslash by the `twoslash` step
+`douze -s src/site` runs no Node any more: code blocks by the `highlight` step, the TypeScript hovers by the `hover-typescript` step
 (TypeScript 7), the search index by Pagefind's native binary and the stylesheet by Lightning CSS's (Douze's new
 `tool:` field of command steps downloads them from their npm packages for the platform, integrity pinned, as it does
 TypeScript 7: `douze tools install -s src/site` gets them ahead). What still uses Node, outside the build:
