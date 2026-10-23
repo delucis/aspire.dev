@@ -30,7 +30,9 @@ permissions:
 jobs:
   build:
     name: Frontend Build
-    runs-on: ubuntu-latest
+    # The heaviest job uses the larger runner. Forks cannot use that label, so
+    # they fall back to the standard runner.
+    runs-on: ${{ github.repository_owner == 'microsoft' && '8-core-ubuntu-latest' || 'ubuntu-latest' }}
     defaults:
       run:
         working-directory: src/frontend
