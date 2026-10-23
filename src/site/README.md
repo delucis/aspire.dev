@@ -7,7 +7,9 @@ describes what is generated, the fidelity and the build times.
 
 ## Prerequisites
 
-- Node 24 and pnpm 11: the code highlighting worker, Pagefind and the asset scripts.
+- Node 24 and pnpm 11, outside the build only: the client bundle and icon sprite scripts, the API data script and
+  Playwright. The build itself runs no Node: Douze highlights the code blocks and downloads Pagefind's and Lightning
+  CSS's native binaries on first use.
 - The .NET SDK 10 or later on `PATH`: the C# hovers of the code blocks (`hover-csharp` step).
 - Douze (below).
 
@@ -37,17 +39,17 @@ dotnet tool install -g douze --prerelease --add-source https://f.feedz.io/sebast
 Run from the repository root:
 
 ```bash
-# Node dependencies of the site, and of the Astro folder (it still holds the API index script and Playwright)
-pnpm --dir src/site install
+# Node dependencies of the Astro folder (it still holds the API index script, esbuild and the client packages, Playwright)
 pnpm --dir src/frontend install --frozen-lockfile
 
 # API reference data: route index, cross references, search indexes, sidebars (again when the API data changes)
 pnpm --dir src/frontend exec tsx ../site/scripts/api/build-api-index.ts
 
-# assets: icon sprite, client bundle, stylesheet (again after a template or style change)
-(cd src/site && node scripts/icons-sprite.mjs && node scripts/build-client.mjs && node scripts/build-css.mjs)
+# assets: icon sprite and client bundle (again after a template or script change); the build makes the stylesheet
+(cd src/site && node scripts/icons-sprite.mjs && node scripts/build-client.mjs)
 
-# optional: download the tools the steps need (language servers, libvips) ahead of the first build
+# optional: download the tools the steps need (TypeScript 7, the Roslyn language server, Pagefind, Lightning CSS)
+# ahead of the first build
 douze tools install -s src/site
 ```
 
@@ -59,7 +61,7 @@ Into StaticHost's web root, what production serves:
 douze -s src/site -o src/statichost/StaticHost/wwwroot
 ```
 
-The first build takes a few minutes (most of it the TypeScript hovers of the code blocks). The disk cache in
+The first build takes about half a minute. The disk cache in
 `src/site/.douze/` makes later builds incremental: a build with nothing changed takes a few seconds. `--no-cache`
 forces a clean build, `--timeline timeline.html` writes a timeline of the steps, `douze doctor -s src/site` checks
 the requirements without building.
@@ -72,3 +74,9 @@ douze serve -s src/site --port 4321
 
 Then open http://localhost:4321: Douze rebuilds what a change affects and reloads the browser. This is Douze's dev
 server, not StaticHost: no Markdown negotiation and no real redirects; build into StaticHost's web root for those.
+
+## Code highlighting with Node (opt-out)
+
+The `highlight` step renders the code blocks natively. To render them with Expressive Code in Node instead (the
+worker of the Astro build's engine), run `pnpm --dir src/site install` once and, in `douze.yml`, set `enabled: true`
+on the `code` step and `enabled: false` on `highlight`.

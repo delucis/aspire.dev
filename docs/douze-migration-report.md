@@ -10,20 +10,21 @@ numbers to compare against are the Astro build of the same commit of `main` (`c2
 
 [`src/site/README.md`](../src/site/README.md) has the instructions: installing Douze (install script or .NET tool,
 previews of its `main` branch), the one-time setup, building and serving. The commands below also cover the e2e
-suite and the parity diff against the Astro build. Prerequisites: Node 24 and pnpm 11 (for the highlighter worker,
-Pagefind, the asset scripts and Playwright), the .NET SDK 10 or later, and Douze installed as that README describes.
+suite and the parity diff against the Astro build. Prerequisites: the .NET SDK 10 or later and Douze installed as that
+README describes; Node 24 and pnpm 11 only for the scripts that run outside the build (the client bundle, the icon
+sprite, the API data job) and Playwright. The build itself runs no Node ("Node in the build", below).
 
 ```bash
-# once: Node dependencies of the site (Expressive Code + twoslash, Pagefind) and of the Astro folder (the converter,
-# the API index script and Playwright still live there)
-pnpm --dir src/site install
+# once: Node dependencies of the Astro folder (the converter, the API index script, esbuild and the client packages,
+# Playwright); `pnpm --dir src/site install` only for the Node highlighter, an opt-out (see "Code blocks")
 pnpm --dir src/frontend install --frozen-lockfile
 
 # once per change of the API data (daily job): the route index, cross references, search indexes and sidebars
 pnpm --dir src/frontend exec tsx ../site/scripts/api/build-api-index.ts
 
-# the chrome's assets (icon sprite, client bundle with esbuild, stylesheet with lightningcss), after a template change
-cd src/site && node scripts/icons-sprite.mjs && node scripts/build-client.mjs && node scripts/build-css.mjs && cd ../..
+# the chrome's assets (icon sprite, client bundle with esbuild), after a template change; the stylesheet is built by
+# the Douze build itself (Lightning CSS's native binary)
+cd src/site && node scripts/icons-sprite.mjs && node scripts/build-client.mjs && cd ../..
 
 # the site, into StaticHost's web root (what production serves)
 douze -s src/site -o src/statichost/StaticHost/wwwroot
@@ -139,19 +140,98 @@ The specs that cannot pass with the Douze output as they are assume Astro's clie
 decision). Those specs need adjusting on the Astro side first (plan M1): the suite was deliberately not rewritten
 tonight. The rest of the failures are listed under "What is missing".
 
+### Code blocks
+
+Since 2026-10-22 (evening), code blocks are highlighted by Douze's `highlight` step (sebastienros/douze#30): TextMate
+grammars and themes (tm-grammars 1.32.22 and tm-themes 1.12.12, the versions the worker's Shiki 4.5 bundles, inside the
+`douze` binary), tokenized with TextMateSharp on Oniguruma, without Node. It writes Expressive Code's markup from the
+site's templates (`templates/code/block.liquid`, `popup.liquid`, `icon.liquid`), so `assets/css/code.css`, the copy
+button script and the twoslash popup script work unchanged: frames and titles (also from a file name comment), terminal
+frames, line markers with labels, inline markers, diff fences, collapsed sections, line numbers, the copy button
+(`data-disable-copy` kept), the Material icons of titles (read from `.starlight-icons` by the `code-icons` data step),
+the texts of each locale (the `expressiveCode` strings of `data/i18n/<locale>.json`, else `data/code_texts.yml`:
+Expressive Code's English and German), and the twoslash popups of the `twoslash` and `csharp` steps' results (the
+types highlighted as blocks, the JSDoc rendered as Markdown). The colors are Expressive Code's: each theme's token
+colors made readable on the code background and on markers (contrast 5.5, the marker backgrounds of code.css).
+
+The Node worker (`scripts/code-worker.mjs`, Expressive Code) stays as an opt-out: `enabled: true` on the `code` step
+and `enabled: false` on `highlight` in `douze.yml` (Douze's `enabled: false` leaves a step out, so a build without the
+worker needs no Node at all).
+
+**Fidelity.** Every block of every page with code blocks (8,326 pages, 90,884 blocks with the locale copies, 6,212 in
+English), block by block, by `src/site/tests/parity/code-blocks.mjs`: *identical* (same bytes), *equivalent* (same
+elements, attributes and text, and the same color and font style on every character in both themes: only the
+boundaries of the token spans, the escaping of characters or the color of white space differ, which nothing shows),
+or different in *colors* or in *markup*.
+
+| Reference | Blocks | Identical | Equivalent | Colors | Markup |
+|---|---|---|---|---|---|
+| Node worker rendering the same twoslash results (`TWOSLASH: douze`), all locales | 90,884 | 15,584 | 75,285 | 0 | 15 |
+| the same, English | 6,212 | 1,056 | 5,155 | 0 | 1 |
+| Node worker with TypeScript 6 twoslash (yesterday's default, = Astro), all locales | 90,884 | 15,584 | 74,806 | 0 | 494 |
+| the same, English | 6,212 | 1,056 | 5,123 | 0 | 33 |
+
+- The tokens are Shiki's: the color and font style of every character of the 5,906 distinct fences are the same in both
+  themes (and those of 36 fixture snippets of 36 languages in four themes, in Douze's tests). Getting there took
+  reading the grammars into TextMateSharp's rules in Douze (its JSON reader drops numbers and booleans, so
+  `applyEndPatternLast` was lost: Markdown front matter, Groovy), resolving the themes in Douze (TextMateSharp's theme
+  parser breaks parent scope selectors: JSON strings in slack-ochin), and working around an Oniguruma issue in nested
+  negated classes (CSS selectors).
+- Equivalent blocks differ in how the spans nest (Expressive Code nests the spans of the two themes where their tokens
+  differ, `<span style="--1:#002339"><span style="--0:#FFFFFF"> </span>...`, Douze writes one span per run of
+  equal styles, `<span style="--0:#FFFFFF;--1:#002339"> </span>`), in escaping (`&#x22;` and `&quot;`), in the token
+  variables Expressive Code also copies on the twoslash wrapper span (inert: CSS colors only the spans without class),
+  and in the color of indentation (which Douze leaves out).
+- The one markup difference (×15 locales) is a JSDoc comment with `AddBlazorWasmProject<TProject>`: Expressive Code's
+  Markdown drops the `<TProject>` as raw HTML, Douze shows it as text.
+- Against yesterday's default, the other 479 blocks (the 32 English fences and their locale copies) are the twoslash hovers that TypeScript 7
+  words differently (the native twoslash step, "Build time" below): the highlighter renders the popups of Douze's
+  results, so the TypeScript 6 hovers go with the worker.
+- `src/site/tests/parity/diff.mjs` against the Node build of yesterday's default: 57,165 routes on both sides,
+  56,807 pages identical, 358 with text differences, all of them those TypeScript 7 hovers; no code block difference.
+- Playwright, the specs that touch code blocks (`twoslash-navigation`, `custom-components`, `mobile-ux`,
+  `ui-regressions`, `pivot-selector`, `markdown-rendering`; desktop Chromium, StaticHost): the same results with the
+  native step and with the Node worker, 58 passed, 9 failed, 3 skipped; the 9 are the known ones (the client router's
+  history and window state, the scroll-to-top alignment, the API reflow at 320 px), the twoslash spec failing at its
+  client-navigation step after its direct-load hover checks.
+
 ### Build time
 
 | | Astro (`pnpm build` in `src/frontend`) | Douze |
 |---|---|---|
-| Clean build | 8 min 14 s | 2 min 36 s with Node twoslash (the default), 1 min 52 s with the native twoslash step |
+| Clean build | 8 min 14 s | 28 s with the native highlighter (the default); 1 min 55 s to 2 min 40 s with the Node worker |
 | Rebuild, nothing changed | 8 min 14 s | 3 s (every unit replayed from the disk cache, Pagefind's included) |
 | One article changed | 8 min 14 s | a few seconds with `douze watch` / `douze serve` (the page, its twin, the search index) |
 
-Measured on the same machine (Apple Silicon, 12 cores); the Douze rows: see "Before and after the twoslash step" below.
+Measured on the same machine (Apple Silicon, 12 cores); the Douze rows: see "Before and after the native
+highlighter" and "Before and after the twoslash step" below.
 
-Twoslash can come from Douze's `twoslash` step (TypeScript 7's language server; the worker keeps Expressive Code and
-renders the step's results): one word in `douze.yml`, the `code` step's `TWOSLASH: node` (the default for now) or
-`TWOSLASH: douze`. Fidelity of the native step: 291 of the 323 twoslash code blocks of the 78 English
+#### Before and after the native highlighter
+
+Douze `af05edd` (sebastienros/douze#30, native AOT, Satori GC), the site's workflow with the Node worker (`code`) or the
+`highlight` step, into a fresh output folder, interleaved, on 2026-10-22 between 17:42 and 18:00; process-tree RSS
+sampled once per second, as in "Memory". The machine was not quiet: the 1-minute load went
+from 5 to 25 during the series, mostly the file system and Defender scanning the 70,000 files each build writes, which
+loads every variant alike.
+
+| Build | Node worker, TypeScript 6 twoslash (yesterday's default) | Node worker, Douze's twoslash | Native `highlight` (the default) |
+|---|---|---|---|
+| Clean, every cache cold (`--no-cache`, the worker's cache empty) | 158 s, 154 s; tree 11.6, 16.4 GB; `douze` 10.9, 14.6 GB; node 1.9 GB | 117 s, 114 s; tree 13.4, 16.7 GB; `douze` 12.4, 15.6 GB; node 1.0, 1.2 GB | 28 s, 29 s; tree 14.8, 15.0 GB, all `douze` |
+| Clean, the worker's per-fence cache warm (`--no-cache`) | 27 s, 29 s; tree 15.2, 15.4 GB; node 0.5 GB | 27 s, 28 s; tree 16.6, 17.3 GB; node 0.6 GB | (no separate cache: 28 s) |
+| Rebuild, nothing changed (output kept) | 3.1 s; 1.7 GB | | 3.1 s; 1.8 GB |
+| Clean into StaticHost's web root, cache cold, with Pagefind and Lightning CSS native | | | 27 s; 16.3 GB |
+
+- The native step highlights the 8,326 pages (6,212 fences in English, 90,884 with the locale copies, 7,219 distinct)
+  in about 11 s of the build, running in parallel with the other steps, from a cold cache; the tokens of each fence are
+  then memoized in the disk cache, so a changed page highlights only its new fences.
+- A cold build is now as fast as a build with the worker's cache warm: Node's twoslash compilation (the minutes of the
+  TypeScript 6 column) and the worker's 8,326 page round trips are gone.
+- Memory: the `douze` peaks of the two configurations overlap (the Satori GC varies by 2 to 5 GB between runs of one
+  build, "Memory"); the Node worker's 0.5 to 1.9 GB are gone from the tree.
+
+Twoslash comes from Douze's `twoslash` step (TypeScript 7's language server), whose results the `highlight` step
+renders. With the Node worker (the opt-out of "Code blocks"), one word picks who computes them: the `code` step's
+`TWOSLASH: node` (TypeScript 6 in Node, as the Astro build) or `TWOSLASH: douze`. Fidelity of the native step: 291 of the 323 twoslash code blocks of the 78 English
 twoslash pages are byte-identical to the Astro build (323 of 323 with `TWOSLASH: node`); the 32 others differ by
 TypeScript 7's quick info. Of the 5,750 popups of those pages, 54 differ:
 
@@ -171,6 +251,23 @@ calls (836 hovers that differed only by it). The twoslash Playwright spec passes
 fails, as before, at its client-router step. C# and Go hovers (Douze's `csharp` and `go` steps) are wired in
 `douze.yml` but opt-in per fence (`twoslash` in the meta), and no fence opts in: the reference has none, and the
 Expressive Code plugin renders their popups as TypeScript.
+
+### Node in the build
+
+`douze -s src/site` runs no Node any more: code blocks by the `highlight` step, twoslash by the `twoslash` step
+(TypeScript 7), the search index by Pagefind's native binary and the stylesheet by Lightning CSS's (Douze's new
+`tool:` field of command steps downloads them from their npm packages for the platform, integrity pinned, as it does
+TypeScript 7: `douze tools install -s src/site` gets them ahead). What still uses Node, outside the build:
+
+| Script | What it does | Recommended replacement |
+|---|---|---|
+| `scripts/build-client.mjs` | bundles the client scripts with esbuild, with mermaid, tippy.js and asciinema-player from `node_modules` | esbuild's native binary (a `tool:` like Lightning CSS) as a build step; the three packages vendored, or still installed by pnpm (a package manager, no Node at build time) |
+| `scripts/icons-sprite.mjs` | the icon sprite and `icons.css` from the `@iconify-json` packages and Starlight's icons | outputs committed already; port to a C# file-based app or a Douze step reading the iconify JSON when icons change |
+| `scripts/write-build-info.mjs` | `data/build.json` (commit, date) from git | a few lines in the CI, or a Douze site setting for the commit |
+| `scripts/api/build-api-index.ts` (tsx) | the API reference data, with the Astro site's route utilities | the daily data job, outputs committed; port to C# when `src/frontend` goes |
+| `scripts/build-css.mjs` | the stylesheet with the Node binding and a source map | replaced in the build by the `stylesheet` step (`tool: lightningcss`, same output, no source map); kept for a source map |
+| `scripts/code-worker.mjs` | Expressive Code highlighting | replaced by the `highlight` step; kept as the opt-out |
+| Playwright | the e2e suite | stays (a test tool) |
 
 ### Memory
 
@@ -291,6 +388,7 @@ article change rebuilds the page, its twin and the search index) and reloads the
 4. Per-locale Pagefind indexes if wanted; Lunaria replacement (a page over `locale_pages`).
 5. Wire the Douze build into the CI (`build.yml`): publish Douze from the branch, run the workflow, the diff and the
    e2e suite; keep the Astro build until the suite is green.
-6. Douze: cut the per-fence code cache from the worker to a Douze-side cache keyed by fence, per-step profiles of the
-   build. (Twoslash itself moved to Douze's native step: 0.8 s cold.)
+6. Douze: per-step profiles of the build. (Highlighting and twoslash moved to Douze's native steps: a cold build takes
+   28 s.)
+7. Node outside the build: esbuild as a `tool:` step for the client bundle, the icon sprite in C# ("Node in the build").
 
