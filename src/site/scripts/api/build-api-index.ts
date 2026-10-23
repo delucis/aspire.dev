@@ -22,11 +22,12 @@
 //   sidebar/csharp.json, sidebar/typescript.json      sidebars of the landing pages
 //   sidebar/csharp/<package>.json, sidebar/typescript/<module>.json   per package / module sidebars
 //   counts.json                         page counts per route kind, landing page statistics
+//   pkgs/*.json, ts-modules/*.json      copies of the API data, which the pages read (gitignored)
 
-import { mkdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import { cpSync, mkdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 
-import { frontendModule, renderApiReference, siteRoot, type RenderedApiReference } from './frontend.ts';
+import { frontendModule, frontendRoot, renderApiReference, siteRoot, type RenderedApiReference } from './frontend.ts';
 
 type Packages = typeof import('../../../frontend/src/utils/packages.ts');
 type ApiSidebar = typeof import('../../../frontend/src/utils/api-sidebar.ts');
@@ -898,6 +899,11 @@ function sortedObject<T>(record: Record<string, T>): Record<string, T> {
 }
 
 rmSync(outDir, { recursive: true, force: true });
+
+// The pages read the API data as site data: api.pkgs[route.file], api["ts-modules"][route.file].
+for (const folder of ['pkgs', 'ts-modules']) {
+  cpSync(path.join(frontendRoot, 'src/data', folder), path.join(outDir, folder), { recursive: true });
+}
 
 writeJson('routes/indexes.json', [
   { url: `${API}/csharp/`, md: markdownPath(`${API}/csharp/`), language: 'csharp' },

@@ -11,7 +11,9 @@ describes what is generated, the fidelity and the build times.
   Playwright. The build itself runs no Node: Douze highlights the code blocks and downloads Pagefind's and Lightning
   CSS's native binaries on first use.
 - The .NET SDK 10 or later on `PATH`: the C# hovers of the code blocks (`hover-csharp` step).
-- Douze (below).
+- Douze (below). The install script needs `unzip`, `bsdtar` or `python3` to extract the package.
+- About 20 GB of memory for a clean build (a build with the disk cache warm needs about 2 GB): a container or VM
+  with less is killed while the API reference renders.
 
 ## Install Douze
 
@@ -42,11 +44,13 @@ Run from the repository root:
 # Node dependencies of the Astro folder (it still holds the API index script, esbuild and the client packages, Playwright)
 pnpm --dir src/frontend install --frozen-lockfile
 
-# API reference data: route index, cross references, search indexes, sidebars (again when the API data changes)
+# API reference data: route index, cross references, search indexes, sidebars, and the copy of the API data the pages
+# read (again when the API data changes)
 pnpm --dir src/frontend exec tsx ../site/scripts/api/build-api-index.ts
 
-# assets: icon sprite and client bundle (again after a template or script change); the build makes the stylesheet
-(cd src/site && node scripts/icons-sprite.mjs && node scripts/build-client.mjs)
+# assets: icon sprite and client bundle (again after a template or script change), and the build's commit for the
+# footer (again after a commit); the build makes the stylesheet
+(cd src/site && node scripts/icons-sprite.mjs && node scripts/build-client.mjs && node scripts/write-build-info.mjs)
 
 # optional: download the tools the steps need (TypeScript 7, the Roslyn language server, Pagefind, Lightning CSS)
 # ahead of the first build

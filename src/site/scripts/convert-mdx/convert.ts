@@ -172,12 +172,16 @@ if (!option('--in')) {
       mkdirSync(path.dirname(to), { recursive: true });
       cpSync(from, to);
     }
-    // The data files the articles import (integrations/gallery, community/contributors, reference/samples).
-    for (const f of ['aspire-integrations.json', 'integration-docs.json', 'github-stats.json', 'samples.json']) {
+    // The data files the articles import (integrations/gallery, community/contributors, reference/samples, the
+    // community section of the release pages).
+    for (const f of ['aspire-integrations.json', 'integration-docs.json', 'github-stats.json', 'samples.json', 'github-contributors.json', 'release-contributors.json']) {
       const to = path.join(site, 'data', f);
       if (!existsSync(to)) cpSync(path.join(fe, 'data', f), to);
       else if (!readFileSync(to).equals(readFileSync(path.join(fe, 'data', f)))) console.warn(`kept existing src/site/data/${f} (differs)`);
     }
+    // The core team roster of the release pages, a TypeScript module: its list as JSON.
+    const { coreTeam } = await import(pathToFileURL(path.join(fe, 'data', 'core-team.ts')).href);
+    writeIfChanged(path.join(site, 'data', 'core-team.json'), JSON.stringify(coreTeam, null, 2) + '\n');
   }
 }
 
