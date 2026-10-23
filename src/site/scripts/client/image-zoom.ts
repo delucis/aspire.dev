@@ -129,6 +129,8 @@ customElements.define(
 
       // Portal the dialog.
       const portal = document.createElement('div')
+      // The dialog's styles are scoped to the root class: the portal carries it.
+      portal.className = 'cid-image-zoom-image-zoom'
       portal.append(this.#template.content.cloneNode(true))
 
       // Grab a reference to the dialog and the zoomed image figure.
