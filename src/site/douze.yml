@@ -185,6 +185,9 @@ steps:
     uses: paginate
   # The samples' social images (/og/reference/samples/<slug>.png, the og:image of sample.html): the primary thumbnail,
   # or the branded card for the samples without one.
+  # It uses the same font file as 'og': with earlier Douze builds, which copied that font for both steps to the same
+  # temporary file, the build fails on Windows ("a file with a user-mapped section open"); update Douze. To leave the
+  # step out somewhere, 'enabled' takes an expression over os, arch, env and watch, e.g. enabled: "os != 'windows'".
   sample-og:
     needs: paginate
     uses: social-image
