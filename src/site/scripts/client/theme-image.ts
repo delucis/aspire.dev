@@ -17,6 +17,17 @@ function updateThemeImages() {
       }
     }
   });
+  // The pictures of Douze's image tag ({% image light: ..., dark: ... %}) select their dark sources with
+  // prefers-color-scheme: they follow the site's theme instead, which the reader can set apart from the system's.
+  document
+    .querySelectorAll<HTMLSourceElement>('picture > source[media*="prefers-color-scheme: dark"], picture > source[data-dark-media]')
+    .forEach((source) => {
+      source.dataset.darkMedia = '';
+      const media = theme === 'dark' ? 'all' : 'not all';
+      if (source.media !== media) {
+        source.media = media;
+      }
+    });
 }
 
 // Initial set
