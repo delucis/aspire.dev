@@ -1,11 +1,12 @@
 # The Douze workflow of aspire.dev (docs/douze-migration-plan.md, section 3.2).
 #
-# Build: from src/site, after `node scripts/icons-sprite.mjs && node scripts/build-client.mjs && node scripts/build-css.mjs`
-# (the icon sprite, the client bundle and the stylesheet; they write into assets/), run
+# Build: from src/site, after `node scripts/icons-sprite.mjs && node scripts/build-client.mjs` (the icon sprite and the
+# client bundle; they write into assets/), run
 #   douze -s src/site -o src/statichost/StaticHost/wwwroot
-# Node (src/site/node_modules, `pnpm install` in src/site) runs the code highlighting worker (scripts/code-worker.mjs:
-# Expressive Code) and Pagefind. The twoslash results of the TypeScript fences come from Douze's `twoslash` step
-# (TypeScript 7, which Douze downloads on first use; `douze doctor -s src/site` checks it, `douze tools install` gets it).
+# The build itself runs no Node: code blocks are highlighted by Douze's `highlight` step, the twoslash results come
+# from its `twoslash` step (TypeScript 7) and the search index from Pagefind's native binary, tools Douze downloads on
+# first use (`douze doctor -s src/site` checks them, `douze tools install` gets them). The Node worker of Expressive
+# Code (scripts/code-worker.mjs, `pnpm install` in src/site) stays as an opt-out (the `code` step).
 
 site:
   content: content
@@ -46,13 +47,21 @@ steps:
   site-data:    { inputs: ["data/**/*.{yml,json}", "!data/api/sidebar/csharp.json", "!data/api/sidebar/typescript.json"], uses: data, with: { scope: site } }
   folder-data:  { inputs: ["content/**/*.{yml,json}", "!content/icons/**", "!content/reference/api/**"], uses: data, with: { scope: folder, root: content } }
 
-  # Static assets, written as they are (fingerprinting comes with the assets step): the stylesheet, the client bundle,
+  # Static assets, written as they are (fingerprinting comes with the assets step): the client bundle, the CSS sources,
   # the icon sprite, the fonts, the images referenced by the chrome, and the API client scripts at their source path.
   # .well-known/ is the Astro `public` folder's agent skills, served at the root as they are (SKILL.md is not a page).
-  assets:       { inputs: ["assets/**", "scripts/client/api/*.js", ".well-known/**"], uses: write }
+  assets:       { inputs: ["assets/**", "!assets/css/site.css", "!assets/css/site.css.map", "scripts/client/api/*.js", ".well-known/**"], uses: write }
+  # The stylesheet, assets/css/site-entry.css with its imports inlined, minified and lowered for the browsers the Astro
+  # build targeted (Vite's defaults), by the Lightning CSS command line, which Douze downloads (`tool: lightningcss`).
+  # scripts/build-css.mjs does the same with the Node binding (and a source map).
+  stylesheet:   { inputs: ["assets/css/**/*.css", "!assets/css/site.css"], tool: lightningcss, mode: batch,
+                  run: '{{ tool }} --bundle --minify --targets "chrome >= 107, edge >= 107, firefox >= 104, safari >= 16" {{ inputs }}/assets/css/site-entry.css -o {{ outputs }}/assets/css/site.css' }
 
   # Articles. Paths after permalink are urls (content/ is stripped); the locale folders ja/, de/... are the first segment.
-  pages:        { inputs: ["content/**", "!content/**/*.{yml,json}", "!content/reference/api/**", "!content/icons/**", "!content/exports/**"], needs: [site-data, folder-data], uses: frontmatter }
+  # The file icons of the code blocks' titles (templates/code/icon.liquid): the Material Icon Theme data, as
+  # `material-icons` and `language-map`.
+  code-icons:   { inputs: [".starlight-icons/*.json"], uses: data, with: { scope: site, root: .starlight-icons } }
+  pages:        { inputs: ["content/**", "!content/**/*.{yml,json}", "!content/reference/api/**", "!content/icons/**", "!content/exports/**"], needs: [site-data, folder-data, code-icons], uses: frontmatter }
   permalink:    { needs: pages, uses: permalink, with: { root: content } }
   collections:  { needs: permalink, uses: collect, match: ["**/*.md", "index.html"] }   # the root page is HTML
   doc-text:     { needs: permalink, uses: collect, match: ["**/*.md"], with: { name: doc_text, content: true } }   # the Dev Hub catalog reads code fence languages from it
@@ -83,12 +92,11 @@ steps:
   markdown:     { needs: not-found-twin, uses: markdown }
   # The home pages have no heading anchors (their sections are components).
   headings:     { needs: markdown, uses: headings, match: ["**/*.html", "!index.html", "!{da,de,es,fr,hi,id,it,ja,ko,pt-br,ru,tr,uk,zh-cn}/index.html"], with: { anchors: true, wrapper-class: sl-heading-wrapper, anchor-class: sl-anchor-link, anchor-label: "Section titled “{text}”", anchor-html: '<span class="sl-anchor-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12.11 15.39-3.88 3.88a2.52 2.52 0 0 1-3.5 0 2.47 2.47 0 0 1 0-3.5l3.88-3.88a1 1 0 1 0-1.42-1.42l-3.88 3.89a4.48 4.48 0 0 0 6.33 6.33l3.89-3.88a1 1 0 0 0-1.42-1.42m8.58-12.08a4.49 4.49 0 0 0-6.33 0l-3.89 3.88a1 1 0 1 0 1.42 1.42l3.88-3.88a2.52 2.52 0 0 1 3.5 0 2.47 2.47 0 0 1 0 3.5l-3.88 3.88a1 1 0 0 0 0 1.42 1 1 0 0 0 1.42 0l3.88-3.89a4.49 4.49 0 0 0 0-6.33M8.83 15.17a1 1 0 0 0 .71.29 1 1 0 0 0 .71-.29l4.92-4.92a1 1 0 1 0-1.42-1.42l-4.92 4.92a1 1 0 0 0 0 1.42"></path></svg></span>', levels: [2, 3], skip-classes: [not-content] } }   # component headings are not the page's
-  # Twoslash, the hovers of the ```ts twoslash fences: the `code` step's TWOSLASH picks who computes them.
-  #   node (default for now): the worker compiles them with TypeScript 6 in Node, as the Astro site does: byte-identical
-  #     popups, minutes on a cold cache.
-  #   douze: this step checks them with TypeScript 7 against the SDK's declaration bundle (ec.config.mjs has the same
-  #     compiler options) in about a second and writes data-twoslash, which the worker renders. TypeScript 7 words some
-  #     hovers differently (docs/douze-migration-report.md, "Build time").
+  # Twoslash, the hovers of the ```ts twoslash fences: this step checks them with TypeScript 7 against the SDK's
+  # declaration bundle (ec.config.mjs has the same compiler options) in about a second and writes data-twoslash, which
+  # the `highlight` step renders. TypeScript 7 words some hovers differently from the TypeScript 6 of the Astro site
+  # (docs/douze-migration-report.md, "Build time"). With the Node worker (`code`), its TWOSLASH picks who computes them:
+  # node (TypeScript 6 in Node, byte-identical popups, minutes on a cold cache) or douze (this step's results).
   twoslash:     { needs: headings, uses: hover-typescript, match: "**/*.html",
                   with: { files: { ".aspire/modules/aspire.mts": data/twoslash/aspire.d.ts }, compiler: { moduleResolution: bundler, module: esnext, target: esnext, strict: true },
                           handbook: { noErrorValidation: true }, tab-width: 2 } }
@@ -190,7 +198,15 @@ steps:
             aspire.stackexchange.redis: "13.6.2"
             aspire.stackexchange.redis.distributedcaching: "13.6.2"
             aspire.stackexchange.redis.outputcaching: "13.6.2"
-  code:         { needs: csharp, run: "node scripts/code-worker.mjs", mode: worker, match: "**/*.html", sources: ["scripts/code-worker.mjs", "scripts/douze-worker.mjs", "scripts/twoslash-results.mjs", "ec.config.mjs", "data/twoslash/**", "data/i18n/*.json"], with: { cache: .douze/code-cache }, env: { NODE_NO_WARNINGS: "1", TWOSLASH: node }, stderr: warn }
+  # Code highlighting, by Douze's `highlight` step (enabled) or by the Node worker (`code`, Expressive Code: set
+  # `enabled: true` on `code` and `enabled: false` on `highlight`). The native step renders Expressive Code's markup
+  # (templates/code/*.liquid) with the TextMate grammars and themes of the worker's Shiki, and the twoslash popups of
+  # the `twoslash` and `csharp` steps' results; it needs no Node. docs/douze-migration-report.md, "Code blocks", has the
+  # differences. The worker's TWOSLASH picks who computes the TypeScript hovers: node (TypeScript 6 in Node) or douze.
+  highlight:    { needs: csharp, uses: highlight,
+                  with: { themes: [laserwave, slack-ochin], tab-width: 2, templates: { block: code/block.liquid, popup: code/popup.liquid },
+                          markers: { mark: ["#174a9099", "#9ab6ff99"], ins: ["#1e571599", "#8ec77d99"], del: ["#862d2799", "#ff9c8e99"] } } }
+  code:         { needs: highlight, enabled: false, run: "node scripts/code-worker.mjs", mode: worker, match: "**/*.html", sources: ["scripts/code-worker.mjs", "scripts/douze-worker.mjs", "scripts/twoslash-results.mjs", "ec.config.mjs", "data/twoslash/**", "data/i18n/*.json"], with: { cache: .douze/code-cache }, env: { NODE_NO_WARNINGS: "1", TWOSLASH: node }, stderr: warn }
 
   # API reference: one template per route paginates its route list (size 1); the .html templates render the pages, the
   # *-md.html templates the Markdown twins (permalink: "{{ route.md }}", layout: false, rendered without HTML encoding).
@@ -210,16 +226,17 @@ steps:
   layout:       { needs: code, uses: layout, with: { includes: templates/layouts } }
   api-layout:   { needs: api-render-md, uses: layout, with: { includes: templates/layouts } }
   # Pagefind over the pages it indexes (those with data-pagefind-body: the root locale's articles, the hub, the
-  # reference pages but the API's, which have none): the CLI (lib/runner/bin.cjs; lib/index.js is the Node API) over
-  # the laid out pages written to a temporary folder, its index read back as files for `write`. A batch step is one
-  # unit: replayed from the cache while no page changed, and run concurrently with the API layout and the write.
-  # Its index has its own write step (`search-write`): `write` needing it would wait for it; the pages that `search`
-  # does not match pass through it to `search-write`, which leaves them (`write` has them from `layout`).
-  search:       { needs: layout, run: "node node_modules/pagefind/lib/runner/bin.cjs --site {{ inputs }} --output-path {{ outputs }}/pagefind", mode: batch,
+  # reference pages but the API's, which have none): its native binary (the extended build, which Douze downloads:
+  # `tool: pagefind`, the version of package.json) over the laid out pages written to a temporary folder, its index
+  # read back as files for `write`. A batch step is one unit: replayed from the cache while no page changed, and run
+  # concurrently with the API layout and the write. Its index has its own write step (`search-write`): `write` needing
+  # it would wait for it; the pages that `search` does not match pass through it to `search-write`, which leaves them
+  # (`write` has them from `layout`).
+  search:       { needs: layout, tool: pagefind, run: "{{ tool }} --site {{ inputs }} --output-path {{ outputs }}/pagefind", mode: batch,
                   match: ["**/*.html", "!reference/api/**", "!{da,de,es,fr,hi,id,it,ja,ko,pt-br,ru,tr,uk,zh-cn}/**"],
-                  sources: ["node_modules/pagefind/package.json"], timeout: 20m, stderr: warn }
+                  timeout: 20m, stderr: warn }
   # Static files of the content folder that the pages step leaves out (JSON is data there): the Mermaid icon pack
   # (scripts/client/from-frontend/config/icon-packs.mjs loads /icons/aspire.json).
   static:       { inputs: ["content/icons/**"], uses: permalink, with: { root: content } }
-  write:        { needs: [layout, api-layout, assets, static], uses: write }
+  write:        { needs: [layout, api-layout, assets, stylesheet, static], uses: write }
   search-write: { needs: search, uses: write, match: "pagefind/**" }
