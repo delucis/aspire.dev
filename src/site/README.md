@@ -11,30 +11,20 @@ describes what is generated, the fidelity and the build times.
   Playwright. The build itself runs no Node: Douze highlights the code blocks and downloads Pagefind's and Lightning
   CSS's native binaries on first use.
 - The .NET SDK 10 or later on `PATH`: the C# hovers of the code blocks (`hover-csharp` step).
-- Douze (below). The install script needs `unzip`, `bsdtar` or `python3` to extract the package.
+- Douze (below).
 - About 20 GB of memory for a clean build (a build with the disk cache warm needs about 2 GB): a container or VM
   with less is killed while the API reference renders.
 
 ## Install Douze
 
-With the install script, which downloads the native build into `~/.douze` (`%LOCALAPPDATA%\douze` on Windows) and
-adds it to the `PATH` (open a new terminal afterwards; running it again updates Douze):
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/sebastienros/douze/main/install.sh | sh -s -- --preview
-```
-
-```powershell
-& ([scriptblock]::Create((irm https://raw.githubusercontent.com/sebastienros/douze/main/install.ps1))) -Preview
-```
-
-Or as a .NET tool (also the native build):
+As a .NET tool (the native build), from Douze's preview feed:
 
 ```bash
 dotnet tool install -g douze --prerelease --add-source https://f.feedz.io/sebastienros/douze/nuget/index.json
 ```
 
-`douze --version` checks it. Douze's previews are published from its `main` branch.
+`dotnet tool update` with the same options updates it, and `douze --version` checks it. Douze's previews are published
+from its `main` branch.
 
 ## Set up the repository once
 
