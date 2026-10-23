@@ -102,6 +102,27 @@ export function getTsHandleMethod<M extends TsRouteCallableLike, H extends { cap
   return { parentType, method };
 }
 
+/**
+ * Resolve a top-level item from its kind and position. Item routes pass indexes
+ * through `props` so rendering reads the item from the loaded document, where its
+ * slug index lives, rather than from a structured clone made for a prerender worker.
+ */
+export function getTsRouteItem<T extends TsTopLevelRouteItemLike>(
+  doc: { handleTypes?: T[]; dtoTypes?: T[]; enumTypes?: T[]; functions?: T[] },
+  kind: 'handle' | 'dto' | 'enum' | 'function',
+  index: number
+): T {
+  const items = kind === 'handle' ? doc.handleTypes
+    : kind === 'dto' ? doc.dtoTypes
+    : kind === 'enum' ? doc.enumTypes
+    : getTsStandaloneFunctions(doc);
+  const item = items?.[index];
+  if (!item) {
+    throw new Error(`TypeScript ${kind} ${index} was not found.`);
+  }
+  return item;
+}
+
 export function tsSlugify(name: string): string {
   return name
     .toLowerCase()
