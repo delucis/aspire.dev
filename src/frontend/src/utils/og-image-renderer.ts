@@ -1,9 +1,10 @@
-import { readFile } from 'node:fs/promises';
+import { readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
 import satori from 'satori';
 import sharp from 'sharp';
 
+import { cacheDir } from 'astro:config/server';
 import { DEFAULT_OG_IMAGE_HEIGHT, DEFAULT_OG_IMAGE_WIDTH } from './page-metadata.ts';
 import type { TopicMetadata } from './topic-resolver.ts';
 
@@ -32,6 +33,8 @@ import type { TopicMetadata } from './topic-resolver.ts';
 
 const FONTS_DIR = path.join('src', 'assets', 'fonts');
 const BG_IMAGE_PATH = path.join('public', 'og-image.png');
+const REGULAR_FONT_PATH = path.resolve(FONTS_DIR, 'Outfit-Regular.ttf');
+const BOLD_FONT_PATH = path.resolve(FONTS_DIR, 'Outfit-Bold.ttf');
 
 const CARD_BG = 'rgba(15, 14, 30, 0.82)';
 const DESCRIPTION_BG = 'rgba(15, 14, 30, 0.68)';
@@ -55,6 +58,39 @@ export interface RenderOgImageInput {
 }
 
 export async function renderOgImagePng(input: RenderOgImageInput): Promise<Buffer> {
+  // Array of all inputs that are used to render the Open Graph image.
+  // If these don’t change, the image won’t change, and we can reuse a cached file.
+  const inputs = [
+    input.title,
+    input.description,
+    input.topic.id,
+    input.topic.label,
+    input.topic.iconName,
+    input.topic.iconSvg,
+    REGULAR_FONT_PATH,
+    BOLD_FONT_PATH,
+    BG_IMAGE_PATH,
+  ].join('|');
+
+  // Generate a SHA-256 hash of the inputs to use as the cache key.
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(inputs));
+  const inputsHash = Array.from(new Uint8Array(buf))
+    .map((b) => b.toString(16).padStart(2, '0'))
+    .join('');
+
+  // Cache directory path for the generated Open Graph image.
+  const outputPath = new URL(`${inputsHash}.png`, cacheDir);
+
+  // Try to load the image from the cache and return it if it exists.
+  const cachedImage = await readFile(outputPath).catch(() => null);
+  if (cachedImage) {
+    globalThis.ogCacheHits ??= 0;
+    globalThis.ogCacheHits++
+    return cachedImage;
+  }
+  globalThis.ogCacheMisses ??= 0;
+  globalThis.ogCacheMisses++
+
   const [regularFont, boldFont, backgroundDataUri] = await Promise.all([
     loadRegularFont(),
     loadBoldFont(),
@@ -83,7 +119,9 @@ export async function renderOgImagePng(input: RenderOgImageInput): Promise<Buffe
     },
   });
 
-  return sharp(Buffer.from(svg)).png({ compressionLevel: 9 }).toBuffer();
+  const outputBuffer = await sharp(Buffer.from(svg)).png({ compressionLevel: 9 }).toBuffer();
+  await writeFile(outputPath, outputBuffer).catch(() => null);
+  return outputBuffer;
 }
 
 const TWEMOJI_BASE = 'https://cdn.jsdelivr.net/gh/twitter/twemoji@latest/assets/svg';
@@ -148,14 +186,14 @@ function emojiToTwemojiCodepoint(emoji: string): string {
 
 function loadRegularFont(): Promise<Buffer> {
   if (!regularFontPromise) {
-    regularFontPromise = readFile(path.resolve(FONTS_DIR, 'Outfit-Regular.ttf'));
+    regularFontPromise = readFile(REGULAR_FONT_PATH);
   }
   return regularFontPromise;
 }
 
 function loadBoldFont(): Promise<Buffer> {
   if (!boldFontPromise) {
-    boldFontPromise = readFile(path.resolve(FONTS_DIR, 'Outfit-Bold.ttf'));
+    boldFontPromise = readFile(BOLD_FONT_PATH);
   }
   return boldFontPromise;
 }
@@ -404,4 +442,3 @@ export function __setRendererCachesForTests(overrides: {
     ? Promise.resolve(overrides.background)
     : backgroundDataUriPromise;
 }
-

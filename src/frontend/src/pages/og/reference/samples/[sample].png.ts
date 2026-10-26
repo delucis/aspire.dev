@@ -1,7 +1,8 @@
-import { readFile } from 'node:fs/promises';
+import { readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
 import type { APIRoute } from 'astro';
+import { cacheDir } from 'astro:config/server';
 import sharp from 'sharp';
 
 import samplesJson from '@data/samples.json';
@@ -87,14 +88,29 @@ function sampleCardDescription(sample: Sample): string | undefined {
 async function renderSampleOgPng(sample: Sample): Promise<Buffer> {
   const thumbnail = primaryThumbnail(sample.thumbnail);
   if (thumbnail) {
-    const source = await readFile(resolveThumbnailPath(thumbnail));
-    return sharp(source)
+    const thumbnailPath = resolveThumbnailPath(thumbnail);
+    const cachePath = new URL(`${Buffer.from(thumbnailPath).toString('base64')}.png`, cacheDir);
+
+    // Try to load the image from the cache and return it if it exists.
+    const cachedImage = await readFile(cachePath).catch(() => null);
+    if (cachedImage) {
+      globalThis.ogCacheHits ??= 0;
+      globalThis.ogCacheHits++;
+      return cachedImage;
+    }
+    globalThis.ogCacheMisses ??= 0;
+    globalThis.ogCacheMisses++;
+
+    const source = await readFile(thumbnailPath);
+    const outputBuffer = await sharp(source)
       .resize(DEFAULT_OG_IMAGE_WIDTH, DEFAULT_OG_IMAGE_HEIGHT, {
         fit: 'cover',
         position: 'center',
       })
       .png()
       .toBuffer();
+    await writeFile(cachePath, outputBuffer).catch(() => null);
+    return outputBuffer;
   }
 
   return renderOgImagePng({
